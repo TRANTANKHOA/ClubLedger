@@ -16,6 +16,7 @@ import com.example.data.repository.ClubRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.Calendar
+import java.util.Locale
 
 data class MemberSummary(
     val user: User,
@@ -433,7 +434,11 @@ class ClubViewModel(application: Application) : AndroidViewModel(application) {
         description: String,
         amount: Double,
         periodMonth: Int,
-        periodYear: Int
+        periodYear: Int,
+        category: String = "COURT_RENTAL",
+        attachmentUrl: String? = null,
+        attachmentType: String? = "RECEIPT_IMAGE",
+        attachmentName: String? = null
     ) {
         val admin = _currentUser.value ?: return
         viewModelScope.launch {
@@ -445,11 +450,16 @@ class ClubViewModel(application: Application) : AndroidViewModel(application) {
                     totalAmount = amount,
                     periodMonth = periodMonth,
                     periodYear = periodYear,
+                    category = category,
+                    attachmentUrl = attachmentUrl,
+                    attachmentType = attachmentType,
+                    attachmentName = attachmentName,
+                    declaredByUserId = admin.id,
                     status = "APPROVED"
                 ),
                 adminId = admin.id
             )
-            _snackbarMessage.value = "Budget created successfully."
+            _snackbarMessage.value = "Cost item & budget declared: $title ($${String.format(Locale.US, "%.2f", amount)})"
         }
     }
 

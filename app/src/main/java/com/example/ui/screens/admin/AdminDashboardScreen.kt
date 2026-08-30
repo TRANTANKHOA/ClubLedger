@@ -45,6 +45,7 @@ fun AdminDashboardScreen(
     val teamStats by viewModel.teamDashboardStats.collectAsState()
     val allTeams by viewModel.allTeams.collectAsState()
     val allUsers by viewModel.allUsers.collectAsState()
+    val budgets by viewModel.allBudgets.collectAsState()
 
     var showBatchAttendanceDialog by remember { mutableStateOf(false) }
     var showPaymentRequestDialog by remember { mutableStateOf(false) }
@@ -129,19 +130,19 @@ fun AdminDashboardScreen(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 StatKpiCard(
-                    title = "Outstanding Due",
-                    value = "$${String.format(Locale.US, "%.2f", totalOutstandingOwing)}",
-                    subtitle = "${memberSummaries.count { it.balance < -0.01 }} members owe fees",
-                    icon = Icons.Default.MoneyOff,
-                    containerColor = if (totalOutstandingOwing > 0) ErrorContainer.copy(alpha = 0.6f) else SurfaceCard,
-                    iconColor = ErrorRed,
+                    title = "Total Incurred Costs",
+                    value = "$${String.format(Locale.US, "%.2f", budgets.sumOf { it.totalAmount })}",
+                    subtitle = "${budgets.size} declared budget items",
+                    icon = Icons.Default.ReceiptLong,
+                    containerColor = SecondaryNavy.copy(alpha = 0.08f),
+                    iconColor = SecondaryNavy,
                     modifier = Modifier.weight(1f)
                 )
 
                 StatKpiCard(
-                    title = "Collected Fees",
+                    title = "Total Member Collections",
                     value = "$${String.format(Locale.US, "%.2f", totalCollected)}",
-                    subtitle = "Approved & deposited",
+                    subtitle = "Approved member deposits",
                     icon = Icons.Default.Savings,
                     containerColor = SuccessContainer.copy(alpha = 0.6f),
                     iconColor = SuccessGreen,

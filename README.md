@@ -2,6 +2,8 @@
 
 **ClubLedger** is an Android application built with Jetpack Compose and Room Database designed for community sports clubs, recreation teams, and amateur leagues. It automates attendance tracking, member payments, treasury balances, and proportional budget cost allocations.
 
+> 📖 **GitHub Pages Documentation Hub**: Inspect the full interactive web documentation with decomposed modules for **✨ Overview**, **🏛️ Architecture**, **🔄 Portability**, **🛡️ Distributed Defense**, and **🚀 Production** at `showcase.html` (or deployed via GitHub Pages).
+
 ---
 
 ## 👥 Target User Personas
@@ -353,6 +355,78 @@ ClubLedger includes **Firebase Cloud Firestore** and **Multi-Provider Cloud Auth
    - Toggle **Firebase Real-Time Sync** ON.
    - Tap **Google**, **Apple**, or **Facebook** to link your verified social identity to audit records.
    - Tap **Push to Cloud** to broadcast local rosters and budgets, or listen for incoming updates from teammates in real-time.
+
+---
+
+---
+
+## 💰 Financial Formulas & Treasury Management
+
+### 1. Total Monthly Budget (Sum of Incurred Costs)
+The **Total Monthly Budget** for any billing cycle is the exact sum of all operational costs incurred by the team during that period:
+
+$$\text{Total Monthly Budget} = \sum_{i=1}^{n} \text{Incurred Cost Item}_i$$
+
+$$\text{Total Monthly Budget} = \text{Pitch Rental} + \text{Referee Fees} + \text{Tournament Entry} + \text{Equipment / Match Balls} + \text{Training Gear}$$
+
+### 2. Total Member Collections
+The sum of all verified and deposited funds contributed by team members is officially termed **Total Member Collections**:
+
+$$\text{Total Member Collections} = \sum \text{Approved Member Deposits / Payments}$$
+
+### 3. Net Team Treasury Position
+The overall solvency of the team is derived in real time:
+
+$$\text{Net Treasury Position} = \text{Total Member Collections} - \text{Total Incurred Costs}$$
+
+* **Surplus ($> \$0.00$)**: The team treasury has a positive reserve carried forward into future months.
+* **Deficit ($< \$0.00$)**: Member collections are pending or outstanding dues must be settled.
+
+---
+
+## 🧾 Team Admin Cost Item Declaration & Member Receipt Sharing
+
+Team Admins and Treasurers can declare incurred expenses in real time and share itemized proofs (receipt screenshots, signed rental agreements, and PDF invoices) directly with squad members:
+
+```
+┌─────────────────────────┐       ┌──────────────────────────────┐       ┌─────────────────────────┐
+│ 1. Admin Declares Cost  │ ────► │ 2. Attaches Proof / Invoice  │ ────► │ 3. Shared with Members  │
+│ Title, Category, Amount │       │ Screenshot / Signed PDF      │       │ Visible in App Invoices │
+└─────────────────────────┘       └──────────────────────────────┘       └─────────────────────────┘
+```
+
+1. **Declare Expense**: Admin taps **"Declare Cost Item"** on the Team Budgets tab, selects the expense category (`COURT_RENTAL`, `TOURNAMENT`, `EQUIPMENT`, `COACHING_REFS`), inputs the amount, and writes descriptive notes.
+2. **Attach Proof**: Admin selects or uploads receipt proof (e.g. `Pitch_Rental_Signed_Invoice.pdf` or `Sports_Store_Receipt.jpg`).
+3. **Generate & Share**: Generating the invoice automatically publishes the cost item to all squad members.
+4. **Member Verification**: Members open their **"My Invoices & Cost Allocations"** screen, tap **"View Attached Proof"**, inspect the high-resolution receipt, and review the exact attendance-based formula calculation breakdown before settling their dues.
+
+---
+
+## 📚 Documentation Structure & Training Curriculum
+
+ClubLedger's documentation is divided into structured modules, operational training sessions, and coverage topics to facilitate onboarding for both club leadership and playing members:
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                   CLUBLEDGER DOCUMENTATION STRUCTURE                   │
+├──────────────────────┬─────────────────────────┬───────────────────────┤
+│ Module A: Governance │ Module B: Treasury & Fin │ Module C: Operations  │
+│ • Role Hierarchy     │ • Budget Incurred Costs │ • Attendance Tracking │
+│ • Superset Access    │ • Member Collections    │ • Fixture Management  │
+│ • Audit Trails       │ • Proportional Engine   │ • Dispute Resolution  │
+└──────────────────────┴─────────────────────────┴───────────────────────┘
+```
+
+### 🗓️ Training Sessions & Coverage Topics
+
+| Session # | Session Title | Primary Audience | Coverage Topics |
+| :---: | :--- | :--- | :--- |
+| **Session 1** | **Foundations & Role Hierarchy** | All Users | • Dual-role Member vs. Admin architecture<br>• Superset permissions (Global Admin ➔ Team Admin ➔ Captain ➔ Member)<br>• Team invite links and squad rosters |
+| **Session 2** | **Attendance Tracking & Quick-Marking** | Captains & Coaches | • Member self check-in submissions<br>• 1-Tap Coach Roster Quick-Marking<br>• Approval and rejection workflow with audit notes |
+| **Session 3** | **Cost Incurrence & Receipt Sharing** | Treasurers & Admins | • Defining Total Monthly Budget as sum of incurred costs<br>• Cost item declaration (Pitch rental, tournament entry, referees, equipment)<br>• Attaching PDF invoices and screenshot proofs for squad transparency |
+| **Session 4** | **Proportional Cost Allocation Engine** | Admins & Members | • Attendance-weighted formula calculation<br>• Automatic Zero-Attendance \$0 exemption<br>• Dynamic mid-month recalculations upon attendance revisions |
+| **Session 5** | **Member Collections & Running Ledger** | Treasurers & Members | • Multi-channel payment logging (Zelle, Venmo, Bank Transfer, Cash)<br>• Admin deposit approval & immutable ledger debits/credits<br>• Tracking Total Member Collections vs. Incurred Costs |
+| **Session 6** | **Dispute Resolution & Audit Compliance** | Admins & Members | • Submitting and adjudicating invoice/attendance disputes<br>• Manual ledger adjustments with mandatory reasoning<br>• 1-Click CSV exports for AGM bookkeeping |
 
 ---
 

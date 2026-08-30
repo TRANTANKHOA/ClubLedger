@@ -18,8 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.data.entity.InvoiceAllocation
-import com.example.data.entity.User
+import com.example.data.entity.*
 import com.example.ui.components.CostCalculationDialog
 import com.example.ui.components.RaiseDisputeDialog
 import com.example.ui.components.StatusChip
@@ -43,6 +42,7 @@ fun MemberInvoicesScreen(
 
     var selectedAllocationForExplanation by remember { mutableStateOf<InvoiceAllocation?>(null) }
     var selectedAllocationForDispute by remember { mutableStateOf<InvoiceAllocation?>(null) }
+    var selectedInvoiceForProof by remember { mutableStateOf<Invoice?>(null) }
 
     val totalAllocated = allocations.sumOf { it.allocatedAmount }
 
@@ -184,7 +184,40 @@ fun MemberInvoicesScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Column {
+                            Column(modifier = Modifier.weight(1f)) {
+                                if (invoice?.category != null) {
+                                    Surface(
+                                        color = when (invoice.category) {
+                                            "COURT_RENTAL" -> PrimaryContainer
+                                            "TOURNAMENT" -> WarningContainer
+                                            "EQUIPMENT" -> InfoContainer
+                                            "COACHING_REFS" -> SecondaryContainer
+                                            else -> Color(0xFFF1F5F9)
+                                        },
+                                        shape = RoundedCornerShape(6.dp)
+                                    ) {
+                                        Text(
+                                            text = when (invoice.category) {
+                                                "COURT_RENTAL" -> "🏟️ COURT RENTAL"
+                                                "TOURNAMENT" -> "🏆 TOURNAMENT"
+                                                "EQUIPMENT" -> "⚽ EQUIPMENT"
+                                                "COACHING_REFS" -> "👨‍🏫 COACH/REF"
+                                                "TRANSPORT" -> "🚌 TRANSPORT"
+                                                else -> "📦 OPERATING"
+                                            },
+                                            style = MaterialTheme.typography.labelSmall,
+                                            fontWeight = FontWeight.Bold,
+                                            color = when (invoice.category) {
+                                                "COURT_RENTAL" -> PrimaryDark
+                                                "TOURNAMENT" -> WarningAmber
+                                                "EQUIPMENT" -> InfoBlue
+                                                else -> TextPrimary
+                                            },
+                                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                }
                                 Text(
                                     text = invoice?.title ?: "Team Budget Invoice",
                                     style = MaterialTheme.typography.titleLarge,
@@ -224,6 +257,44 @@ fun MemberInvoicesScreen(
                                 Column(horizontalAlignment = Alignment.End) {
                                     Text("Team Share", style = MaterialTheme.typography.labelMedium, color = TextSecondary)
                                     Text("${alloc.percentage}%", fontWeight = FontWeight.Bold, color = PrimaryGreen)
+                                }
+                            }
+                        }
+
+                        // Receipt proof button
+                        if (invoice != null) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Surface(
+                                color = Color.White,
+                                shape = RoundedCornerShape(8.dp),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        selectedInvoiceForProof = invoice
+                                    }
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(Icons.Default.ReceiptLong, contentDescription = null, tint = PrimaryGreen, modifier = Modifier.size(18.dp))
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text(
+                                            text = invoice.attachmentName ?: "Invoice_Proof_Receipt.pdf",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = PrimaryDark
+                                        )
+                                    }
+                                    Text(
+                                        text = "View Attached Proof >",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        color = PrimaryGreen
+                                    )
                                 }
                             }
                         }
@@ -338,6 +409,19 @@ fun MemberInvoicesScreen(
                 )
                 selectedAllocationForDispute = null
             }
+        )
+    }
+
+    selectedInvoiceForProof?.let { inv ->
+        val team = teams.firstOrNull { it.id == inv.teamId }
+        val matchingAllocation = allocations.firstOrNull { it.invoiceId == inv.id }
+        com.example.ui.components.ViewInvoiceAttachmentDialog(
+            invoice = inv,
+            team = team,
+            onDismiss = { selectedInvoiceForProof = null },
+            onRaiseDispute = if (matchingAllocation != null) {
+                { selectedAllocationForDispute = matchingAllocation }
+            } else null
         )
     }
 }

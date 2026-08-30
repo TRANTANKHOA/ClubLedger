@@ -27,7 +27,7 @@ import java.util.Calendar
         Dispute::class,
         TeamJoinRequest::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class ClubDatabase : RoomDatabase() {
@@ -333,6 +333,11 @@ abstract class ClubDatabase : RoomDatabase() {
                 totalAmount = 1500.0,
                 title = "Facility Pitch Rental & Referee Fees",
                 description = "Pitch rental (4 weeks) + Match referee stipends + Match balls",
+                category = "COURT_RENTAL",
+                attachmentUrl = "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&auto=format&fit=crop&q=60",
+                attachmentType = "RECEIPT_IMAGE",
+                attachmentName = "Riverside_Pitch_Rental_Receipt_Signed.pdf",
+                declaredByUserId = 1,
                 status = "INVOICED",
                 createdAt = now - 20 * oneDay
             )
@@ -347,6 +352,10 @@ abstract class ClubDatabase : RoomDatabase() {
                 totalAmount = 1500.0,
                 periodMonth = currentMonth,
                 periodYear = currentYear,
+                category = "COURT_RENTAL",
+                attachmentUrl = "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&auto=format&fit=crop&q=60",
+                attachmentType = "RECEIPT_IMAGE",
+                attachmentName = "Riverside_Pitch_Rental_Receipt_Signed.pdf",
                 status = "ISSUED",
                 issuedAt = now - 15 * oneDay,
                 totalApprovedSessions = 30,

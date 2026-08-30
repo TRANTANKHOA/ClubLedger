@@ -75,6 +75,11 @@ data class TeamBudget(
     val totalAmount: Double,
     val title: String,
     val description: String = "",
+    val category: String = "COURT_RENTAL", // "COURT_RENTAL", "TOURNAMENT", "EQUIPMENT", "COACHING_REFS", "TRANSPORT", "OTHER"
+    val attachmentUrl: String? = null,
+    val attachmentType: String? = "RECEIPT_IMAGE", // "RECEIPT_IMAGE", "PDF_INVOICE", "EXTERNAL_URL"
+    val attachmentName: String? = null,
+    val declaredByUserId: Long? = null,
     val status: String = "APPROVED", // "DRAFT", "APPROVED", "INVOICED", "CANCELLED"
     val createdAt: Long = System.currentTimeMillis()
 )
@@ -89,6 +94,10 @@ data class Invoice(
     val totalAmount: Double,
     val periodMonth: Int,
     val periodYear: Int,
+    val category: String = "COURT_RENTAL",
+    val attachmentUrl: String? = null,
+    val attachmentType: String? = "RECEIPT_IMAGE",
+    val attachmentName: String? = null,
     val status: String = "ISSUED", // "DRAFT", "ISSUED", "PAID_OUT", "CANCELLED"
     val issuedAt: Long = System.currentTimeMillis(),
     val totalApprovedSessions: Int = 0,
