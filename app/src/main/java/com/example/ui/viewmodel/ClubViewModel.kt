@@ -5,6 +5,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.database.ClubDatabase
 import com.example.data.entity.*
+import com.example.data.model.PermissionEngine
+import com.example.data.model.RoleConstants
+import com.example.data.model.UserRoleProfile
 import com.example.data.remote.AuthState
 import com.example.data.remote.CloudSyncState
 import com.example.data.remote.FirebaseAuthManager
@@ -44,6 +47,11 @@ class ClubViewModel(application: Application) : AndroidViewModel(application) {
         repository = ClubRepository(db.clubDao())
         firestoreSyncManager = FirestoreSyncManager(application, db.clubDao(), viewModelScope)
         authManager = FirebaseAuthManager(application)
+
+        // Ensure Marcus has all access, team memberships, and roles that Sarah has
+        viewModelScope.launch {
+            repository.syncUserAccess(sourceUserId = 3, targetUserId = 4)
+        }
     }
 
     // Cloud Multi-User Sync & Auth States
@@ -114,6 +122,9 @@ class ClubViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList()
     )
     val allTeams: StateFlow<List<Team>> = repository.allTeams.stateIn(
+        viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList()
+    )
+    val allMemberships: StateFlow<List<TeamMembership>> = repository.allMemberships.stateIn(
         viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList()
     )
     val allBudgets: StateFlow<List<TeamBudget>> = repository.allBudgets.stateIn(
@@ -234,6 +245,33 @@ class ClubViewModel(application: Application) : AndroidViewModel(application) {
     ) { user, disputes ->
         if (user == null) emptyList()
         else disputes.filter { it.userId == user.id }.sortedByDescending { it.createdAt }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val currentUserMemberships = combine(
+        currentUser,
+        allMemberships
+    ) { user, memberships ->
+        if (user == null) emptyList()
+        else memberships.filter { it.userId == user.id }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val currentUserIsGlobalAdmin = currentUser.map { user ->
+        PermissionEngine.isGlobalAdmin(user)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    val currentUserHasLeadershipRole = combine(
+        currentUser,
+        allMemberships
+    ) { user, memberships ->
+        PermissionEngine.hasAnyLeadershipRole(user, memberships)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    val currentUserLedTeamIds = combine(
+        currentUser,
+        allMemberships,
+        allTeams
+    ) { user, memberships, teams ->
+        PermissionEngine.getLedTeamIds(user, memberships, teams.map { it.id })
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     // Club-wide Member summaries for Admin
@@ -479,6 +517,23 @@ class ClubViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun recordBatchAttendance(
+        teamId: Long,
+        sessionDate: Long,
+        sessionType: String,
+        notes: String,
+        presentUserIds: List<Long>
+    ) {
+        recordBatchOwnerAttendance(teamId, sessionDate, sessionType, notes, presentUserIds)
+    }
+
+    fun joinTeam(userId: Long, teamId: Long, role: String = "MEMBER") {
+        viewModelScope.launch {
+            repository.joinTeam(userId, teamId, role)
+            _snackbarMessage.value = "User assigned to team with role '$role'."
+        }
+    }
+
     fun issuePaymentRequest(
         userIds: List<Long>,
         title: String,
@@ -683,5 +738,39 @@ class ClubViewModel(application: Application) : AndroidViewModel(application) {
     fun getLedgerCsvString(): String {
         val usersMap = allUsers.value.associateBy { it.id }
         return repository.generateLedgerCsv(allLedgerEntries.value, usersMap)
+    }
+
+    fun syncUserAccess(sourceUserId: Long, targetUserId: Long) {
+        viewModelScope.launch {
+            repository.syncUserAccess(sourceUserId, targetUserId)
+            _snackbarMessage.value = "Permissions and team access synchronized successfully."
+        }
+    }
+
+    fun updateUserRole(userId: Long, newRole: String) {
+        viewModelScope.launch {
+            repository.updateUserRole(userId, newRole)
+            _snackbarMessage.value = "User role updated to $newRole."
+        }
+    }
+
+    fun updateTeamMembershipRole(userId: Long, teamId: Long, newRole: String) {
+        viewModelScope.launch {
+            repository.updateTeamMembershipRole(userId, teamId, newRole)
+            _snackbarMessage.value = "Team role updated to $newRole."
+        }
+    }
+
+    fun hasTeamAdminAccess(teamId: Long): Boolean {
+        return PermissionEngine.hasTeamAdminAccess(_currentUser.value, teamId, allMemberships.value)
+    }
+
+    fun hasTeamCaptainAccess(teamId: Long): Boolean {
+        return PermissionEngine.hasTeamCaptainAccess(_currentUser.value, teamId, allMemberships.value)
+    }
+
+    fun getUserRoleBadge(user: User): String {
+        val teamsMap = allTeams.value.associateBy { it.id }
+        return PermissionEngine.formatMultiRoleBadge(user, allMemberships.value, teamsMap)
     }
 }

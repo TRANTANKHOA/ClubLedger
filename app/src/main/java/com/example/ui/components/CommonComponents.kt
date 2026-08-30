@@ -102,6 +102,7 @@ fun UserRoleSwitcherHeader(
     onRegisterClick: () -> Unit,
     onJoinTeamClick: (() -> Unit)? = null,
     cloudSyncState: com.example.data.remote.CloudSyncState? = null,
+    getUserRoleBadge: ((User) -> String)? = null,
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -137,10 +138,13 @@ fun UserRoleSwitcherHeader(
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
+                        val roleText = getUserRoleBadge?.invoke(currentUser) ?: if (currentUser.role == "ADMIN") "Club Admin 👑" else "Team Member ⚽"
                         Text(
-                            text = if (currentUser.role == "ADMIN") "Club Admin 👑" else "Team Member ⚽",
+                            text = roleText,
                             color = Color(0xFF94A3B8),
-                            style = MaterialTheme.typography.labelMedium
+                            style = MaterialTheme.typography.labelMedium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                     Spacer(modifier = Modifier.width(6.dp))
@@ -160,7 +164,7 @@ fun UserRoleSwitcherHeader(
                 onDismissRequest = { expanded = false }
             ) {
                 Text(
-                    text = "SWITCH USER PROFILE",
+                    text = "SWITCH USER PROFILE & ROLES",
                     style = MaterialTheme.typography.labelMedium,
                     color = TextSecondary,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
@@ -177,8 +181,9 @@ fun UserRoleSwitcherHeader(
                                         text = user.name,
                                         fontWeight = if (user.id == currentUser?.id) FontWeight.Bold else FontWeight.Normal
                                     )
+                                    val userBadge = getUserRoleBadge?.invoke(user) ?: user.role
                                     Text(
-                                        text = "${user.role} • ${user.email}",
+                                        text = "$userBadge • ${user.email}",
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = TextSecondary
                                     )

@@ -32,7 +32,9 @@ import com.example.data.entity.Attendance
 import com.example.data.entity.BalanceLedger
 import com.example.data.entity.Payment
 import com.example.data.entity.Team
+import com.example.data.entity.TeamMembership
 import com.example.data.entity.User
+import com.example.data.model.RoleConstants
 import com.example.ui.components.IssuePaymentRequestDialog
 import com.example.ui.components.JoinTeamWithLinkDialog
 import com.example.ui.components.ShareTeamJoinLinkDialog
@@ -57,11 +59,14 @@ fun AdminMembersScreen(
     val allPayments by viewModel.allPayments.collectAsState()
     val allLedgerEntries by viewModel.allLedgerEntries.collectAsState()
     val allAttendances by viewModel.allAttendances.collectAsState()
+    val allMemberships by viewModel.allMemberships.collectAsState()
 
     var searchQuery by remember { mutableStateOf("") }
     var selectedMemberForAdjustment by remember { mutableStateOf<MemberSummary?>(null) }
     var selectedMemberForPaymentRequest by remember { mutableStateOf<User?>(null) }
     var selectedMemberForHistory by remember { mutableStateOf<MemberSummary?>(null) }
+    var selectedUserForRoles by remember { mutableStateOf<User?>(null) }
+    var showRoleHierarchyInfo by remember { mutableStateOf(false) }
     var showPaymentRequestDialog by remember { mutableStateOf(false) }
     var showRegisterMemberDialog by remember { mutableStateOf(false) }
     var showCreateTeamDialog by remember { mutableStateOf(false) }
@@ -225,6 +230,65 @@ fun AdminMembersScreen(
                 }
             }
 
+            // Superset Role & Permissions Hierarchy Card
+            item {
+                Card(
+                    shape = RoundedCornerShape(14.dp),
+                    colors = CardDefaults.cardColors(containerColor = SecondaryNavy),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(14.dp)) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { showRoleHierarchyInfo = !showRoleHierarchyInfo },
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.Security, contentDescription = null, tint = WarningAmber, modifier = Modifier.size(20.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Column {
+                                    Text(
+                                        text = "Role & Superset Permission Hierarchy",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White
+                                    )
+                                    Text(
+                                        text = "ADMIN ⊃ TEAM ADMIN ⊃ TEAM CAPTAIN ⊃ MEMBER",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = Color(0xFF94A3B8)
+                                    )
+                                }
+                            }
+                            IconButton(onClick = { showRoleHierarchyInfo = !showRoleHierarchyInfo }) {
+                                Icon(
+                                    imageVector = if (showRoleHierarchyInfo) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                    contentDescription = "Toggle info",
+                                    tint = Color.White
+                                )
+                            }
+                        }
+
+                        if (showRoleHierarchyInfo) {
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Divider(color = Color.White.copy(alpha = 0.15f))
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            Text(
+                                text = "• Global Club Admin (Full Access): Complete superset across all teams, budgets, invoices, ledger adjustments, audit logs, and member roles.\n" +
+                                       "• Team Admin (Superset of Captain): Full control over their team's roster, join requests, dues requests, and session logs.\n" +
+                                       "• Team Captain (Superset of Member): Roster batch attendance quick-marking, invite code generation, and team lineup coordination.\n" +
+                                       "• Multi-Roles per Person: A user can be Captain on Team A and a regular Member on Team B simultaneously.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.White.copy(alpha = 0.9f)
+                            )
+                        }
+                    }
+                }
+            }
+
             item {
                 Text("Members Roster (${filteredMembers.size})", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
             }
@@ -256,6 +320,20 @@ fun AdminMembersScreen(
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = TextSecondary
                                     )
+                                    val memberRoleBadge = viewModel.getUserRoleBadge(member.user)
+                                    Surface(
+                                        color = PrimaryContainer,
+                                        shape = RoundedCornerShape(6.dp),
+                                        modifier = Modifier.padding(top = 4.dp)
+                                    ) {
+                                        Text(
+                                            text = memberRoleBadge,
+                                            style = MaterialTheme.typography.labelSmall,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = PrimaryDark,
+                                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                        )
+                                    }
                                     if (member.user.phone.isNotBlank()) {
                                         Text(
                                             text = member.user.phone,
@@ -342,6 +420,18 @@ fun AdminMembersScreen(
                                 Icon(Icons.Default.RequestQuote, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text("Request Dues", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                            }
+
+                            Spacer(modifier = Modifier.width(6.dp))
+
+                            OutlinedButton(
+                                onClick = { selectedUserForRoles = member.user },
+                                shape = RoundedCornerShape(8.dp),
+                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp)
+                            ) {
+                                Icon(Icons.Default.AdminPanelSettings, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Roles", style = MaterialTheme.typography.labelMedium)
                             }
 
                             Spacer(modifier = Modifier.width(6.dp))
@@ -434,6 +524,25 @@ fun AdminMembersScreen(
             viewModel = viewModel,
             currentUser = currentUser,
             onDismiss = { showJoinTeamDialog = false }
+        )
+    }
+
+    // Manage User Multi-Roles & Team Access Dialog
+    selectedUserForRoles?.let { targetUser ->
+        ManageUserRolesDialog(
+            user = targetUser,
+            teams = teams,
+            memberships = allMemberships.filter { it.userId == targetUser.id },
+            onDismiss = { selectedUserForRoles = null },
+            onUpdateGlobalRole = { newRole ->
+                viewModel.updateUserRole(targetUser.id, newRole)
+            },
+            onUpdateTeamRole = { teamId, newRole ->
+                viewModel.updateTeamMembershipRole(targetUser.id, teamId, newRole)
+            },
+            onJoinTeam = { teamId, role ->
+                viewModel.joinTeam(targetUser.id, teamId, role)
+            }
         )
     }
 
@@ -1139,6 +1248,270 @@ fun MemberHistoryDialog(
                     ) {
                         Text("Close")
                     }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ManageUserRolesDialog(
+    user: User,
+    teams: List<Team>,
+    memberships: List<TeamMembership>,
+    onDismiss: () -> Unit,
+    onUpdateGlobalRole: (String) -> Unit,
+    onUpdateTeamRole: (teamId: Long, newRole: String) -> Unit,
+    onJoinTeam: (teamId: Long, role: String) -> Unit
+) {
+    var globalRole by remember { mutableStateOf(user.role) }
+    val membershipMap = remember(memberships) { memberships.associateBy { it.teamId } }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = RoundedCornerShape(24.dp),
+            color = SurfaceCard,
+            tonalElevation = 6.dp,
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.85f)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(20.dp)
+            ) {
+                // Header
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        UserAvatar(user = user, size = 44)
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column {
+                            Text(
+                                text = "Roles & Permissions",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = user.name,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = TextSecondary
+                            )
+                        }
+                    }
+                    IconButton(onClick = onDismiss) {
+                        Icon(Icons.Default.Close, contentDescription = "Close")
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    // Global Club Role
+                    Card(
+                        shape = RoundedCornerShape(14.dp),
+                        colors = CardDefaults.cardColors(containerColor = SurfaceLight),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(14.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.VpnKey, contentDescription = null, tint = PrimaryGreen, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "GLOBAL CLUB ROLE",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = TextPrimary
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "Club Admins possess complete superset control across all club operations, teams, and financials.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = TextSecondary
+                            )
+
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                FilterChip(
+                                    selected = globalRole == "ADMIN",
+                                    onClick = {
+                                        globalRole = "ADMIN"
+                                        onUpdateGlobalRole("ADMIN")
+                                    },
+                                    label = { Text("Global Admin 👑", fontWeight = FontWeight.Bold) },
+                                    modifier = Modifier.weight(1f)
+                                )
+
+                                FilterChip(
+                                    selected = globalRole == "MEMBER",
+                                    onClick = {
+                                        globalRole = "MEMBER"
+                                        onUpdateGlobalRole("MEMBER")
+                                    },
+                                    label = { Text("Standard Member ⚽") },
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
+                        }
+                    }
+
+                    // Team-Specific Roles & Superset Assignments
+                    Card(
+                        shape = RoundedCornerShape(14.dp),
+                        colors = CardDefaults.cardColors(containerColor = SurfaceLight),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(14.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.Groups, contentDescription = null, tint = PrimaryGreen, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "TEAM-SPECIFIC ROLES (SUPERSET HIERARCHY)",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = TextPrimary
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "Hierarchy: Team Admin ⊃ Team Captain ⊃ Member. A person can hold distinct roles across different teams.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = TextSecondary
+                            )
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            teams.forEach { team ->
+                                val mem = membershipMap[team.id]
+                                var currentTeamRole by remember(mem) { mutableStateOf(mem?.roleInTeam ?: "NONE") }
+
+                                Surface(
+                                    color = Color.White,
+                                    shape = RoundedCornerShape(10.dp),
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 4.dp)
+                                ) {
+                                    Column(modifier = Modifier.padding(12.dp)) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .size(10.dp)
+                                                        .clip(CircleShape)
+                                                        .background(Color(team.colorHex))
+                                                )
+                                                Spacer(modifier = Modifier.width(8.dp))
+                                                Text(
+                                                    text = team.name,
+                                                    fontWeight = FontWeight.Bold,
+                                                    style = MaterialTheme.typography.titleSmall
+                                                )
+                                            }
+
+                                            Surface(
+                                                color = when (currentTeamRole) {
+                                                    "ADMIN" -> WarningContainer
+                                                    "CAPTAIN" -> InfoContainer
+                                                    "COACH" -> PrimaryContainer
+                                                    "MEMBER" -> SurfaceLight
+                                                    else -> Color(0xFFF1F5F9)
+                                                },
+                                                shape = RoundedCornerShape(6.dp)
+                                            ) {
+                                                Text(
+                                                    text = when (currentTeamRole) {
+                                                        "ADMIN" -> "TEAM ADMIN 🛡️"
+                                                        "CAPTAIN" -> "CAPTAIN ⭐"
+                                                        "COACH" -> "COACH 📋"
+                                                        "MEMBER" -> "PLAYER ⚽"
+                                                        else -> "NOT ENROLLED"
+                                                    },
+                                                    style = MaterialTheme.typography.labelSmall,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = when (currentTeamRole) {
+                                                        "ADMIN" -> WarningAmber
+                                                        "CAPTAIN" -> InfoBlue
+                                                        "COACH" -> PrimaryGreen
+                                                        "MEMBER" -> TextPrimary
+                                                        else -> TextMuted
+                                                    },
+                                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                                )
+                                            }
+                                        }
+
+                                        Spacer(modifier = Modifier.height(8.dp))
+
+                                        // Role picker buttons
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                        ) {
+                                            listOf("ADMIN" to "Admin", "CAPTAIN" to "Captain", "COACH" to "Coach", "MEMBER" to "Member").forEach { (rKey, rLabel) ->
+                                                val isSelected = currentTeamRole == rKey
+                                                Surface(
+                                                    color = if (isSelected) PrimaryGreen else Color(0xFFF8FAFC),
+                                                    shape = RoundedCornerShape(6.dp),
+                                                    border = androidx.compose.foundation.BorderStroke(1.dp, if (isSelected) PrimaryGreen else Color(0xFFE2E8F0)),
+                                                    modifier = Modifier
+                                                        .weight(1f)
+                                                        .clickable {
+                                                            currentTeamRole = rKey
+                                                            if (mem != null) {
+                                                                onUpdateTeamRole(team.id, rKey)
+                                                            } else {
+                                                                onJoinTeam(team.id, rKey)
+                                                            }
+                                                        }
+                                                ) {
+                                                    Text(
+                                                        text = rLabel,
+                                                        color = if (isSelected) Color.White else TextPrimary,
+                                                        style = MaterialTheme.typography.labelSmall,
+                                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                                        modifier = Modifier.padding(vertical = 6.dp)
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = onDismiss,
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = PrimaryGreen),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Done", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
                 }
             }
         }

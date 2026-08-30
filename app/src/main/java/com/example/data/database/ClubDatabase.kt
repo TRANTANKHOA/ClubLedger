@@ -177,7 +177,7 @@ abstract class ClubDatabase : RoomDatabase() {
                 // Basketball team memberships
                 TeamMembership(6, 2, 2, "MEMBER", now - 60L * 86400000L),
                 TeamMembership(7, 3, 2, "CAPTAIN", now - 80L * 86400000L),
-                TeamMembership(8, 4, 2, "MEMBER", now - 40L * 86400000L),
+                TeamMembership(8, 4, 2, "CAPTAIN", now - 40L * 86400000L),
                 // Volleyball
                 TeamMembership(9, 5, 3, "CAPTAIN", now - 40L * 86400000L),
                 TeamMembership(10, 6, 3, "MEMBER", now - 30L * 86400000L)

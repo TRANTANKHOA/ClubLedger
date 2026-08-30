@@ -83,6 +83,70 @@ ClubLedger is architected around the real-world operational workflows of communi
 
 ---
 
+---
+
+## 🛡️ Multi-Role & Superset Permission Hierarchy
+
+ClubLedger implements a strict **Superset Permission Architecture** designed to reflect real-world athletic club leadership structures. Higher-tier roles automatically inherit all capabilities, actions, and views of lower-tier roles without permission fragmentation.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                 👑 GLOBAL CLUB ADMIN (Marcus)               │
+│  Superset of all club operations, teams, budgets & ledgers  │
+├─────────────────────────────────────────────────────────────┤
+│                  🛡️ TEAM ADMIN (Sarah)                      │
+│     Superset of Team Captain: Rosters, Approvals & Dues     │
+├─────────────────────────────────────────────────────────────┤
+│             ⭐ TEAM CAPTAIN / COACH (Field Lead)             │
+│   Superset of Member: Quick-Mark Attendance, Invite Links   │
+├─────────────────────────────────────────────────────────────┤
+│               ⚽ TEAM MEMBER / PLAYER (Alex)                │
+│    Self-Check In, Dues Tracking, Transparent Invoices       │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 1. The Strict Superset Access Rule
+* **Team Admin is a Superset of Team Captain**:
+  - Anything a Team Captain can do (such as quick-marking roster attendance, distributing join links, or reviewing session logs), a **Team Admin** can also do automatically, plus financial dues issuance and join request approvals.
+* **Global Club Admin is a Superset of Team Admin & Captain**:
+  - Marcus (Club Treasurer & Global Admin) possesses full administrative access across every team in the club, all team budgets, member ledgers, manual balance adjustments, and audit logs. Marcus inherits all capabilities that Sarah (Team Captain/Admin) possesses.
+
+### 2. Multi-Role Assignments Per Person
+Athletic club members frequently wear multiple hats in community leagues. ClubLedger supports multi-role profiles across teams:
+* **Simultaneous Roles**: A person can be a **Team Captain** on *Metro Lions Basketball* while simultaneously participating as a regular **Playing Member** on *Riverside FC First XI*.
+* **Dynamic Role Resolution**: The `PermissionEngine` and `ClubViewModel` evaluate user permissions on a per-team and club-wide context in real time:
+  - If a user is a Captain or Team Admin on *any* team, their dashboard renders the **"⭐ Team Captain & Leadership Hub"** with 1-tap roster quick-marking tools.
+  - If a user is a Global Admin, they have full access across the Admin Suite and all team rosters.
+* **Instant Role Switcher & Manager**: Admins can promote/demote members across teams dynamically via the **"Roles & Permissions"** dialog in the Member Roster screen.
+
+### 3. Permission & Capability Matrix
+
+| Feature / Capability | Global Admin 👑 | Team Admin 🛡️ | Team Captain ⭐ | Team Member ⚽ |
+| :--- | :---: | :---: | :---: | :---: |
+| **View Personal Dues & Ledger** | ✅ | ✅ | ✅ | ✅ |
+| **Self Attendance Check-In** | ✅ | ✅ | ✅ | ✅ |
+| **Transparent Cost Calculations** | ✅ | ✅ | ✅ | ✅ |
+| **Share Team Join Code / Link** | ✅ | ✅ | ✅ | ✅ |
+| **Batch Quick-Mark Attendance (Roster)** | ✅ | ✅ (Own Team) | ✅ (Own Team) | ❌ |
+| **Review & Approve Team Join Requests** | ✅ | ✅ (Own Team) | ❌ | ❌ |
+| **Issue Payment & Dues Requests** | ✅ | ✅ (Own Team) | ❌ | ❌ |
+| **Approve Member Payment Claims** | ✅ | ✅ (Own Team) | ❌ | ❌ |
+| **Proportional Budget Invoice Generation** | ✅ | ❌ | ❌ | ❌ |
+| **Manual Ledger Credit/Debit Adjustments** | ✅ | ❌ | ❌ | ❌ |
+| **Export CSV Audits (Attendance, Ledger)** | ✅ | ❌ | ❌ | ❌ |
+| **Manage Global Roles & Team Access** | ✅ | ❌ | ❌ | ❌ |
+
+---
+
+## 🌐 Browser & Web Access (Chrome & Mobile)
+
+ClubLedger is built with full support for users accessing the platform on mobile devices and desktop web browsers (Google Chrome, Safari, Edge, Firefox):
+* **Web & Chrome Accessibility**: Users without the mobile app can access all club features through Google Chrome or mobile browsers via the responsive Web UI and Cloud Firestore real-time synchronization.
+* **Instant Multi-Device Sync**: Any check-in, payment approval, or roster change made on Chrome or an Android phone instantly propagates to all members and admins across the club.
+* **Adaptive Form Factor Support**: The UI automatically scales from phone screens to tablet and desktop monitor widths using adaptive Material Design 3 guidelines.
+
+---
+
 ## 🌟 Key Features
 
 ### 1. Dual-Role Architecture with Instant Switcher

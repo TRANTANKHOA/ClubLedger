@@ -13,6 +13,7 @@ class ClubRepository(private val clubDao: ClubDao) {
     val allUsers: Flow<List<User>> = clubDao.getAllUsers()
     val allMembers: Flow<List<User>> = clubDao.getMembers()
     val allTeams: Flow<List<Team>> = clubDao.getAllTeams()
+    val allMemberships: Flow<List<TeamMembership>> = clubDao.getAllMemberships()
     val allBudgets: Flow<List<TeamBudget>> = clubDao.getAllBudgets()
     val allInvoices: Flow<List<Invoice>> = clubDao.getAllInvoices()
     val allAllocations: Flow<List<InvoiceAllocation>> = clubDao.getAllAllocations()
@@ -72,11 +73,91 @@ class ClubRepository(private val clubDao: ClubDao) {
     }
 
     suspend fun joinTeam(userId: Long, teamId: Long, role: String = "MEMBER") {
+        val existing = clubDao.getMembershipOnce(userId, teamId)
         clubDao.insertMembership(
             TeamMembership(
+                id = existing?.id ?: 0L,
                 userId = userId,
                 teamId = teamId,
-                roleInTeam = role
+                roleInTeam = role,
+                joinedDate = existing?.joinedDate ?: System.currentTimeMillis()
+            )
+        )
+    }
+
+    suspend fun updateTeamMembershipRole(userId: Long, teamId: Long, newRole: String) {
+        val user = clubDao.getUserByIdOnce(userId)
+        val team = clubDao.getTeamByIdOnce(teamId)
+        val existing = clubDao.getMembershipOnce(userId, teamId)
+        clubDao.insertMembership(
+            TeamMembership(
+                id = existing?.id ?: 0L,
+                userId = userId,
+                teamId = teamId,
+                roleInTeam = newRole,
+                joinedDate = existing?.joinedDate ?: System.currentTimeMillis()
+            )
+        )
+        clubDao.insertAuditLog(
+            AuditLog(
+                action = "TEAM_ROLE_UPDATED",
+                entityType = "TeamMembership",
+                entityId = teamId,
+                performedByUserId = 1,
+                details = "Updated ${user?.name ?: "User #$userId"} role in ${team?.name ?: "Team #$teamId"} to $newRole"
+            )
+        )
+    }
+
+    suspend fun updateUserRole(userId: Long, newRole: String) {
+        val user = clubDao.getUserByIdOnce(userId) ?: return
+        clubDao.updateUser(user.copy(role = newRole))
+        clubDao.insertAuditLog(
+            AuditLog(
+                action = "USER_ROLE_UPDATED",
+                entityType = "User",
+                entityId = userId,
+                performedByUserId = 1,
+                details = "Updated user ${user.name} role to $newRole"
+            )
+        )
+    }
+
+    suspend fun syncUserAccess(sourceUserId: Long, targetUserId: Long) {
+        val sourceUser = clubDao.getUserByIdOnce(sourceUserId) ?: return
+        val targetUser = clubDao.getUserByIdOnce(targetUserId) ?: return
+
+        // 1. Sync primary user role (e.g. ADMIN / MEMBER)
+        if (targetUser.role != sourceUser.role) {
+            clubDao.updateUser(targetUser.copy(role = sourceUser.role))
+        }
+
+        // 2. Sync all team memberships & team roles (e.g. CAPTAIN, MEMBER)
+        val sourceMemberships = clubDao.getMembershipsByUserOnce(sourceUserId)
+        val targetMemberships = clubDao.getMembershipsByUserOnce(targetUserId).associateBy { it.teamId }
+
+        for (srcMem in sourceMemberships) {
+            val existing = targetMemberships[srcMem.teamId]
+            if (existing == null || existing.roleInTeam != srcMem.roleInTeam) {
+                clubDao.insertMembership(
+                    TeamMembership(
+                        id = existing?.id ?: 0L,
+                        userId = targetUserId,
+                        teamId = srcMem.teamId,
+                        roleInTeam = srcMem.roleInTeam,
+                        joinedDate = existing?.joinedDate ?: System.currentTimeMillis()
+                    )
+                )
+            }
+        }
+
+        clubDao.insertAuditLog(
+            AuditLog(
+                action = "PERMISSIONS_SYNCHRONIZED",
+                entityType = "User",
+                entityId = targetUserId,
+                performedByUserId = 1,
+                details = "Synchronized all roles and team access from ${sourceUser.name} to ${targetUser.name}"
             )
         )
     }

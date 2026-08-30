@@ -136,7 +136,8 @@ fun ClubLedgerApp(viewModel: ClubViewModel) {
                 onJoinTeamClick = {
                     showJoinTeamDialog = true
                 },
-                cloudSyncState = cloudSyncState
+                cloudSyncState = cloudSyncState,
+                getUserRoleBadge = { user -> viewModel.getUserRoleBadge(user) }
             )
         },
         bottomBar = {

@@ -38,6 +38,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import android.widget.Toast
 import com.example.ui.components.ShareTeamJoinLinkDialog
+import com.example.ui.components.RecordBatchAttendanceDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,9 +58,14 @@ fun MemberDashboardScreen(
     val allocations by viewModel.currentUserAllocations.collectAsState()
     val invoices by viewModel.allInvoices.collectAsState()
     val teams by viewModel.allTeams.collectAsState()
+    val allUsers by viewModel.allUsers.collectAsState()
+    val userMemberships by viewModel.currentUserMemberships.collectAsState()
+    val hasLeadership by viewModel.currentUserHasLeadershipRole.collectAsState()
+    val ledTeamIds by viewModel.currentUserLedTeamIds.collectAsState()
 
     var selectedAllocationForExplanation by remember { mutableStateOf<InvoiceAllocation?>(null) }
     var teamToShare by remember { mutableStateOf<com.example.data.entity.Team?>(null) }
+    var showBatchAttendanceDialog by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
@@ -330,6 +336,133 @@ fun MemberDashboardScreen(
                             fontWeight = FontWeight.Bold
                         )
                         Text("Awaiting verification", style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
+                    }
+                }
+            }
+        }
+
+        // Team Captain / Leadership Hub (If user is Captain or Team Admin)
+        if (hasLeadership || userMemberships.any { it.roleInTeam == "CAPTAIN" || it.roleInTeam == "ADMIN" || it.roleInTeam == "COACH" }) {
+            val ledTeams = teams.filter { ledTeamIds.contains(it.id) || userMemberships.any { m -> m.teamId == it.id && (m.roleInTeam == "CAPTAIN" || m.roleInTeam == "ADMIN" || m.roleInTeam == "COACH") } }
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+                Card(
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = SecondaryNavy),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .testTag("captain_leadership_hub_card")
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clip(CircleShape)
+                                        .background(WarningAmber.copy(alpha = 0.2f)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(Icons.Default.Stars, contentDescription = null, tint = WarningAmber, modifier = Modifier.size(20.dp))
+                                }
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Column {
+                                    Text(
+                                        text = "Team Captain & Leadership Hub",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White
+                                    )
+                                    Text(
+                                        text = "Superset privileges for team roster & sessions",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = Color(0xFF94A3B8)
+                                    )
+                                }
+                            }
+
+                            Surface(
+                                color = PrimaryGreen,
+                                shape = RoundedCornerShape(12.dp)
+                            ) {
+                                Text(
+                                    text = "CAPTAIN ACCESS",
+                                    color = Color.White,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        // Led teams pills
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            ledTeams.forEach { lTeam ->
+                                val memRole = userMemberships.firstOrNull { it.teamId == lTeam.id }?.roleInTeam ?: "CAPTAIN"
+                                Surface(
+                                    color = Color.White.copy(alpha = 0.12f),
+                                    shape = RoundedCornerShape(8.dp)
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                    ) {
+                                        Icon(Icons.Default.SportsBasketball, contentDescription = null, tint = WarningAmber, modifier = Modifier.size(14.dp))
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text(
+                                            text = "${lTeam.name} ($memRole)",
+                                            color = Color.White,
+                                            style = MaterialTheme.typography.labelSmall
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Button(
+                                onClick = { showBatchAttendanceDialog = true },
+                                colors = ButtonDefaults.buttonColors(containerColor = PrimaryGreen),
+                                shape = RoundedCornerShape(10.dp),
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .testTag("captain_quick_attendance_btn")
+                            ) {
+                                Icon(Icons.Default.Checklist, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text("Quick-Mark Attendance", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                            }
+
+                            FilledTonalButton(
+                                onClick = {
+                                    teamToShare = ledTeams.firstOrNull() ?: teams.firstOrNull()
+                                },
+                                colors = ButtonDefaults.filledTonalButtonColors(
+                                    containerColor = Color.White.copy(alpha = 0.15f),
+                                    contentColor = Color.White
+                                ),
+                                shape = RoundedCornerShape(10.dp)
+                            ) {
+                                Icon(Icons.Default.QrCode2, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Invite Link")
+                            }
+                        }
                     }
                 }
             }
@@ -651,6 +784,27 @@ fun MemberDashboardScreen(
         ShareTeamJoinLinkDialog(
             team = team,
             onDismiss = { teamToShare = null }
+        )
+    }
+
+    // Captain / Leadership Batch Attendance Quick-Mark Dialog
+    if (showBatchAttendanceDialog) {
+        val ledTeams = teams.filter { ledTeamIds.contains(it.id) || userMemberships.any { m -> m.teamId == it.id && (m.roleInTeam == "CAPTAIN" || m.roleInTeam == "ADMIN" || m.roleInTeam == "COACH") } }
+        val dialogTeams = if (ledTeams.isNotEmpty()) ledTeams else teams
+        RecordBatchAttendanceDialog(
+            teams = dialogTeams,
+            members = allUsers,
+            onDismiss = { showBatchAttendanceDialog = false },
+            onSubmit = { teamId, sessionDate, sessionType, notes, presentUserIds ->
+                viewModel.recordBatchAttendance(
+                    teamId = teamId,
+                    sessionDate = sessionDate,
+                    sessionType = sessionType,
+                    notes = notes,
+                    presentUserIds = presentUserIds
+                )
+                showBatchAttendanceDialog = false
+            }
         )
     }
 }

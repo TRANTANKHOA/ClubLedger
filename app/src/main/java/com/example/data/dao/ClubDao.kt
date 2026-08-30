@@ -55,11 +55,23 @@ interface ClubDao {
     suspend fun updateTeam(team: Team)
 
     // --- Team Memberships ---
+    @Query("SELECT * FROM team_memberships")
+    fun getAllMemberships(): Flow<List<TeamMembership>>
+
+    @Query("SELECT * FROM team_memberships")
+    suspend fun getAllMembershipsOnce(): List<TeamMembership>
+
     @Query("SELECT * FROM team_memberships WHERE teamId = :teamId")
     fun getMembershipsByTeam(teamId: Long): Flow<List<TeamMembership>>
 
     @Query("SELECT * FROM team_memberships WHERE userId = :userId")
     fun getMembershipsByUser(userId: Long): Flow<List<TeamMembership>>
+
+    @Query("SELECT * FROM team_memberships WHERE userId = :userId")
+    suspend fun getMembershipsByUserOnce(userId: Long): List<TeamMembership>
+
+    @Query("SELECT * FROM team_memberships WHERE userId = :userId AND teamId = :teamId LIMIT 1")
+    suspend fun getMembershipOnce(userId: Long, teamId: Long): TeamMembership?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMembership(membership: TeamMembership): Long
