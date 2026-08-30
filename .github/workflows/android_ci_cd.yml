@@ -12,7 +12,7 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+  cancel-in-progress: true
 
 jobs:
   build_and_test:
@@ -58,7 +58,7 @@ jobs:
     name: Build Release Bundle (AAB)
     runs-on: ubuntu-latest
     needs: build_and_test
-    if: (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/')) && github.event_name != 'pull_request'
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/')
 
     steps:
       - name: Checkout Repository
@@ -72,7 +72,7 @@ jobs:
           cache: 'gradle'
 
       - name: Decode Keystore (if secret provided)
-        if: ${{ secrets.RELEASE_KEYSTORE_BASE64 != '' }}
+        if: secrets.RELEASE_KEYSTORE_BASE64 != ''
         env:
           RELEASE_KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
         run: |
@@ -81,9 +81,12 @@ jobs:
       - name: Build Production Android App Bundle (AAB)
         env:
           KEYSTORE_PATH: ${{ github.workspace }}/app/release.keystore
-          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD || secrets.RELEASE_KEYSTORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD || secrets.RELEASE_KEY_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS || secrets.RELEASE_KEY_ALIAS || 'upload' }}
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
         run: ./gradlew :app:bundleRelease
 
       - name: Upload Release Bundle Artifact
