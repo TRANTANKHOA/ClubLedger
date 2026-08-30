@@ -1,0 +1,82 @@
+package com.example.ui.theme
+
+import android.app.Activity
+import android.os.Build
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
+import androidx.compose.material3.lightColorScheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
+
+private val DarkColorScheme = darkColorScheme(
+    primary = PrimaryDarkTheme,
+    onPrimary = Color.Black,
+    primaryContainer = PrimaryDark,
+    onPrimaryContainer = Color.White,
+    secondary = SecondaryLight,
+    onSecondary = Color.White,
+    secondaryContainer = SecondaryNavy,
+    onSecondaryContainer = Color.White,
+    tertiary = GoldAccent,
+    background = SurfaceDark,
+    surface = SurfaceCardDark,
+    onBackground = TextPrimaryDark,
+    onSurface = TextPrimaryDark,
+    error = Color(0xFFEF5350)
+)
+
+private val LightColorScheme = lightColorScheme(
+    primary = PrimaryGreen,
+    onPrimary = Color.White,
+    primaryContainer = PrimaryContainer,
+    onPrimaryContainer = OnPrimaryContainer,
+    secondary = SecondaryNavy,
+    onSecondary = Color.White,
+    secondaryContainer = SecondaryContainer,
+    onSecondaryContainer = OnSecondaryContainer,
+    tertiary = GoldAccent,
+    background = SurfaceLight,
+    surface = SurfaceCard,
+    onBackground = TextPrimary,
+    onSurface = TextPrimary,
+    error = ErrorRed
+)
+
+@Composable
+fun ClubLedgerTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    dynamicColor: Boolean = false,
+    content: @Composable () -> Unit
+) {
+    val colorScheme = when {
+        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            val context = LocalContext
+            dynamicLightColorScheme(context.current)
+        }
+        darkTheme -> DarkColorScheme
+        else -> LightColorScheme
+    }
+
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as Activity).window
+            window.statusBarColor = colorScheme.primary.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
+        }
+    }
+
+    MaterialTheme(
+        colorScheme = colorScheme,
+        typography = Typography,
+        content = content
+    )
+}
