@@ -25,7 +25,7 @@ import java.util.Calendar
  * escaping, column layout, and unknown-entity fallbacks.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [36])
+@Config(sdk = [34])
 class CsvGeneratorTest {
 
     private lateinit var db: ClubDatabase

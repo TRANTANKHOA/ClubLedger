@@ -29,7 +29,7 @@ import java.util.Calendar
  * dispute credits — against a real in-memory Room database.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [36])
+@Config(sdk = [34])
 class LedgerCalculationTest {
 
     private lateinit var db: ClubDatabase

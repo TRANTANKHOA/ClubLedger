@@ -28,7 +28,7 @@ import java.util.Calendar
  * Allocation" use case (README Use Case 1).
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [36])
+@Config(sdk = [34])
 class CostAllocationEngineTest {
 
     private lateinit var db: ClubDatabase
