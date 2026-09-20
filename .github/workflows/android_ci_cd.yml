@@ -33,6 +33,17 @@ jobs:
       - name: Make scripts executable
         run: chmod +x gradlew scripts/*.sh || true
 
+      - name: Generate debug keystore
+        # app/build.gradle.kts signingConfigs.debugConfig expects <repo-root>/debug.keystore
+        # (gitignored). Recreate the standard Android debug key on CI.
+        run: |
+          keytool -genkeypair -v \
+            -keystore debug.keystore \
+            -alias androiddebugkey \
+            -storepass android -keypass android \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -dname "CN=Android Debug,O=Android,C=US"
+
       - name: Run Unit & JVM Tests
         run: ./gradlew testDebugUnitTest --continue
 
