@@ -50,7 +50,7 @@ To build and install the debug APK directly to a connected device or emulator vi
 
 ## 🧪 2. Testing & Quality Assurance
 
-ClubLedger includes JVM unit tests and Robolectric tests for business logic, proportional allocation calculations, and ledger ledger consistency.
+ClubLedger includes 39 JUnit 4 and Robolectric unit tests (run against an in-memory Room database) covering business logic, proportional allocation calculations, running-balance ledger consistency, invoice recalculation, CSV generators, and the permission engine.
 
 ### Run JVM / Unit Tests
 ```bash
@@ -67,7 +67,7 @@ ClubLedger operates in **Offline-First Room SQLite Mode** by default. To enable 
 
 1. Create a Firebase project in the [Firebase Console](https://console.firebase.google.com/).
 2. Add an **Android Application** with:
-   - **Package name:** `com.aistudio.clubdues.kxmpzq`
+   - **Package name:** `com.aistudio.clubledger.sports` *(must match `applicationId` in `app/build.gradle.kts`)*
    - **SHA-1 Fingerprint:** (Obtained via `./gradlew signingReport`)
 3. Under **Authentication ➔ Sign-in method**, enable:
    - **Google**: Enable and select support email.
@@ -123,6 +123,21 @@ ClubLedger operates in **Offline-First Room SQLite Mode** by default. To enable 
 
 ---
 
+## 🛡️ Firestore Security Rules
+
+`firestore.rules` defines baseline security for the `clubs/{clubId}` tree used by `FirestoreSyncManager`: authenticated read, type-validated creates/updates, and blocked deletes on immutable collections (club metadata, users, teams, budgets, ledger). Deletes remain allowed on attendances and payments for corrections.
+
+Deploy the rules to your Firebase project:
+
+```bash
+firebase login
+./scripts/deploy-firestore-rules.sh
+```
+
+> ⚠️ Cloud sync assumes a signed-in user (Google/Apple/Facebook). Unauthenticated pushes are denied by design. Tighten the baseline (role-based writes, per-user ownership) before real multi-tenant use.
+
+---
+
 ## 🤖 5. Automated CI/CD (GitHub Actions)
 
 A ready-to-use GitHub Actions workflow is located at `.github/workflows/android_ci_cd.yml`.
@@ -136,6 +151,37 @@ A ready-to-use GitHub Actions workflow is located at `.github/workflows/android_
 
 ---
 
+## 🏪 Google Play Console Release Checklist
+
+1. **Create Application** in [Google Play Console](https://play.google.com/console):
+   - Application Name: **ClubLedger** · Default Language: English (US) · App · Free.
+2. **Store Listing Assets**:
+   - App Icon: 512 × 512 px 32-bit PNG.
+   - Feature Graphic: 1024 × 500 px JPG/PNG.
+   - Phone Screenshots: minimum 2 (1080 × 1920 px or 1080 × 2400 px).
+   - Short Description (≤ 80 chars): *Club treasury: attendance-based fair-share dues, payments & audit trail.*
+   - Full Description: adapt the feature sections from [`README.md`](README.md).
+3. **Data Safety Declaration**:
+   - **Personal Info** (Name, Email): collected for club member identity; tied to Google/Apple/Facebook sign-in.
+   - **Financial Info** (payment references/memos): user-provided payment records — declare purchase history / other financial info as applicable.
+   - Data encrypted in transit (TLS/HTTPS via Firebase).
+4. **Upload App Bundle** (`app-release.aab` from §4) → Release ➔ Production or Internal Testing → Add release notes → Roll out.
+
+---
+
+## 🔧 Troubleshooting
+
+| Symptom | Probable Cause | Fix / Resolution |
+| :--- | :--- | :--- |
+| `java: command not found` / `No Java runtime` | Homebrew openjdk@17 is keg-only (not on PATH) | `export JAVA_HOME=/opt/homebrew/opt/openjdk@17` and `export PATH="$JAVA_HOME/bin:$PATH"` (see [LOCAL_SETUP_MAC.md](LOCAL_SETUP_MAC.md)) |
+| `SDK location not found` | `ANDROID_HOME` unset and no `local.properties` | `export ANDROID_HOME=/opt/homebrew/share/android-commandlinetools` (Homebrew SDK) or create `local.properties` with `sdk.dir=/path/to/sdk` |
+| Keystore file `debug.keystore` not found | Custom debug signing config expects it at repo root (gitignored) | `keytool -genkeypair -keystore debug.keystore -alias androiddebugkey -storepass android -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"` |
+| `adb: command not found` | Platform-tools not on PATH | `export PATH="$HOME/Library/Android/sdk/platform-tools:$PATH"` (or the Homebrew SDK equivalent) |
+| `gradlew: Permission denied` | Scripts lost their executable bit | `chmod +x gradlew scripts/*.sh` |
+| First test run is slow / downloads a large jar | Robolectric fetching the API-34 `android-all` artifact | Expected on first run (~100 MB); cached afterwards |
+
+---
+
 ## 📋 Quick Reference Commands
 
 | Task | Command |
@@ -145,4 +191,5 @@ A ready-to-use GitHub Actions workflow is located at `.github/workflows/android_
 | **Build Debug APK** | `./gradlew assembleDebug` |
 | **Build Release Bundle (AAB)** | `./scripts/build_release.sh aab` |
 | **Build Release APK** | `./scripts/build_release.sh apk` |
+| **Deploy Firestore Rules** | `./scripts/deploy-firestore-rules.sh` |
 | **Clean Build Cache** | `./gradlew clean` |

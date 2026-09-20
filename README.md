@@ -2,7 +2,7 @@
 
 **ClubLedger** is an Android application built with Jetpack Compose and Room Database designed for community sports clubs, recreation teams, and amateur leagues. It automates attendance tracking, member payments, treasury balances, and proportional budget cost allocations.
 
-> 📖 **GitHub Pages Documentation Hub**: Inspect the full interactive web documentation with decomposed modules for **✨ Overview**, **🏛️ Architecture**, **🔄 Portability**, **🛡️ Distributed Defense**, and **🚀 Production** at `showcase.html` (or deployed via GitHub Pages).
+> 📖 **GitHub Pages Documentation Hub**: Inspect the full interactive web documentation with decomposed modules for **✨ Overview**, **🏛️ Architecture**, **💰 Financial Engine**, **🧾 Receipt Sharing**, **🔄 Portability**, **🛡️ Distributed Defense**, **🏋️ Training Curriculum**, and **🚀 Production** at [`showcase.html`](showcase.html) — live at **https://trantankhoa.github.io/ClubLedger/**.
 
 ---
 
@@ -437,7 +437,7 @@ ClubLedger's documentation is divided into structured modules, operational train
 - **Local Persistence:** Android Jetpack Room (SQLite) with Kotlin Coroutines & Flow
 - **State Management:** MVVM (`ClubViewModel`, `StateFlow`, `collectAsStateWithLifecycle`)
 - **Theme & Design:** Dynamic Material 3 theming with Emerald Green (`#00897B`), Navy (`#1E3A8A`), and Amber accents, edge-to-edge support, and responsive layouts.
-- **Unit Testing:** JUnit 4 tests for mathematical cost allocations, running ledger calculations, and CSV generators.
+- **Unit Testing:** 39 JUnit 4 / Robolectric tests in `app/src/test` covering the proportional allocation engine (fair-share formula, zero-attendance exemption, cent-rounding conservation, invoice recalculation without double billing), running-balance ledger calculations and adjustment sign conventions, CSV export generators, and the superset permission engine.
 
 ---
 
@@ -485,6 +485,18 @@ Comprehensive local setup, testing, and production deployment instructions are p
 # 5. Build production Release APK
 ./scripts/build_release.sh apk
 ```
+
+---
+
+## 📚 Documentation
+
+| Document | Purpose |
+| :--- | :--- |
+| [`DEPLOYMENT.md`](DEPLOYMENT.md) | Local setup, testing, Firebase config, signing, Play Store release, troubleshooting |
+| [`LOCAL_SETUP_MAC.md`](LOCAL_SETUP_MAC.md) | macOS-specific 1-command setup (Homebrew JDK 17, Android SDK, AVD, helper scripts) |
+| [`showcase.html`](showcase.html) | Interactive web documentation hub — **live on GitHub Pages**: https://trantankhoa.github.io/ClubLedger/ |
+| [`firestore.rules`](firestore.rules) | Baseline Cloud Firestore security rules (deploy via `./scripts/deploy-firestore-rules.sh`) |
+| `scripts/` | `dev_setup.sh` (environment check) · `run_tests.sh` (unit tests) · `build_release.sh` (AAB/APK) · `deploy-firestore-rules.sh` |
 
 ---
 
