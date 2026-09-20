@@ -396,7 +396,12 @@ class ClubRepository(private val clubDao: ClubDao) {
             allocations[0] = first.copy(allocatedAmount = ((first.allocatedAmount + diff) * 100.0).roundToInt() / 100.0)
         }
 
-        clubDao.insertAllocations(allocations)
+        // Insert allocations and write back the generated IDs so ledger entries
+        // carry a referenceId that deleteLedgerEntriesForInvoice() can match on recalculation.
+        val insertedIds = clubDao.insertAllocations(allocations)
+        for (i in allocations.indices) {
+            allocations[i] = allocations[i].copy(id = insertedIds[i])
+        }
 
         // Post debits to BalanceLedger for each member
         val now = System.currentTimeMillis()
@@ -502,7 +507,12 @@ class ClubRepository(private val clubDao: ClubDao) {
             allocations[0] = first.copy(allocatedAmount = ((first.allocatedAmount + diff) * 100.0).roundToInt() / 100.0)
         }
 
-        clubDao.insertAllocations(allocations)
+        // Insert allocations and write back the generated IDs so ledger entries
+        // carry a referenceId that deleteLedgerEntriesForInvoice() can match on recalculation.
+        val insertedIds = clubDao.insertAllocations(allocations)
+        for (i in allocations.indices) {
+            allocations[i] = allocations[i].copy(id = insertedIds[i])
+        }
 
         // Post revised ledger entries
         val now = System.currentTimeMillis()

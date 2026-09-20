@@ -187,7 +187,7 @@ interface ClubDao {
     fun getAllocationsByUser(userId: Long): Flow<List<InvoiceAllocation>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAllocations(allocations: List<InvoiceAllocation>)
+    suspend fun insertAllocations(allocations: List<InvoiceAllocation>): List<Long>
 
     @Query("DELETE FROM invoice_allocations WHERE invoiceId = :invoiceId")
     suspend fun deleteAllocationsByInvoiceId(invoiceId: Long)

@@ -240,7 +240,7 @@ class CostAllocationEngineTest {
         val budgetId = createAugustBudget(600.00)
 
         val invoice = repository.generateInvoiceAndAllocate(budgetId, adminId).getOrThrow()
-        assertEquals(480.00, dao.getLatestLedgerForUser(playerAId)!!.runningBalanceAfter, 0.001)
+        assertEquals(-480.00, dao.getLatestLedgerForUser(playerAId)!!.runningBalanceAfter, 0.001)
 
         // Two more of B's sessions get approved after invoicing.
         seedApprovedAttendance(playerBId, 2, 2026, 8)
