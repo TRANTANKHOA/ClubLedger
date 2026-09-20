@@ -1,0 +1,111 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Reserved for future per-user document ownership rules.
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // ClubLedger Collections: /clubs/{clubId}/...
+    // Doc ids are Room row ids stored as strings. Baseline rules: any
+    // signed-in club member may read their club tree and write with basic
+    // field-type validation. Tighten before real multi-tenant use
+    // (role-based writes, immutable ledger, per-user ownership).
+    match /clubs/{clubId} {
+      // Club metadata: { clubId: string, lastSyncedAt: number }
+      allow get, list: if isAuthenticated();
+      allow create, update: if isAuthenticated()
+        && request.resource.data.clubId is string
+        && request.resource.data.lastSyncedAt is number;
+      allow delete: if false; // club trees are never deleted from the client
+
+      // Users sub-collection: { id: number, name: string, email: string, role: string, ... }
+      match /users/{userId} {
+        allow read: if isAuthenticated();
+        allow create, update: if isAuthenticated()
+          && request.resource.data.id is number
+          && request.resource.data.name is string
+          && request.resource.data.email is string
+          && request.resource.data.role is string;
+        allow delete: if false;
+      }
+
+      // Teams sub-collection: { id: number, name: string, sportType: string, ... }
+      match /teams/{teamId} {
+        allow read: if isAuthenticated();
+        allow create, update: if isAuthenticated()
+          && request.resource.data.id is number
+          && request.resource.data.name is string
+          && request.resource.data.sportType is string;
+        allow delete: if false;
+      }
+
+      // Attendances sub-collection: { userId: number, teamId: number, sessionDate: number,
+      //                               sessionType: string, status: string, ... }
+      match /attendances/{attendanceId} {
+        allow read: if isAuthenticated();
+        allow create, update: if isAuthenticated()
+          && request.resource.data.userId is number
+          && request.resource.data.teamId is number
+          && request.resource.data.sessionDate is number
+          && request.resource.data.sessionType is string
+          && request.resource.data.status is string;
+        allow delete: if isAuthenticated(); // explicit: corrections allowed
+      }
+
+      // Payments sub-collection: { userId: number, amount: number, paymentDate: number,
+      //                             paymentMethod: string, status: string, ... }
+      match /payments/{paymentId} {
+        allow read: if isAuthenticated();
+        allow create, update: if isAuthenticated()
+          && request.resource.data.userId is number
+          && request.resource.data.amount is number
+          && request.resource.data.paymentDate is number
+          && request.resource.data.paymentMethod is string
+          && request.resource.data.status is string;
+        allow delete: if isAuthenticated(); // explicit: corrections allowed
+      }
+
+      // Budgets sub-collection: { teamId: number, totalAmount: number, title: string, status: string, ... }
+      match /budgets/{budgetId} {
+        allow read: if isAuthenticated();
+        allow create, update: if isAuthenticated()
+          && request.resource.data.teamId is number
+          && request.resource.data.totalAmount is number
+          && request.resource.data.title is string
+          && request.resource.data.status is string;
+        allow delete: if false;
+      }
+
+      // Ledger sub-collection: written by full re-sync via set(id), so update is
+      // required — treat as append-mostly; deletes are blocked.
+      // { userId: number, amount: number, runningBalanceAfter: number,
+      //   type: string, referenceType: string, createdAt: number, ... }
+      match /ledger/{ledgerId} {
+        allow read: if isAuthenticated();
+        allow create, update: if isAuthenticated()
+          && request.resource.data.userId is number
+          && request.resource.data.amount is number
+          && request.resource.data.runningBalanceAfter is number
+          && request.resource.data.type is string
+          && request.resource.data.referenceType is string
+          && request.resource.data.createdAt is number;
+        allow delete: if false;
+      }
+
+      // Disputes sub-collection (schema not final — auth-only baseline)
+      match /disputes/{disputeId} {
+        allow read: if isAuthenticated();
+        allow write: if isAuthenticated();
+      }
+    }
+
+    // Everything else in the database is denied by default.
+  }
+}
