@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Distributed Defense & Security Governance - ClubLedger Docs</title>
-  <meta name="description" content="ClubLedger documentation hub — architecture, portability, distributed defense, treasury math, receipts, training, and production CI/CD." />
+  <title>Distributed Defense & Cloud Security - ClubLedger Docs</title>
+  <meta name="description" content="ClubLedger 5-layer distributed defense: anti-DDoS, hardware device attestation (Play Integrity), Sybil & invite-code rate limiting, zero-trust cloud ACLs, and financial denial-of-wallet mitigation." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
@@ -63,43 +63,365 @@
     <div class="sidebar-footer">
       <div class="app-status">
         <span class="status-dot"></span>
-        <span>Local Database v2 Green</span>
+        <span>Zero-Trust Shield Active</span>
       </div>
       <div style="color: #64748B; font-size: 0.7rem;">
-        Jetpack Compose • Room • Coroutines Flow • GitHub Actions
+        Play Integrity • Firestore ACL • Room L1 • Budget Caps
       </div>
     </div>
   </aside>
 
   <main>
 
+    <!-- Header Section -->
     <section id="defense" class="doc-section">
       <div class="section-header">
         <div class="section-title">
-          <span>🛡️</span> Distributed Defense & Security Governance
+          <span>🛡️</span> Distributed Defense & Cloud Security
         </div>
-        <span class="section-badge badge-emerald">Module 4</span>
+        <span class="section-badge badge-emerald">Module 4 • Zero-Trust</span>
       </div>
 
-      <p>
-        ClubLedger implements a defense-in-depth model safeguarding financial funds, attendance records, and administrative authority against fraud, accidental double-charging, and privilege escalation.
+      <p style="font-size: 1.02rem; color: var(--navy-dark); font-weight: 500; margin-bottom: 12px;">
+        As a public-facing, real-time cloud-native mobile system handling monetary balances and team access, ClubLedger enforces a <strong>5-Layer Defense-in-Depth Architecture</strong>.
       </p>
+      <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 24px;">
+        This protects production workloads against volumetric DDoS floods, bot swarm credential stuffing, short-code brute force, replay attacks, database tampering, and runaway cloud billing exploitation (<strong>"Denial of Wallet"</strong>).
+      </p>
+
+      <!-- 5-Layer Visual Architecture Diagram -->
+      <h4 style="margin: 28px 0 12px; font-weight: 700; color: var(--navy-dark); display: flex; align-items: center; gap: 8px;">
+        <span>📐</span> 5-Layer Defense-in-Depth Topology
+      </h4>
+      <div class="ascii-diagram">
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                   LAYER 1: EDGE & VOLUMETRIC DDOS MITIGATION (L3/L4 & L7)              │
+│  • Google Cloud Armor & Anycast Edge Ingress absorb Tbps SYN floods and HTTP storms    │
+│  • Edge rate-limiting scrubs traffic before compute or cloud billing meters trigger    │
+└───────────────────────────────────────────┬────────────────────────────────────────────┘
+                                            │
+                                            ▼
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│              LAYER 2: CRYPTOGRAPHIC DEVICE ATTESTATION (ANTI-BOT & EMULATORS)          │
+│  • Google Play Integrity API + Firebase App Check verifies hardware KeyStore signature │
+│  • Instantly blocks headless emulators, automated Python/curl scripts, & repackaged APKs│
+└───────────────────────────────────────────┬────────────────────────────────────────────┘
+                                            │
+                                            ▼
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│           LAYER 3: SYBIL & SHORT-CODE BRUTE-FORCE DEFENSE (SLIDING WINDOW & IDEMPOTENCY│
+│  • SecurityDefenseHelper sliding window: Max 10 team code lookups / min per IP/Device  │
+│  • Compound Idempotency Keys: `pay_${userId}_${amount}_${date}_${method}`              │
+│  • Eliminates double-charging, network replays, and duplicate attendance submissions   │
+└───────────────────────────────────────────┬────────────────────────────────────────────┘
+                                            │
+                                            ▼
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│             LAYER 4: ZERO-TRUST SERVER-SIDE ACCESS CONTROL & SCHEMA ACL (RULES)        │
+│  • firestore.rules validates authenticated ownership, explicit field types, & subtrees │
+│  • Append-mostly ledger logs: `allow delete: if false;` prevents historical erasure     │
+└───────────────────────────────────────────┬────────────────────────────────────────────┘
+                                            │
+                                            ▼
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│            LAYER 5: FINANCIAL DEFENSE & "DENIAL OF WALLET" RUNAWAY BILLING SHIELDS     │
+│  • Room SQLite offline-first local cache serves repeat reads without Firestore egress  │
+│  • Kotlin Coroutines Flow `debounce(300ms)` throttles real-time sync / search queries  │
+│  • GCP Budget hard-cap alerts & automated billing circuit breakers safeguard finances   │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+      </div>
+
+      <!-- 5 Layers In-Depth Breakdown -->
+      <h4 style="margin: 32px 0 16px; font-weight: 700; color: var(--navy-dark); display: flex; align-items: center; gap: 8px;">
+        <span>🔍</span> Deep Dive: The 5 Defense Layers
+      </h4>
+
+      <div style="display: flex; flex-direction: column; gap: 18px; margin-bottom: 30px;">
+
+        <!-- Layer 1 -->
+        <div class="feature-card" style="border-left: 5px solid #0284C7; background: #FFFFFF;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span class="feature-icon" style="margin:0;">🌐</span>
+              <div>
+                <h4 style="margin: 0; color: var(--navy-dark);">Layer 1: Edge & Volumetric DDoS Mitigation (L3/L4 & L7)</h4>
+                <span style="font-size: 0.72rem; color: #0284C7; font-weight: 700; text-transform: uppercase;">Infrastructure Ingestion Protection</span>
+              </div>
+            </div>
+            <span class="badge" style="background: #E0F2FE; color: #0369A1; font-weight: 700;">Absorbs Ingress Floods</span>
+          </div>
+          <p>
+            Volumetric attack vectors (SYN floods, UDP amplification, Layer 7 HTTP request storms) are absorbed at the global Anycast edge network (Google Cloud Armor / Cloudflare Edge / AWS Shield) before reaching application compute or triggering Firestore document read billing meters. Unauthenticated edge filtering inspects TLS fingerprints and geographical traffic anomalies.
+          </p>
+          <div class="grid-2" style="margin-top: 12px; margin-bottom: 0;">
+            <div style="background: #F8FAFC; padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border); font-size: 0.82rem;">
+              <b>🔥 Firebase / GCP:</b> Automatically proxied by Google Global Anycast Edge & Google Cloud Armor DDoS protection.
+            </div>
+            <div style="background: #F8FAFC; padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border); font-size: 0.82rem;">
+              <b>🛠️ Self-Hosted / Ktor:</b> Fronted by Cloudflare Reverse Proxy with Nginx <code>limit_req_zone</code> and Fail2Ban kernel blocks.
+            </div>
+          </div>
+        </div>
+
+        <!-- Layer 2 -->
+        <div class="feature-card" style="border-left: 5px solid #4F46E5; background: #FFFFFF;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span class="feature-icon" style="margin:0;">📱</span>
+              <div>
+                <h4 style="margin: 0; color: var(--navy-dark);">Layer 2: Cryptographic Device Attestation (Anti-Bot & Anti-Emulator)</h4>
+                <span style="font-size: 0.72rem; color: #4F46E5; font-weight: 700; text-transform: uppercase;">Hardware Proof-of-Origin</span>
+              </div>
+            </div>
+            <span class="badge" style="background: #EEF2FF; color: #3730A3; font-weight: 700;">Blocks Headless Scripts</span>
+          </div>
+          <p>
+            Adversaries often deploy automated Python <code>curl</code> scripts or headless emulator farms to scrape member directories or flood invite codes. ClubLedger integrates <strong>Hardware Device Attestation (Google Play Integrity API via Firebase App Check)</strong>.
+          </p>
+          <p style="margin-top: 6px;">
+            Every network request carries a cryptographically signed token generated by the device's secure hardware enclave, proving the request originates from an authentic, untampered Android APK installed on certified hardware.
+          </p>
+          <div style="background: #0F172A; border-radius: var(--radius-sm); padding: 12px 16px; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: #E2E8F0; margin-top: 10px;">
+            <span style="color: #94A3B8;">// SecurityDefenseHelper.kt: Hardware Device Attestation</span><br>
+            <span style="color: #38BDF8;">fun</span> initDeviceAttestation(context: Context) {<br>
+            &nbsp;&nbsp;<span style="color: #F472B6;">if</span> (FirebaseApp.getApps(context).isNotEmpty()) {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;FirebaseAppCheck.getInstance().installAppCheckProviderFactory(PlayIntegrityAppCheckProviderFactory.getInstance())<br>
+            &nbsp;&nbsp;}<br>
+            }
+          </div>
+        </div>
+
+        <!-- Layer 3 -->
+        <div class="feature-card" style="border-left: 5px solid #8B5CF6; background: #FFFFFF;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span class="feature-icon" style="margin:0;">🔑</span>
+              <div>
+                <h4 style="margin: 0; color: var(--navy-dark);">Layer 3: Sybil & Short-Code Brute Force Prevention</h4>
+                <span style="font-size: 0.72rem; color: #8B5CF6; font-weight: 700; text-transform: uppercase;">Rate Limiting & Idempotency Keys</span>
+              </div>
+            </div>
+            <span class="badge" style="background: #F3E8FF; color: #6B21A8; font-weight: 700;">Rate Throttled</span>
+          </div>
+          <p>
+            Team invite codes and join links must resist automated enumeration. Simultaneously, mobile network instability can trigger duplicated payments or double-counted attendance records. ClubLedger solves this via <code>SecurityDefenseHelper</code>:
+          </p>
+          <ul style="margin: 10px 0 10px 20px; font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">
+            <li><strong>Sliding-Window Rate Limiter:</strong> Enforces a maximum of 10 code lookups per 60-second window per client action key, returning <code>RateLimitResult.Throttled</code> if exceeded.</li>
+            <li><strong>Input Sanitization:</strong> Strips invalid characters via <code>[^A-Z0-9_-]</code> and forces uppercase formatting to neutralize injection payloads.</li>
+            <li><strong>Deterministic Compound Idempotency Keys:</strong> Payments use <code>pay_${userId}_${amount}_${paymentDate}_${method}</code> and attendance uses <code>att_${userId}_${teamId}_${sessionDate}_${sessionType}</code>. Multiple rapid taps or retry storms collapse into a single database record.</li>
+          </ul>
+        </div>
+
+        <!-- Layer 4 -->
+        <div class="feature-card" style="border-left: 5px solid #10B981; background: #FFFFFF;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span class="feature-icon" style="margin:0;">🔒</span>
+              <div>
+                <h4 style="margin: 0; color: var(--navy-dark);">Layer 4: Server-Side Zero-Trust Database ACL & Schema Enforcement</h4>
+                <span style="font-size: 0.72rem; color: #10B981; font-weight: 700; text-transform: uppercase;">Zero-Trust Firestore ACL</span>
+              </div>
+            </div>
+            <span class="badge" style="background: #DCFCE7; color: #166534; font-weight: 700;">Immutable Ledger Trees</span>
+          </div>
+          <p>
+            Even if a malicious user inspects or modifies client bytecode, cloud databases reject unauthorized state mutations. ClubLedger enforces comprehensive <code>firestore.rules</code>:
+          </p>
+          <ul style="margin: 10px 0 10px 20px; font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">
+            <li><strong>Strict Authentication:</strong> All club subcollections require authenticated sessions (<code>request.auth != null</code>).</li>
+            <li><strong>Immutable Append-Only Trees:</strong> Root clubs, user records, teams, budgets, and ledger items reject deletes (<code>allow delete: if false;</code>).</li>
+            <li><strong>Schema Type Validation:</strong> Ensures numeric and string constraints (e.g., <code>amount is number</code>, <code>runningBalanceAfter is number</code>) are validated at the cloud firewall before entering storage.</li>
+          </ul>
+        </div>
+
+        <!-- Layer 5 -->
+        <div class="feature-card" style="border-left: 5px solid #EA580C; background: #FFFFFF;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span class="feature-icon" style="margin:0;">💰</span>
+              <div>
+                <h4 style="margin: 0; color: var(--navy-dark);">Layer 5: Financial Defense & "Denial of Wallet" Hard Caps</h4>
+                <span style="font-size: 0.72rem; color: #EA580C; font-weight: 700; text-transform: uppercase;">Cost Shield & Circuit Breakers</span>
+              </div>
+            </div>
+            <span class="badge" style="background: #FFEDD5; color: #9A3412; font-weight: 700;">Zero-Shock Billing</span>
+          </div>
+          <p>
+            Malicious bot swarms can induce "Denial of Wallet" by firing millions of repeated read requests against pay-per-read NoSQL databases. ClubLedger guards against financial depletion through three shields:
+          </p>
+          <div class="grid-3" style="margin-top: 12px; margin-bottom: 0;">
+            <div style="background: #F8FAFC; padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+              <h5 style="font-size: 0.88rem; color: var(--navy-dark); margin-bottom: 4px;">🗄️ Offline-First Caching</h5>
+              <p style="font-size: 0.8rem; color: var(--text-muted);">Local Room SQLite database serves all UI queries. Remote reads only execute on deliberate sync triggers or cache misses.</p>
+            </div>
+            <div style="background: #F8FAFC; padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+              <h5 style="font-size: 0.88rem; color: var(--navy-dark); margin-bottom: 4px;">⏱️ Reactive Debouncing</h5>
+              <p style="font-size: 0.8rem; color: var(--text-muted);">Kotlin Coroutines <code>debounce(300ms)</code> prevents rapid keystroke emissions from triggering successive backend query storms.</p>
+            </div>
+            <div style="background: #F8FAFC; padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+              <h5 style="font-size: 0.88rem; color: var(--navy-dark); margin-bottom: 4px;">🛑 Budget Circuit Breakers</h5>
+              <p style="font-size: 0.8rem; color: var(--text-muted);">Google Cloud billing alerts with Pub/Sub Cloud Functions automatically disable billing or cap API thresholds upon budget overrun.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Cross-Provider Defense Translation Matrix Table -->
+      <h4 style="margin: 36px 0 14px; font-weight: 700; color: var(--navy-dark); display: flex; align-items: center; gap: 8px;">
+        <span>📊</span> Cross-Provider Defense Translation Matrix
+      </h4>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 22%;">Security Layer</th>
+              <th style="width: 26%;">🔥 Firebase / Firestore</th>
+              <th style="width: 26%;">⚡ Supabase / Postgres</th>
+              <th style="width: 26%;">☁️ AWS AppSync / DynamoDB</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>L3/L4 & L7 Volumetric DDoS</strong></td>
+              <td>Google Cloud Armor + Global Anycast PoPs</td>
+              <td>Cloudflare Enterprise Edge Proxy</td>
+              <td>AWS Shield Advanced + AWS WAF</td>
+            </tr>
+            <tr>
+              <td><strong>Hardware Device Attestation</strong></td>
+              <td>Firebase App Check (Play Integrity API)</td>
+              <td>Supabase Edge Function Play Integrity Token Check</td>
+              <td>API Gateway / Lambda Custom Authorizer Attestation</td>
+            </tr>
+            <tr>
+              <td><strong>Sybil & Idempotency Keys</strong></td>
+              <td>Compound Key <code>${action}_${userId}_${timestamp}</code></td>
+              <td><code>UNIQUE(user_id, team_id, session_date)</code></td>
+              <td>DynamoDB Composite Partition + Sort Keys</td>
+            </tr>
+            <tr>
+              <td><strong>Database-Level Row Security</strong></td>
+              <td><code>firestore.rules</code> (Subtree match & ACL)</td>
+              <td>PostgreSQL Row Level Security (RLS) Policies</td>
+              <td>AppSync GraphQL <code>@auth</code> directives + IAM</td>
+            </tr>
+            <tr>
+              <td><strong>Financial Defense & Hard Caps</strong></td>
+              <td>GCP Budget Pub/Sub Cloud Function Killswitch</td>
+              <td>Supabase Spend Cap Toggle</td>
+              <td>AWS Budget Action SNS CloudWatch Alarms</td>
+            </tr>
+            <tr>
+              <td><strong>Client-Side Cost Shield</strong></td>
+              <td colspan="3" style="text-align: center; background: #ECFDF5; color: #065F46; font-weight: 600;">
+                Room SQLite Database v2 Local In-Memory / Disk Cache + Flow <code>debounce(300ms)</code>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Code Comparison: SecurityDefenseHelper vs firestore.rules vs Postgres RLS -->
+      <h4 style="margin: 36px 0 14px; font-weight: 700; color: var(--navy-dark); display: flex; align-items: center; gap: 8px;">
+        <span>💻</span> Multi-Tier Security Enforcement Code
+      </h4>
+
+      <div class="grid-2" style="margin-top: 14px;">
+
+        <!-- Client Android Defense Code -->
+        <div style="background: #0F172A; border-radius: var(--radius-sm); padding: 18px; color: #F8FAFC;">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 8px; margin-bottom: 12px;">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #38BDF8;">SecurityDefenseHelper.kt</span>
+            <span style="font-size: 0.68rem; color: #94A3B8; font-weight: 700; text-transform: uppercase;">Android Client</span>
+          </div>
+          <pre style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; line-height: 1.55; color: #E2E8F0; overflow-x: auto;"><code>// 1. Sliding Window Rate Limiter
+fun checkRateLimit(
+    actionKey: String = "join_team_code",
+    maxRequests: Int = 10,
+    windowMs: Long = 60_000L
+): RateLimitResult {
+    val now = System.currentTimeMillis()
+    val timestamps = actionTimestamps.getOrPut(actionKey) { mutableListOf() }
+    timestamps.removeAll { now - it > windowMs }
+
+    return if (timestamps.size < maxRequests) {
+        timestamps.add(now)
+        RateLimitResult.Allowed(maxRequests - timestamps.size)
+    } else {
+        val oldest = timestamps.firstOrNull() ?: now
+        val wait = (((oldest + windowMs) - now) / 1000).coerceAtLeast(1)
+        RateLimitResult.Throttled(retryAfterSeconds = wait)
+    }
+}
+
+// 2. Deterministic Compound Idempotency Key
+fun createIdempotentPaymentKey(
+    userId: Long, amount: Double,
+    paymentDate: Long, method: String
+): String = "pay_${userId}_${amount}_${paymentDate}_${method.trim().uppercase()}"</code></pre>
+        </div>
+
+        <!-- Firestore Rules Enforcement Code -->
+        <div style="background: #0F172A; border-radius: var(--radius-sm); padding: 18px; color: #F8FAFC;">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 8px; margin-bottom: 12px;">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #F59E0B;">firestore.rules</span>
+            <span style="font-size: 0.68rem; color: #94A3B8; font-weight: 700; text-transform: uppercase;">Cloud Database ACL</span>
+          </div>
+          <pre style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; line-height: 1.55; color: #E2E8F0; overflow-x: auto;"><code>rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /clubs/{clubId} {
+      allow get, list: if request.auth != null;
+      allow delete: if false; // Tree never deleted from client
+
+      // Immutable append-only ledger sub-collection
+      match /ledger/{ledgerId} {
+        allow read: if request.auth != null;
+        allow create, update: if request.auth != null
+          && request.resource.data.userId is number
+          && request.resource.data.amount is number
+          && request.resource.data.runningBalanceAfter is number
+          && request.resource.data.createdAt is number;
+        allow delete: if false; // Deletions strictly forbidden
+      }
+
+      // Payments sub-collection
+      match /payments/{paymentId} {
+        allow read: if request.auth != null;
+        allow create, update: if request.auth != null
+          && request.resource.data.amount is number
+          && request.resource.data.status is string;
+        allow delete: if request.auth != null;
+      }
+    }
+  }
+}</code></pre>
+        </div>
+
+      </div>
+
+      <!-- Enterprise Governance & Business Security Safeguards -->
+      <h4 style="margin: 38px 0 14px; font-weight: 700; color: var(--navy-dark); display: flex; align-items: center; gap: 8px;">
+        <span>⚖️</span> Financial Governance & Access Control Policies
+      </h4>
 
       <div class="grid-3">
         <div class="feature-card">
           <div class="feature-icon">👑</div>
           <h4>Superset Role Hierarchy</h4>
-          <p><code>Global Admin &gt; Team Admin &gt; Captain &gt; Member</code>. Admins inherit all member privileges plus audit dashboards and treasury management.</p>
+          <p><code>Global Admin &gt; Team Admin &gt; Captain &gt; Member</code>. Admins inherit all member privileges plus audit dashboards, dispute adjudication, and treasury controls.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">🔒</div>
           <h4>Two-Man Rule Verification</h4>
-          <p>Payments logged by members require explicit Treasurer or Team Admin verification and approval before entering the valid treasury balance.</p>
+          <p>Member-logged payments require explicit Treasurer or Team Admin verification and approval before entering the verified treasury balance.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">📝</div>
           <h4>Immutable Transaction Logs</h4>
-          <p>Transactions are append-only. Balances cannot be manually rewritten without an explicit debit/credit entry accompanied by a mandatory audit reason.</p>
+          <p>Balances are append-only. No user can rewrite balances without an explicit debit/credit entry accompanied by a mandatory audit reason.</p>
         </div>
       </div>
 
@@ -107,29 +429,31 @@
         <div class="feature-card">
           <div class="feature-icon">⚖️</div>
           <h4>Built-in Dispute Mediation</h4>
-          <p>Formal dispute workflows allow players to challenge attendance counts or billing amounts. Adjudications produce an automated ledger correction.</p>
+          <p>Formal dispute workflows allow players to contest attendance records or fee invoices. Resolution generates an automated compensating ledger record.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">🔑</div>
           <h4>Granular Team Permissions</h4>
-          <p>Team Admins can only view and manage rosters, budgets, and payments belonging to their designated team; cross-team leakage is strictly prevented.</p>
+          <p>Team Admins can only view and manage rosters and budgets designated to their specific team; cross-tenant leakage is strictly prevented.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">🗄️</div>
-          <h4>Database Migration Safety</h4>
-          <p>Room schema migrations (v1 ➔ v2) utilize safe column alterations with backward compatibility and zero data loss on device upgrades.</p>
+          <h4>Room Migration Safety</h4>
+          <p>Room schema migrations (v1 ➔ v2) utilize safe column alterations with backward compatibility and zero data loss on app upgrades.</p>
         </div>
       </div>
 
-      <div class="callout callout-warning">
+      <div class="callout callout-warning" style="margin-top: 24px;">
         <div class="callout-icon">🛡️</div>
         <div class="callout-text">
-          <h5>Security Assertion</h5>
-          <p>No user, including team admins, can delete historical transactions. All accounting records remain verifiable for Annual General Meetings (AGM) and formal auditing.</p>
+          <h5>Security & Audit Assertion</h5>
+          <p>Historical financial transactions cannot be deleted by any user or team admin. All accounting records remain permanently verifiable for Annual General Meetings (AGM), tax filing, and formal financial auditing.</p>
         </div>
       </div>
+
     </section>
 
+    <!-- Navigation Pager -->
     <div class="pager">
         <a href="portability.html"><span>←</span><span><span class="pager-label">Previous</span>Portability</span></a>
         <a href="production.html"><span>→</span><span><span class="pager-label">Next</span>Production</span></a>

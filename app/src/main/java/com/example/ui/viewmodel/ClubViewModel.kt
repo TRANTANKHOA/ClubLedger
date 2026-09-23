@@ -13,6 +13,8 @@ import com.example.data.remote.CloudSyncState
 import com.example.data.remote.FirebaseAuthManager
 import com.example.data.remote.FirestoreSyncManager
 import com.example.data.repository.ClubRepository
+import com.example.util.RateLimitResult
+import com.example.util.SecurityDefenseHelper
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -384,6 +386,11 @@ class ClubViewModel(application: Application) : AndroidViewModel(application) {
         notes: String
     ) {
         val user = _currentUser.value ?: return
+        val rateLimit = SecurityDefenseHelper.checkRateLimit("submit_attendance")
+        if (rateLimit is RateLimitResult.Throttled) {
+            _snackbarMessage.value = "Too many attendance submissions. Please retry in ${rateLimit.retryAfterSeconds}s."
+            return
+        }
         viewModelScope.launch {
             repository.submitAttendance(
                 Attendance(
@@ -431,6 +438,11 @@ class ClubViewModel(application: Application) : AndroidViewModel(application) {
         receiptNote: String?
     ) {
         val user = _currentUser.value ?: return
+        val rateLimit = SecurityDefenseHelper.checkRateLimit("submit_payment")
+        if (rateLimit is RateLimitResult.Throttled) {
+            _snackbarMessage.value = "Too many payment submissions. Please retry in ${rateLimit.retryAfterSeconds}s."
+            return
+        }
         viewModelScope.launch {
             repository.submitPayment(
                 Payment(

@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.example.data.dao.ClubDao
 import com.example.data.entity.*
+import com.example.util.SecurityDefenseHelper
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -213,13 +214,25 @@ class FirestoreSyncManager(
             for (t in teams) {
                 clubDoc.collection("teams").document(t.id.toString()).set(t).await()
             }
-            // Sync attendances
+            // Sync attendances with deterministic idempotency compound key
             for (a in attendances) {
-                clubDoc.collection("attendances").document(a.id.toString()).set(a).await()
+                val docId = SecurityDefenseHelper.createIdempotentAttendanceKey(
+                    userId = a.userId,
+                    teamId = a.teamId,
+                    sessionDate = a.sessionDate,
+                    sessionType = a.sessionType
+                )
+                clubDoc.collection("attendances").document(docId).set(a).await()
             }
-            // Sync payments
+            // Sync payments with deterministic idempotency compound key
             for (p in payments) {
-                clubDoc.collection("payments").document(p.id.toString()).set(p).await()
+                val docId = SecurityDefenseHelper.createIdempotentPaymentKey(
+                    userId = p.userId,
+                    amount = p.amount,
+                    paymentDate = p.paymentDate,
+                    paymentMethod = p.paymentMethod
+                )
+                clubDoc.collection("payments").document(docId).set(p).await()
             }
             // Sync budgets
             for (b in budgets) {
@@ -240,8 +253,14 @@ class FirestoreSyncManager(
     suspend fun pushAttendanceToCloud(attendance: Attendance) {
         val db = firestore ?: return
         try {
+            val docId = SecurityDefenseHelper.createIdempotentAttendanceKey(
+                userId = attendance.userId,
+                teamId = attendance.teamId,
+                sessionDate = attendance.sessionDate,
+                sessionType = attendance.sessionType
+            )
             db.collection("clubs").document(activeClubId)
-                .collection("attendances").document(attendance.id.toString())
+                .collection("attendances").document(docId)
                 .set(attendance).await()
         } catch (e: Exception) {
             Log.e(TAG, "Error pushing attendance to cloud", e)
@@ -251,8 +270,14 @@ class FirestoreSyncManager(
     suspend fun pushPaymentToCloud(payment: Payment) {
         val db = firestore ?: return
         try {
+            val docId = SecurityDefenseHelper.createIdempotentPaymentKey(
+                userId = payment.userId,
+                amount = payment.amount,
+                paymentDate = payment.paymentDate,
+                paymentMethod = payment.paymentMethod
+            )
             db.collection("clubs").document(activeClubId)
-                .collection("payments").document(payment.id.toString())
+                .collection("payments").document(docId)
                 .set(payment).await()
         } catch (e: Exception) {
             Log.e(TAG, "Error pushing payment to cloud", e)

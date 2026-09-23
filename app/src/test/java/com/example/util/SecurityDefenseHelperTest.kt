@@ -88,4 +88,19 @@ class SecurityDefenseHelperTest {
         )
         assertEquals("att_10_5_1700000000_TRAINING", key1)
     }
+
+    @Test
+    fun `submission rate limiting tracks separate action keys independently`() {
+        // Exhaust 10 allowed attempts on payment submissions
+        for (i in 1..10) {
+            val res = SecurityDefenseHelper.checkRateLimit("submit_payment")
+            assertTrue("Payment attempt $i must be allowed", res is RateLimitResult.Allowed)
+        }
+        val paymentThrottled = SecurityDefenseHelper.checkRateLimit("submit_payment")
+        assertTrue("11th payment attempt must be throttled", paymentThrottled is RateLimitResult.Throttled)
+
+        // Attendance submission with a distinct key must still be allowed
+        val attendanceRes = SecurityDefenseHelper.checkRateLimit("submit_attendance")
+        assertTrue("Attendance attempt must be allowed independently", attendanceRes is RateLimitResult.Allowed)
+    }
 }

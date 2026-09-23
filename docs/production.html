@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Production Engineering & CI/CD Pipeline - ClubLedger Docs</title>
-  <meta name="description" content="ClubLedger documentation hub — architecture, portability, distributed defense, treasury math, receipts, training, and production CI/CD." />
+  <meta name="description" content="ClubLedger production runbook: Firebase & cloud setup, Firestore rules, release signing, AAB/APK builds, CI/CD pipeline, Play Store checklist, and troubleshooting." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
@@ -49,14 +49,14 @@
 
     <div class="nav-group">
       <div class="nav-label">Curriculum & Formulas</div>
+      <a href="training.html" class="nav-link">
+        <span>📚</span> Training Modules (A-C)
+      </a>
       <a href="financial.html" class="nav-link">
         <span>💰</span> Treasury Math & Formulas
       </a>
       <a href="receipts.html" class="nav-link">
         <span>🧾</span> Proof & Receipt Flow
-      </a>
-      <a href="training.html" class="nav-link">
-        <span>📚</span> Training Modules (A-C)
       </a>
     </div>
 
@@ -82,67 +82,178 @@
       </div>
 
       <p>
-        ClubLedger features an enterprise-grade delivery pipeline automated via GitHub Actions, comprehensive JVM unit testing, APK artifact bundling, and release packaging.
+        This page is the condensed web runbook. The canonical, step-by-step guide lives in the repository:
+        <a href="https://github.com/TRANTANKHOA/ClubLedger/blob/main/DEPLOYMENT.md" target="_blank" rel="noopener noreferrer" style="color: var(--primary-dark); font-weight: 700;">DEPLOYMENT.md</a>.
       </p>
 
+      <!-- 1. Local environment -->
+      <h4 style="margin: 24px 0 12px; font-weight: 700;">1. Local Development Environment</h4>
       <div class="grid-2">
         <div class="feature-card">
-          <div class="feature-icon">⚙️</div>
-          <h4>Continuous Integration (CI)</h4>
-          <p>Every PR and push to <code>main</code> runs standard Gradle compilation, JVM unit tests, and generates a debug APK test artifact.</p>
+          <div class="feature-icon">🛠️</div>
+          <h4>Prerequisites</h4>
+          <p>JDK 17 (Homebrew: <code>brew install openjdk@17</code>), Android SDK API 34+, Android Studio Iguana+. macOS one-command setup: <code>./scripts/setup_mac.sh</code>.</p>
         </div>
         <div class="feature-card">
-          <div class="feature-icon">📦</div>
-          <h4>Automated Release Bundling (CD)</h4>
-          <p>Automatic generation of optimized Android App Bundles (<code>.aab</code>) signed with release keystore credentials upon merge to main.</p>
+          <div class="feature-icon">🧪</div>
+          <h4>Test & Build Loop</h4>
+          <p><code>./scripts/run_tests.sh</code> (45 unit tests), <code>./scripts/build_apk.sh</code> (debug APK), <code>./scripts/run_app.sh</code> (install & launch on a device).</p>
         </div>
       </div>
 
-      <h4 style="margin: 20px 0 10px; font-weight: 700;">GitHub Actions CI/CD Pipeline Configuration</h4>
-      <div class="ascii-diagram">
-name: ClubLedger CI/CD Pipeline
+      <!-- 2. Firebase -->
+      <h4 style="margin: 24px 0 12px; font-weight: 700;">2. Firebase & Cloud Multi-User Setup (Optional)</h4>
+      <p style="font-size: 0.9rem; color: var(--text-muted);">
+        ClubLedger runs Offline-First on Room SQLite by default. To enable live multi-device sync and social sign-in:
+      </p>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr><th>Step</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>1</strong></td><td>Create a Firebase project at <a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer">console.firebase.google.com</a></td></tr>
+            <tr><td><strong>2</strong></td><td>Register an Android app — package name <code>com.aistudio.clubledger.sports</code> (must match <code>applicationId</code> in <code>app/build.gradle.kts</code>)</td></tr>
+            <tr><td><strong>3</strong></td><td>Add the SHA-1 fingerprint (obtain via <code>./gradlew signingReport</code>)</td></tr>
+            <tr><td><strong>4</strong></td><td>Enable Authentication sign-ins: <strong>Google</strong>, <strong>Apple</strong> (Team ID + Service ID), <strong>Facebook</strong> (App ID + Secret)</td></tr>
+            <tr><td><strong>5</strong></td><td>Enable Cloud Firestore (production mode rules)</td></tr>
+            <tr><td><strong>6</strong></td><td>Download <code>google-services.json</code> into <code>app/</code> and rebuild</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 3. Firestore rules -->
+      <h4 style="margin: 24px 0 12px; font-weight: 700;">3. Firestore Security Rules</h4>
+      <p style="font-size: 0.9rem; color: var(--text-muted);">
+        Baseline rules (<code>firestore.rules</code>) protect the <code>clubs/{clubId}</code> tree: authenticated reads, type-validated writes, deletes blocked on immutable collections. Deploy with:
+      </p>
+      <div class="formula-box">
+        <div class="formula-title">Deploy rules</div>
+        <div class="formula-code">firebase login<br>./scripts/deploy-firestore-rules.sh</div>
+        <div class="formula-expl">
+          Cloud sync assumes a signed-in user — unauthenticated pushes are denied by design. Tighten role-based writes before real multi-tenant use.
+        </div>
+      </div>
+
+      <!-- 4. Signing -->
+      <h4 style="margin: 24px 0 12px; font-weight: 700;">4. Release Keystore & Signing</h4>
+      <div class="formula-box">
+        <div class="formula-title">Generate + configure the release keystore</div>
+        <div class="formula-code">./scripts/generate_release_keystore.sh<br><br># then export before release builds (alias: clubledger)<br>export KEYSTORE_PATH=/absolute/path/release.keystore<br>export STORE_PASSWORD='&lt;your-keystore-password&gt;'<br>export KEY_PASSWORD='&lt;your-key-password&gt;'</div>
+        <div class="formula-expl">
+          The signing config reads environment variables — gradle.properties has no effect. Never commit keystores or passwords.
+        </div>
+      </div>
+
+      <!-- 5. Artifacts -->
+      <h4 style="margin: 24px 0 12px; font-weight: 700;">5. Build Production Artifacts</h4>
+      <div class="grid-2">
+        <div class="feature-card">
+          <div class="feature-icon">📦</div>
+          <h4>Android App Bundle (.aab) — Play Store</h4>
+          <p><code>./scripts/build_release.sh aab</code> → <code>app/build/outputs/bundle/release/app-release.aab</code></p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📱</div>
+          <h4>Release APK (.apk) — Sideloading</h4>
+          <p><code>./scripts/build_release.sh apk</code> → <code>app/build/outputs/apk/release/app-release.apk</code></p>
+        </div>
+      </div>
+
+      <!-- 6. CI/CD -->
+      <h4 style="margin: 24px 0 12px; font-weight: 700;">6. GitHub Actions CI/CD Pipeline</h4>
+      <p style="font-size: 0.9rem; color: var(--text-muted);">
+        Every push/PR to <code>main</code> runs tests and assembles a debug APK; merges to main also build an app bundle (signed only when keystore secrets are configured — otherwise unsigned).
+      </p>
+      <div class="ascii-diagram">name: ClubLedger CI/CD Pipeline
 on:
   push:
-    branches: [ main, release/* ]
+    branches: [ main, 'release/*' ]
   pull_request:
     branches: [ main ]
 
 jobs:
   build_and_test:
-    name: Build & Test Android App
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'gradle'
-      - name: Run Unit & JVM Tests
+        with: { distribution: 'temurin', java-version: '17', cache: 'gradle' }
+      - name: Make scripts executable
+        run: chmod +x gradlew scripts/*.sh || true
+      - name: Generate debug keystore   # custom debugConfig expects &lt;root&gt;/debug.keystore
+        run: keytool -genkeypair -v -keystore debug.keystore -alias androiddebugkey
+              -storepass android -keypass android -keyalg RSA -keysize 2048 -validity 10000
+              -dname "CN=Android Debug,O=Android,C=US"
+      - name: Run Unit &amp; JVM Tests
         run: ./gradlew testDebugUnitTest --continue
       - name: Build Debug APK
         run: ./gradlew assembleDebug
-      - name: Upload Debug APK Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+
+  release_bundle:
+    needs: build_and_test
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: 'temurin', java-version: '17', cache: 'gradle' }
+      - name: Make scripts executable
+        run: chmod +x gradlew scripts/*.sh || true
+      - name: Decode Keystore (if secret provided)
+        env: { KEYSTORE_BASE64: "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" }
+        run: echo "$KEYSTORE_BASE64" | base64 -d &gt; release.keystore
+      - name: Build Production Android App Bundle (AAB)
+        run: ./gradlew :app:bundleRelease</div>
+
+      <!-- 7. Play checklist -->
+      <h4 style="margin: 24px 0 12px; font-weight: 700;">7. Google Play Console Release Checklist</h4>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr><th>Item</th><th>Requirement</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>App identity</strong></td><td>Name <strong>ClubLedger</strong> · App · Free · English (US)</td></tr>
+            <tr><td><strong>Icon</strong></td><td>512 × 512 px 32-bit PNG</td></tr>
+            <tr><td><strong>Feature graphic</strong></td><td>1024 × 500 px JPG/PNG</td></tr>
+            <tr><td><strong>Screenshots</strong></td><td>Minimum 2 phone screenshots (1080 × 1920 or 1080 × 2400)</td></tr>
+            <tr><td><strong>Short description</strong></td><td>≤ 80 chars — e.g. <em>"Club treasury: attendance-based fair-share dues, payments &amp; audit trail."</em></td></tr>
+            <tr><td><strong>Data safety</strong></td><td>Declare name/email (member identity, social sign-in) and user-provided payment references; encrypted in transit (TLS via Firebase)</td></tr>
+            <tr><td><strong>Upload</strong></td><td><code>app-release.aab</code> → Release ➔ Production or Internal Testing → rollout</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 8. Troubleshooting -->
+      <h4 style="margin: 24px 0 12px; font-weight: 700;">8. Troubleshooting</h4>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr><th>Symptom</th><th>Fix</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>java: command not found</code></td><td>Homebrew openjdk@17 is keg-only — <code>export JAVA_HOME=/opt/homebrew/opt/openjdk@17</code> + PATH</td></tr>
+            <tr><td><code>SDK location not found</code></td><td><code>export ANDROID_HOME=/opt/homebrew/share/android-commandlinetools</code> or create <code>local.properties</code></td></tr>
+            <tr><td>Keystore <code>debug.keystore</code> not found</td><td>Generate via the keytool one-liner (see CI step 6 above) — the file is gitignored</td></tr>
+            <tr><td><code>gradlew: Permission denied</code></td><td><code>chmod +x gradlew scripts/*.sh</code></td></tr>
+            <tr><td>First test run is slow</td><td>Robolectric downloads the API-34 android-all jar (~100 MB) once; cached afterwards</td></tr>
+          </tbody>
+        </table>
       </div>
 
       <div class="callout callout-success">
         <div class="callout-icon">✅</div>
         <div class="callout-text">
           <h5>Production Build Verified</h5>
-          <p>The build toolchain compiles with Gradle (Kotlin DSL), JDK 17, AndroidX Compose Material 3, and Room SQLite KSP with zero deprecation warnings.</p>
+          <p>The pipeline compiles with Gradle (Kotlin DSL), JDK 17, AndroidX Compose Material 3, and Room SQLite KSP — and runs the full 45-test suite on every push.</p>
         </div>
       </div>
     </section>
 
     <div class="pager">
         <a href="defense.html"><span>←</span><span><span class="pager-label">Previous</span>Distributed Defense</span></a>
-        <a href="financial.html"><span>→</span><span><span class="pager-label">Next</span>Treasury Math & Formulas</span></a>
+        <a href="financial.html"><span>→</span><span><span class="pager-label">Next</span>Treasury Math &amp; Formulas</span></a>
     </div>
-
   </main>
 
   <script>
