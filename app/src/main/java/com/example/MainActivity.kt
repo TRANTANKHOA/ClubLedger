@@ -142,7 +142,7 @@ fun ClubLedgerApp(viewModel: ClubViewModel) {
         },
         bottomBar = {
             NavigationBar(
-                containerColor = Color.White,
+                containerColor = MaterialTheme.colorScheme.surface,
                 tonalElevation = 8.dp
             ) {
                 activeNavItems.forEach { screen ->
