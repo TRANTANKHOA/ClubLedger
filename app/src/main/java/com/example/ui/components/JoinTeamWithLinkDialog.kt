@@ -23,6 +23,8 @@ import com.example.data.entity.Team
 import com.example.data.entity.User
 import com.example.ui.theme.*
 import com.example.ui.viewmodel.ClubViewModel
+import com.example.util.RateLimitResult
+import com.example.util.SecurityDefenseHelper
 import kotlinx.coroutines.launch
 
 @Composable
@@ -46,12 +48,22 @@ fun JoinTeamWithLinkDialog(
     var isSubmitting by remember { mutableStateOf(false) }
     var submitError by remember { mutableStateOf<String?>(null) }
 
-    // Automatically search team when input changes
+    // Automatically search team when input changes with rate-limiting and sanitization
     LaunchedEffect(inviteInput) {
         if (inviteInput.isNotBlank()) {
-            isSearchingTeam = true
-            matchedTeam = viewModel.previewTeamForCode(inviteInput)
-            isSearchingTeam = false
+            val rateLimit = SecurityDefenseHelper.checkRateLimit("join_team_lookup")
+            when (rateLimit) {
+                is RateLimitResult.Throttled -> {
+                    submitError = "Too many lookups. Please retry in ${rateLimit.retryAfterSeconds}s."
+                    matchedTeam = null
+                }
+                is RateLimitResult.Allowed -> {
+                    isSearchingTeam = true
+                    val sanitized = SecurityDefenseHelper.sanitizeInviteCode(inviteInput)
+                    matchedTeam = viewModel.previewTeamForCode(if (sanitized.isNotBlank()) sanitized else inviteInput)
+                    isSearchingTeam = false
+                }
+            }
         } else {
             matchedTeam = null
         }

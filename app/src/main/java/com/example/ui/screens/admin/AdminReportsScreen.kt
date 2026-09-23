@@ -251,7 +251,9 @@ fun AdminReportsScreen(
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         OutlinedButton(
-                            onClick = { viewModel.signInWithGoogle() },
+                            onClick = {
+                                activity?.let { viewModel.signInWithGoogle(it) } ?: viewModel.signInWithGoogle()
+                            },
                             shape = RoundedCornerShape(10.dp),
                             modifier = Modifier.weight(1f).testTag("google_auth_btn"),
                             contentPadding = PaddingValues(horizontal = 6.dp, vertical = 10.dp)

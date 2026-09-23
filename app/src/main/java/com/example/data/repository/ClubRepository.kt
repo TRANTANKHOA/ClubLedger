@@ -58,6 +58,11 @@ class ClubRepository(private val clubDao: ClubDao) {
         clubDao.updateUser(user)
     }
 
+    suspend fun findUserByEmail(email: String): User? {
+        if (email.isBlank()) return null
+        return clubDao.getUserByEmailOnce(email.trim())
+    }
+
     suspend fun createTeam(team: Team, adminId: Long): Long {
         val id = clubDao.insertTeam(team)
         clubDao.insertAuditLog(

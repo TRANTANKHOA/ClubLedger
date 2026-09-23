@@ -23,6 +23,9 @@ interface ClubDao {
     @Query("SELECT * FROM users WHERE id = :userId")
     suspend fun getUserByIdOnce(userId: Long): User?
 
+    @Query("SELECT * FROM users WHERE LOWER(email) = LOWER(:email) LIMIT 1")
+    suspend fun getUserByEmailOnce(email: String): User?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertUser(user: User): Long
 

@@ -77,13 +77,18 @@ class ClubViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun signInWithGoogle(webClientId: String? = null) {
+    fun signInWithGoogle(activity: android.app.Activity? = null, webClientId: String? = null) {
         viewModelScope.launch {
-            val result = authManager.signInWithGoogle(webClientId)
+            val result = authManager.signInWithGoogle(activity, webClientId)
             if (result.isSuccess) {
-                _snackbarMessage.value = "Signed in with Google as ${result.getOrNull()?.email ?: "User"}"
+                val fbUser = result.getOrNull()
+                fbUser?.let { syncCloudUserToLocalProfile(it) }
+                _snackbarMessage.value = "Signed in with Google as ${fbUser?.email ?: "User"}"
             } else {
-                _snackbarMessage.value = "Google Sign-In: ${result.exceptionOrNull()?.localizedMessage}"
+                val err = result.exceptionOrNull()
+                if (err !is androidx.credentials.exceptions.GetCredentialCancellationException) {
+                    _snackbarMessage.value = "Google Sign-In: ${err?.localizedMessage}"
+                }
             }
         }
     }
@@ -92,7 +97,9 @@ class ClubViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             val result = authManager.signInWithApple(activity)
             if (result.isSuccess) {
-                _snackbarMessage.value = "Signed in with Apple as ${result.getOrNull()?.email ?: "Apple User"}"
+                val fbUser = result.getOrNull()
+                fbUser?.let { syncCloudUserToLocalProfile(it) }
+                _snackbarMessage.value = "Signed in with Apple as ${fbUser?.email ?: "Apple User"}"
             } else {
                 _snackbarMessage.value = "Apple Sign-In: ${result.exceptionOrNull()?.localizedMessage}"
             }
@@ -103,7 +110,9 @@ class ClubViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             val result = authManager.signInWithFacebook(activity)
             if (result.isSuccess) {
-                _snackbarMessage.value = "Signed in with Facebook as ${result.getOrNull()?.displayName ?: "Facebook User"}"
+                val fbUser = result.getOrNull()
+                fbUser?.let { syncCloudUserToLocalProfile(it) }
+                _snackbarMessage.value = "Signed in with Facebook as ${fbUser?.displayName ?: "Facebook User"}"
             } else {
                 _snackbarMessage.value = "Facebook Sign-In: ${result.exceptionOrNull()?.localizedMessage}"
             }
@@ -112,7 +121,33 @@ class ClubViewModel(application: Application) : AndroidViewModel(application) {
 
     fun signOutCloud() {
         authManager.signOut()
+        firestoreSyncManager.disableCloudSync()
         _snackbarMessage.value = "Signed out of Cloud Authentication."
+    }
+
+    private suspend fun syncCloudUserToLocalProfile(firebaseUser: com.google.firebase.auth.FirebaseUser) {
+        val email = firebaseUser.email
+        if (!email.isNullOrBlank()) {
+            val existing = repository.findUserByEmail(email)
+            if (existing != null) {
+                _currentUser.value = existing
+            } else {
+                val displayName = firebaseUser.displayName?.ifBlank { null } ?: email.substringBefore("@")
+                val newUserId = repository.createUser(
+                    User(
+                        name = displayName,
+                        email = email,
+                        phone = firebaseUser.phoneNumber ?: "",
+                        role = "MEMBER",
+                        status = "ACTIVE"
+                    )
+                )
+                val createdUser = repository.findUserByEmail(email)
+                if (createdUser != null) {
+                    _currentUser.value = createdUser
+                }
+            }
+        }
     }
 
     // All entity flows
