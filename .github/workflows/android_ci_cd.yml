@@ -82,6 +82,9 @@ jobs:
           java-version: '17'
           cache: 'gradle'
 
+      - name: Make scripts executable
+        run: chmod +x gradlew scripts/*.sh || true
+
       - name: Decode Keystore (if secret provided)
         env:
           KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
