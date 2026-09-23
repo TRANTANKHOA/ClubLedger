@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Production Engineering & CI/CD Pipeline - ClubLedger Docs</title>
+  <meta name="description" content="ClubLedger documentation hub — architecture, portability, distributed defense, treasury math, receipts, training, and production CI/CD." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <button class="mobile-nav-toggle" onclick="toggleNav()" title="Toggle Navigation">☰</button>
+
+  <aside id="sidebar">
+    <div class="brand-section">
+      <div class="brand-icon">CL</div>
+      <div>
+        <div class="brand-title">ClubLedger Docs</div>
+        <div class="brand-sub"><a href="index.html" style="color:inherit;text-decoration:none;">Platform v2.4.0 • Enterprise</a></div>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Core Modules</div>
+      <a href="index.html" class="nav-link">
+        <span>✨</span> Overview
+        <span class="badge">Start</span>
+      </a>
+      <a href="architecture.html" class="nav-link">
+        <span>🏛️</span> Architecture
+        <span class="badge">MVVM</span>
+      </a>
+      <a href="portability.html" class="nav-link">
+        <span>🔄</span> Portability
+        <span class="badge">KMP</span>
+      </a>
+      <a href="defense.html" class="nav-link">
+        <span>🛡️</span> Distributed Defense
+        <span class="badge">Security</span>
+      </a>
+      <a href="production.html" class="nav-link active">
+        <span>🚀</span> Production
+        <span class="badge">CI/CD</span>
+      </a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Curriculum & Formulas</div>
+      <a href="financial.html" class="nav-link">
+        <span>💰</span> Treasury Math & Formulas
+      </a>
+      <a href="receipts.html" class="nav-link">
+        <span>🧾</span> Proof & Receipt Flow
+      </a>
+      <a href="training.html" class="nav-link">
+        <span>📚</span> Training Modules (A-C)
+      </a>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="app-status">
+        <span class="status-dot"></span>
+        <span>Local Database v2 Green</span>
+      </div>
+      <div style="color: #64748B; font-size: 0.7rem;">
+        Jetpack Compose • Room • Coroutines Flow • GitHub Actions
+      </div>
+    </div>
+  </aside>
+
+  <main>
+
+    <section id="production" class="doc-section">
+      <div class="section-header">
+        <div class="section-title">
+          <span>🚀</span> Production Engineering & CI/CD Pipeline
+        </div>
+        <span class="section-badge badge-purple">Module 5</span>
+      </div>
+
+      <p>
+        ClubLedger features an enterprise-grade delivery pipeline automated via GitHub Actions, comprehensive JVM unit testing, APK artifact bundling, and release packaging.
+      </p>
+
+      <div class="grid-2">
+        <div class="feature-card">
+          <div class="feature-icon">⚙️</div>
+          <h4>Continuous Integration (CI)</h4>
+          <p>Every PR and push to <code>main</code> runs standard Gradle compilation, JVM unit tests, and generates a debug APK test artifact.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📦</div>
+          <h4>Automated Release Bundling (CD)</h4>
+          <p>Automatic generation of optimized Android App Bundles (<code>.aab</code>) signed with release keystore credentials upon merge to main.</p>
+        </div>
+      </div>
+
+      <h4 style="margin: 20px 0 10px; font-weight: 700;">GitHub Actions CI/CD Pipeline Configuration</h4>
+      <div class="ascii-diagram">
+name: ClubLedger CI/CD Pipeline
+on:
+  push:
+    branches: [ main, release/* ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build_and_test:
+    name: Build & Test Android App
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+      - name: Run Unit & JVM Tests
+        run: ./gradlew testDebugUnitTest --continue
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug
+      - name: Upload Debug APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+      </div>
+
+      <div class="callout callout-success">
+        <div class="callout-icon">✅</div>
+        <div class="callout-text">
+          <h5>Production Build Verified</h5>
+          <p>The build toolchain compiles with Gradle (Kotlin DSL), JDK 17, AndroidX Compose Material 3, and Room SQLite KSP with zero deprecation warnings.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="pager">
+        <a href="defense.html"><span>←</span><span><span class="pager-label">Previous</span>Distributed Defense</span></a>
+        <a href="financial.html"><span>→</span><span><span class="pager-label">Next</span>Treasury Math & Formulas</span></a>
+    </div>
+
+  </main>
+
+  <script>
+    function toggleNav() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('open');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portability, KMP Readiness & Exports - ClubLedger Docs</title>
+  <meta name="description" content="ClubLedger documentation hub — architecture, portability, distributed defense, treasury math, receipts, training, and production CI/CD." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <button class="mobile-nav-toggle" onclick="toggleNav()" title="Toggle Navigation">☰</button>
+
+  <aside id="sidebar">
+    <div class="brand-section">
+      <div class="brand-icon">CL</div>
+      <div>
+        <div class="brand-title">ClubLedger Docs</div>
+        <div class="brand-sub"><a href="index.html" style="color:inherit;text-decoration:none;">Platform v2.4.0 • Enterprise</a></div>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Core Modules</div>
+      <a href="index.html" class="nav-link">
+        <span>✨</span> Overview
+        <span class="badge">Start</span>
+      </a>
+      <a href="architecture.html" class="nav-link">
+        <span>🏛️</span> Architecture
+        <span class="badge">MVVM</span>
+      </a>
+      <a href="portability.html" class="nav-link active">
+        <span>🔄</span> Portability
+        <span class="badge">KMP</span>
+      </a>
+      <a href="defense.html" class="nav-link">
+        <span>🛡️</span> Distributed Defense
+        <span class="badge">Security</span>
+      </a>
+      <a href="production.html" class="nav-link">
+        <span>🚀</span> Production
+        <span class="badge">CI/CD</span>
+      </a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Curriculum & Formulas</div>
+      <a href="financial.html" class="nav-link">
+        <span>💰</span> Treasury Math & Formulas
+      </a>
+      <a href="receipts.html" class="nav-link">
+        <span>🧾</span> Proof & Receipt Flow
+      </a>
+      <a href="training.html" class="nav-link">
+        <span>📚</span> Training Modules (A-C)
+      </a>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="app-status">
+        <span class="status-dot"></span>
+        <span>Local Database v2 Green</span>
+      </div>
+      <div style="color: #64748B; font-size: 0.7rem;">
+        Jetpack Compose • Room • Coroutines Flow • GitHub Actions
+      </div>
+    </div>
+  </aside>
+
+  <main>
+
+    <section id="portability" class="doc-section">
+      <div class="section-header">
+        <div class="section-title">
+          <span>🔄</span> Portability, KMP Readiness & Exports
+        </div>
+        <span class="section-badge badge-amber">Module 3</span>
+      </div>
+
+      <p>
+        ClubLedger’s domain entities, mathematical allocation formulas, and data repositories are engineered for frictionless portability across Android, Kotlin Multiplatform (KMP), Desktop (JVM), and Cloud Sync engines.
+      </p>
+
+      <div class="grid-2">
+        <div class="feature-card">
+          <div class="feature-icon">📦</div>
+          <h4>Clean Architecture Decoupling</h4>
+          <p>Pure Kotlin data classes and zero Android framework dependencies in the calculation engine enable drop-in reuse across iOS (Kotlin/Native), Web (KMP/Wasm), and backend Kotlin microservices.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h4>Universal CSV & Financial Exports</h4>
+          <p>1-Click comprehensive CSV export of the entire ledger, attendance matrices, and invoice breakdowns suitable for standard spreadsheet software (Excel, Google Sheets, QuickBooks).</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">☁️</div>
+          <h4>Offline-First with Cloud Sync Readiness</h4>
+          <p>Room local-first persistence guarantees 100% functionality on pitch-side offline mode, ready for synchronization with Firebase Firestore or PostgreSQL.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔗</div>
+          <h4>Deep-Link & Share API</h4>
+          <p>Uniform URI schema (<code>clubledger://join?code=...</code>) enables instant team sharing over WhatsApp, SMS, Slack, and email across any mobile device.</p>
+        </div>
+      </div>
+
+      <div class="ascii-diagram">
+// Portable Calculation Function (KMP Common Code)
+fun calculateMemberAllocations(
+    totalIncurredCost: Double,
+    memberAttendanceMap: Map&lt;Long, Int&gt; // userId -> verifiedCount
+): Map&lt;Long, Double&gt; {
+    val totalSquadSessions = memberAttendanceMap.values.sum()
+    if (totalSquadSessions == 0) return memberAttendanceMap.mapValues { 0.0 }
+    
+    return memberAttendanceMap.mapValues { (_, attended) ->
+        val exactShare = (attended.toDouble() / totalSquadSessions) * totalIncurredCost
+        kotlin.math.round(exactShare * 100.0) / 100.0 // Cent-perfect rounding
+    }
+}
+      </div>
+    </section>
+
+    <div class="pager">
+        <a href="architecture.html"><span>←</span><span><span class="pager-label">Previous</span>Architecture</span></a>
+        <a href="defense.html"><span>→</span><span><span class="pager-label">Next</span>Distributed Defense</span></a>
+    </div>
+
+  </main>
+
+  <script>
+    function toggleNav() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('open');
+    }
+  </script>
+</body>
+</html>

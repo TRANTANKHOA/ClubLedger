@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Financial Engine & Mathematical Definitions - ClubLedger Docs</title>
+  <meta name="description" content="ClubLedger documentation hub — architecture, portability, distributed defense, treasury math, receipts, training, and production CI/CD." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <button class="mobile-nav-toggle" onclick="toggleNav()" title="Toggle Navigation">☰</button>
+
+  <aside id="sidebar">
+    <div class="brand-section">
+      <div class="brand-icon">CL</div>
+      <div>
+        <div class="brand-title">ClubLedger Docs</div>
+        <div class="brand-sub"><a href="index.html" style="color:inherit;text-decoration:none;">Platform v2.4.0 • Enterprise</a></div>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Core Modules</div>
+      <a href="index.html" class="nav-link">
+        <span>✨</span> Overview
+        <span class="badge">Start</span>
+      </a>
+      <a href="architecture.html" class="nav-link">
+        <span>🏛️</span> Architecture
+        <span class="badge">MVVM</span>
+      </a>
+      <a href="portability.html" class="nav-link">
+        <span>🔄</span> Portability
+        <span class="badge">KMP</span>
+      </a>
+      <a href="defense.html" class="nav-link">
+        <span>🛡️</span> Distributed Defense
+        <span class="badge">Security</span>
+      </a>
+      <a href="production.html" class="nav-link">
+        <span>🚀</span> Production
+        <span class="badge">CI/CD</span>
+      </a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Curriculum & Formulas</div>
+      <a href="financial.html" class="nav-link active">
+        <span>💰</span> Treasury Math & Formulas
+      </a>
+      <a href="receipts.html" class="nav-link">
+        <span>🧾</span> Proof & Receipt Flow
+      </a>
+      <a href="training.html" class="nav-link">
+        <span>📚</span> Training Modules (A-C)
+      </a>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="app-status">
+        <span class="status-dot"></span>
+        <span>Local Database v2 Green</span>
+      </div>
+      <div style="color: #64748B; font-size: 0.7rem;">
+        Jetpack Compose • Room • Coroutines Flow • GitHub Actions
+      </div>
+    </div>
+  </aside>
+
+  <main>
+
+    <section id="financial-engine" class="doc-section">
+      <div class="section-header">
+        <div class="section-title">
+          <span>💰</span> Financial Engine & Mathematical Definitions
+        </div>
+        <span class="section-badge badge-teal">Treasury Math</span>
+      </div>
+
+      <p>
+        ClubLedger strictly adheres to formal mathematical definitions for sports club financial administration:
+      </p>
+
+      <div class="formula-box">
+        <div class="formula-title">1. Total Monthly Budget (Sum of Incurred Costs)</div>
+        <div class="formula-code">
+          Total Monthly Budget = ∑ (Incurred Cost Item_i)
+          Total Monthly Budget = Pitch Rental + Referee Fees + Tournament Entry + Match Balls + Gear
+        </div>
+        <div class="formula-expl">
+          The monthly budget is never an arbitrary estimate; it equals the sum of real expenses declared by team admins.
+        </div>
+      </div>
+
+      <div class="formula-box">
+        <div class="formula-title">2. Total Member Collections</div>
+        <div class="formula-code">
+          Total Member Collections = ∑ (Approved Member Deposits & Payment Dues)
+        </div>
+        <div class="formula-expl">
+          The cumulative total of all verified funds contributed by squad players into the team treasury.
+        </div>
+      </div>
+
+      <div class="formula-box">
+        <div class="formula-title">3. Net Team Treasury Position</div>
+        <div class="formula-code">
+          Net Treasury Position = Total Member Collections − Total Incurred Costs
+          • Surplus (&gt; $0.00): Positive reserve carried forward
+          • Deficit (&lt; $0.00): Dues outstanding or pending collection
+        </div>
+        <div class="formula-expl">
+          Displayed dynamically on the Team Treasury Position KPI card in the Admin Budgets screen.
+        </div>
+      </div>
+
+      <div class="formula-box">
+        <div class="formula-title">4. Proportional Member Invoice Allocation</div>
+        <div class="formula-code">
+          Member Charge = (Member Verified Attended Sessions ÷ Total Squad Sessions) × Incurred Cost
+          • Zero Attendance Exemption: Attended = 0 ➔ Member Charge = $0.00
+        </div>
+        <div class="formula-expl">
+          Ensures absolute fairness so players pay only for the games and training sessions they attend.
+        </div>
+      </div>
+    </section>
+
+    <div class="pager">
+        <a href="production.html"><span>←</span><span><span class="pager-label">Previous</span>Production</span></a>
+        <a href="receipts.html"><span>→</span><span><span class="pager-label">Next</span>Proof & Receipt Flow</span></a>
+    </div>
+
+  </main>
+
+  <script>
+    function toggleNav() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('open');
+    }
+  </script>
+</body>
+</html>

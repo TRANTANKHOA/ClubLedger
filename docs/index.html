@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ClubLedger Documentation & Architecture Hub</title>
+  <meta name="description" content="ClubLedger documentation hub — architecture, portability, distributed defense, treasury math, receipts, training, and production CI/CD." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <button class="mobile-nav-toggle" onclick="toggleNav()" title="Toggle Navigation">☰</button>
+
+  <aside id="sidebar">
+    <div class="brand-section">
+      <div class="brand-icon">CL</div>
+      <div>
+        <div class="brand-title">ClubLedger Docs</div>
+        <div class="brand-sub"><a href="index.html" style="color:inherit;text-decoration:none;">Platform v2.4.0 • Enterprise</a></div>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Core Modules</div>
+      <a href="index.html" class="nav-link active">
+        <span>✨</span> Overview
+        <span class="badge">Start</span>
+      </a>
+      <a href="architecture.html" class="nav-link">
+        <span>🏛️</span> Architecture
+        <span class="badge">MVVM</span>
+      </a>
+      <a href="portability.html" class="nav-link">
+        <span>🔄</span> Portability
+        <span class="badge">KMP</span>
+      </a>
+      <a href="defense.html" class="nav-link">
+        <span>🛡️</span> Distributed Defense
+        <span class="badge">Security</span>
+      </a>
+      <a href="production.html" class="nav-link">
+        <span>🚀</span> Production
+        <span class="badge">CI/CD</span>
+      </a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Curriculum & Formulas</div>
+      <a href="financial.html" class="nav-link">
+        <span>💰</span> Treasury Math & Formulas
+      </a>
+      <a href="receipts.html" class="nav-link">
+        <span>🧾</span> Proof & Receipt Flow
+      </a>
+      <a href="training.html" class="nav-link">
+        <span>📚</span> Training Modules (A-C)
+      </a>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="app-status">
+        <span class="status-dot"></span>
+        <span>Local Database v2 Green</span>
+      </div>
+      <div style="color: #64748B; font-size: 0.7rem;">
+        Jetpack Compose • Room • Coroutines Flow • GitHub Actions
+      </div>
+    </div>
+  </aside>
+
+  <main>
+
+    <div class="hero-banner">
+      <div class="hero-tag">🌟 Comprehensive Technical & Operational Hub</div>
+      <h1>ClubLedger Enterprise Documentation</h1>
+      <p>
+        The definitive guide to ClubLedger's sports club accounting, verified attendance engine, fair proportional cost allocation, portable data models, distributed multi-role defense, and automated production CI/CD workflows.
+      </p>
+      <div class="hero-actions">
+        <a href="architecture.html" class="btn btn-primary">Inspect 🏛️ Architecture</a>
+        <a href="financial.html" class="btn btn-outline-white">Review 💰 Treasury Math</a>
+        <a href="production.html" class="btn btn-outline-white">View 🚀 CI/CD Pipeline</a>
+      </div>
+    </div>
+    <section id="overview" class="doc-section">
+      <div class="section-header">
+        <div class="section-title">
+          <span>✨</span> Overview & System Mission
+        </div>
+        <span class="section-badge badge-teal">Module 1</span>
+      </div>
+
+      <p style="font-size: 1.05rem; color: #334155; margin-bottom: 20px;">
+        <strong>ClubLedger</strong> is a sports team management and transparent accounting application for recreational clubs, competitive squads, and leagues. It completely eliminates financial friction and post-season disputes through real-time attendance verification, automated cost allocation, and receipt sharing.
+      </p>
+
+      <div class="grid-3">
+        <div class="feature-card">
+          <div class="feature-icon">⚖️</div>
+          <h4>Proportional Cost Engine</h4>
+          <p>Splits pitch rents and league fees by exact attendance ratios: <code>(Member Sessions ÷ Total Sessions) × Incurred Cost</code>. Zero attendance equals $0 charge.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🛡️</div>
+          <h4>Immutable Ledger & Audits</h4>
+          <p>Every transaction, invoice allocation, payment approval, and dispute resolution creates timestamped, tamper-proof debit and credit ledger rows.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📱</div>
+          <h4>Dual Role Architecture</h4>
+          <p>Single app binary with instant seamless toggle between <strong>Squad Member Mode</strong> and <strong>Team / Global Admin Mode</strong> with superset governance.</p>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div class="feature-card">
+          <div class="feature-icon">🧾</div>
+          <h4>Proof & Receipt Sharing</h4>
+          <p>Admins declare expenses and attach signed PDFs/receipt screenshots. All members have access to transparently inspect receipts in-app.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔗</div>
+          <h4>Secure Invite Links</h4>
+          <p>One-tap shareable join links and numeric codes with admin approval toggles for rapid squad onboarding and roster synchronization.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <h4>1-Tap Quick-Marking</h4>
+          <p>Captains and Coaches can mark an entire squad session in seconds, with bulk approval, single-player check-in, and dispute adjudication.</p>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">💡</div>
+        <div class="callout-text">
+          <h5>Core Design Principle: Zero Assumption & Full Transparency</h5>
+          <p>No club member is ever charged a flat estimate. Incurred costs are backed by uploaded receipts, and dues are mathematically locked to coach-verified session attendance records.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="pager">
+        <span></span>
+        <a href="architecture.html"><span>→</span><span><span class="pager-label">Next</span>Architecture</span></a>
+    </div>
+
+  </main>
+
+  <script>
+    function toggleNav() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('open');
+    }
+  </script>
+</body>
+</html>

@@ -2,7 +2,7 @@
 
 **ClubLedger** is an Android application built with Jetpack Compose and Room Database designed for community sports clubs, recreation teams, and amateur leagues. It automates attendance tracking, member payments, treasury balances, and proportional budget cost allocations.
 
-> 📖 **GitHub Pages Documentation Hub**: Inspect the full interactive web documentation with decomposed modules for **✨ Overview**, **🏛️ Architecture**, **💰 Financial Engine**, **🧾 Receipt Sharing**, **🔄 Portability**, **🛡️ Distributed Defense**, **🏋️ Training Curriculum**, and **🚀 Production** at [`showcase.html`](showcase.html) — live at **https://trantankhoa.github.io/ClubLedger/**.
+> 📖 **GitHub Pages Documentation Hub**: Multi-page web documentation — **✨ Overview**, **🏛️ Architecture**, **🔄 Portability**, **🛡️ Distributed Defense**, **🚀 Production**, **📚 Training Modules**, **💰 Treasury Math**, **🧾 Proof & Receipt Flow** — under [`docs/`](docs/index.html) (source: [`docs/index.html`](docs/index.html)), live at **https://trantankhoa.github.io/ClubLedger/**.
 
 ---
 
@@ -494,7 +494,7 @@ Comprehensive local setup, testing, and production deployment instructions are p
 | :--- | :--- |
 | [`DEPLOYMENT.md`](DEPLOYMENT.md) | Local setup, testing, Firebase config, signing, Play Store release, troubleshooting |
 | [`LOCAL_SETUP_MAC.md`](LOCAL_SETUP_MAC.md) | macOS-specific 1-command setup (Homebrew JDK 17, Android SDK, AVD, helper scripts) |
-| [`showcase.html`](showcase.html) | Interactive web documentation hub — **live on GitHub Pages**: https://trantankhoa.github.io/ClubLedger/ |
+| [`docs/`](docs/index.html) | Multi-page web documentation hub (8 pages, shared stylesheet) — **live on GitHub Pages**: https://trantankhoa.github.io/ClubLedger/ |
 | [`firestore.rules`](firestore.rules) | Baseline Cloud Firestore security rules (deploy via `./scripts/deploy-firestore-rules.sh`) |
 | `scripts/` | `setup_mac.sh` (1-command macOS setup) · `dev_setup.sh` (environment check) · `run_tests.sh` · `build_apk.sh` · `run_app.sh` · `clean_build.sh` · `build_release.sh` (AAB/APK) · `generate_release_keystore.sh` · `deploy-firestore-rules.sh` |
 

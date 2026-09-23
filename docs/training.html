@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Training Sessions & Coverage Topics - ClubLedger Docs</title>
+  <meta name="description" content="ClubLedger documentation hub — architecture, portability, distributed defense, treasury math, receipts, training, and production CI/CD." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <button class="mobile-nav-toggle" onclick="toggleNav()" title="Toggle Navigation">☰</button>
+
+  <aside id="sidebar">
+    <div class="brand-section">
+      <div class="brand-icon">CL</div>
+      <div>
+        <div class="brand-title">ClubLedger Docs</div>
+        <div class="brand-sub"><a href="index.html" style="color:inherit;text-decoration:none;">Platform v2.4.0 • Enterprise</a></div>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Core Modules</div>
+      <a href="index.html" class="nav-link">
+        <span>✨</span> Overview
+        <span class="badge">Start</span>
+      </a>
+      <a href="architecture.html" class="nav-link">
+        <span>🏛️</span> Architecture
+        <span class="badge">MVVM</span>
+      </a>
+      <a href="portability.html" class="nav-link">
+        <span>🔄</span> Portability
+        <span class="badge">KMP</span>
+      </a>
+      <a href="defense.html" class="nav-link">
+        <span>🛡️</span> Distributed Defense
+        <span class="badge">Security</span>
+      </a>
+      <a href="production.html" class="nav-link">
+        <span>🚀</span> Production
+        <span class="badge">CI/CD</span>
+      </a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Curriculum & Formulas</div>
+      <a href="financial.html" class="nav-link">
+        <span>💰</span> Treasury Math & Formulas
+      </a>
+      <a href="receipts.html" class="nav-link">
+        <span>🧾</span> Proof & Receipt Flow
+      </a>
+      <a href="training.html" class="nav-link active">
+        <span>📚</span> Training Modules (A-C)
+      </a>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="app-status">
+        <span class="status-dot"></span>
+        <span>Local Database v2 Green</span>
+      </div>
+      <div style="color: #64748B; font-size: 0.7rem;">
+        Jetpack Compose • Room • Coroutines Flow • GitHub Actions
+      </div>
+    </div>
+  </aside>
+
+  <main>
+
+    <section id="training" class="doc-section">
+      <div class="section-header">
+        <div class="section-title">
+          <span>📚</span> Training Sessions & Coverage Topics (Modules A-C)
+        </div>
+        <span class="section-badge badge-purple">Curriculum</span>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Session</th>
+              <th>Title & Audience</th>
+              <th>Core Coverage Topics</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Session 1</strong></td>
+              <td><strong>Foundations & Role Hierarchy</strong><br><span style="color:#64748B; font-size:0.75rem;">All Squad Members</span></td>
+              <td>• Dual-role Member vs Admin architecture<br>• Superset permissions (Global Admin ➔ Team Admin ➔ Captain ➔ Member)<br>• Team invite links and roster synchronization</td>
+            </tr>
+            <tr>
+              <td><strong>Session 2</strong></td>
+              <td><strong>Attendance Tracking & Quick-Marking</strong><br><span style="color:#64748B; font-size:0.75rem;">Captains & Coaches</span></td>
+              <td>• Member self check-in submissions<br>• 1-Tap Coach Roster Quick-Marking<br>• Approval/rejection workflows with audit notes</td>
+            </tr>
+            <tr>
+              <td><strong>Session 3</strong></td>
+              <td><strong>Cost Incurrence & Receipt Sharing</strong><br><span style="color:#64748B; font-size:0.75rem;">Treasurers & Admins</span></td>
+              <td>• Total Monthly Budget definition as sum of incurred costs<br>• Cost item declaration (Pitch, tournament, referees, balls)<br>• Attaching PDF invoices and screenshot proofs</td>
+            </tr>
+            <tr>
+              <td><strong>Session 4</strong></td>
+              <td><strong>Proportional Cost Allocation Engine</strong><br><span style="color:#64748B; font-size:0.75rem;">Admins & Members</span></td>
+              <td>• Attendance-weighted formula calculation<br>• Automatic Zero-Attendance $0 exemption<br>• Dynamic mid-month recalculation on attendance adjustments</td>
+            </tr>
+            <tr>
+              <td><strong>Session 5</strong></td>
+              <td><strong>Member Collections & Running Ledger</strong><br><span style="color:#64748B; font-size:0.75rem;">Treasurers & Members</span></td>
+              <td>• Multi-channel payment logging (Zelle, Venmo, Bank Transfer, Cash)<br>• Admin deposit approval & immutable ledger entries<br>• Total Member Collections vs. Incurred Costs position</td>
+            </tr>
+            <tr>
+              <td><strong>Session 6</strong></td>
+              <td><strong>Dispute Resolution & Audit Compliance</strong><br><span style="color:#64748B; font-size:0.75rem;">Admins & Members</span></td>
+              <td>• Submitting and adjudicating invoice/attendance disputes<br>• Manual ledger adjustments with mandatory reasoning<br>• 1-Click CSV exports for AGM bookkeeping</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="pager">
+        <a href="receipts.html"><span>←</span><span><span class="pager-label">Previous</span>Proof & Receipt Flow</span></a>
+        <span></span>
+    </div>
+
+  </main>
+
+  <script>
+    function toggleNav() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('open');
+    }
+  </script>
+</body>
+</html>

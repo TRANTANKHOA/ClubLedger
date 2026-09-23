@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Distributed Defense & Security Governance - ClubLedger Docs</title>
+  <meta name="description" content="ClubLedger documentation hub — architecture, portability, distributed defense, treasury math, receipts, training, and production CI/CD." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <button class="mobile-nav-toggle" onclick="toggleNav()" title="Toggle Navigation">☰</button>
+
+  <aside id="sidebar">
+    <div class="brand-section">
+      <div class="brand-icon">CL</div>
+      <div>
+        <div class="brand-title">ClubLedger Docs</div>
+        <div class="brand-sub"><a href="index.html" style="color:inherit;text-decoration:none;">Platform v2.4.0 • Enterprise</a></div>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Core Modules</div>
+      <a href="index.html" class="nav-link">
+        <span>✨</span> Overview
+        <span class="badge">Start</span>
+      </a>
+      <a href="architecture.html" class="nav-link">
+        <span>🏛️</span> Architecture
+        <span class="badge">MVVM</span>
+      </a>
+      <a href="portability.html" class="nav-link">
+        <span>🔄</span> Portability
+        <span class="badge">KMP</span>
+      </a>
+      <a href="defense.html" class="nav-link active">
+        <span>🛡️</span> Distributed Defense
+        <span class="badge">Security</span>
+      </a>
+      <a href="production.html" class="nav-link">
+        <span>🚀</span> Production
+        <span class="badge">CI/CD</span>
+      </a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Curriculum & Formulas</div>
+      <a href="financial.html" class="nav-link">
+        <span>💰</span> Treasury Math & Formulas
+      </a>
+      <a href="receipts.html" class="nav-link">
+        <span>🧾</span> Proof & Receipt Flow
+      </a>
+      <a href="training.html" class="nav-link">
+        <span>📚</span> Training Modules (A-C)
+      </a>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="app-status">
+        <span class="status-dot"></span>
+        <span>Local Database v2 Green</span>
+      </div>
+      <div style="color: #64748B; font-size: 0.7rem;">
+        Jetpack Compose • Room • Coroutines Flow • GitHub Actions
+      </div>
+    </div>
+  </aside>
+
+  <main>
+
+    <section id="defense" class="doc-section">
+      <div class="section-header">
+        <div class="section-title">
+          <span>🛡️</span> Distributed Defense & Security Governance
+        </div>
+        <span class="section-badge badge-emerald">Module 4</span>
+      </div>
+
+      <p>
+        ClubLedger implements a defense-in-depth model safeguarding financial funds, attendance records, and administrative authority against fraud, accidental double-charging, and privilege escalation.
+      </p>
+
+      <div class="grid-3">
+        <div class="feature-card">
+          <div class="feature-icon">👑</div>
+          <h4>Superset Role Hierarchy</h4>
+          <p><code>Global Admin &gt; Team Admin &gt; Captain &gt; Member</code>. Admins inherit all member privileges plus audit dashboards and treasury management.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔒</div>
+          <h4>Two-Man Rule Verification</h4>
+          <p>Payments logged by members require explicit Treasurer or Team Admin verification and approval before entering the valid treasury balance.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📝</div>
+          <h4>Immutable Transaction Logs</h4>
+          <p>Transactions are append-only. Balances cannot be manually rewritten without an explicit debit/credit entry accompanied by a mandatory audit reason.</p>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div class="feature-card">
+          <div class="feature-icon">⚖️</div>
+          <h4>Built-in Dispute Mediation</h4>
+          <p>Formal dispute workflows allow players to challenge attendance counts or billing amounts. Adjudications produce an automated ledger correction.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔑</div>
+          <h4>Granular Team Permissions</h4>
+          <p>Team Admins can only view and manage rosters, budgets, and payments belonging to their designated team; cross-team leakage is strictly prevented.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🗄️</div>
+          <h4>Database Migration Safety</h4>
+          <p>Room schema migrations (v1 ➔ v2) utilize safe column alterations with backward compatibility and zero data loss on device upgrades.</p>
+        </div>
+      </div>
+
+      <div class="callout callout-warning">
+        <div class="callout-icon">🛡️</div>
+        <div class="callout-text">
+          <h5>Security Assertion</h5>
+          <p>No user, including team admins, can delete historical transactions. All accounting records remain verifiable for Annual General Meetings (AGM) and formal auditing.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="pager">
+        <a href="portability.html"><span>←</span><span><span class="pager-label">Previous</span>Portability</span></a>
+        <a href="production.html"><span>→</span><span><span class="pager-label">Next</span>Production</span></a>
+    </div>
+
+  </main>
+
+  <script>
+    function toggleNav() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('open');
+    }
+  </script>
+</body>
+</html>
