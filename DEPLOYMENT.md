@@ -186,9 +186,13 @@ A ready-to-use GitHub Actions workflow is located at `.github/workflows/android_
 
 | Task | Command |
 | :--- | :--- |
+| **Full macOS Setup** | `./scripts/setup_mac.sh` |
 | **Check Dev Environment** | `./scripts/dev_setup.sh` |
 | **Run All Unit Tests** | `./scripts/run_tests.sh` |
-| **Build Debug APK** | `./gradlew assembleDebug` |
+| **Build Debug APK** | `./scripts/build_apk.sh` |
+| **Install & Launch on Device** | `./scripts/run_app.sh` |
+| **Clean & Rebuild** | `./scripts/clean_build.sh` |
+| **Generate Release Keystore** | `./scripts/generate_release_keystore.sh` |
 | **Build Release Bundle (AAB)** | `./scripts/build_release.sh aab` |
 | **Build Release APK** | `./scripts/build_release.sh apk` |
 | **Deploy Firestore Rules** | `./scripts/deploy-firestore-rules.sh` |

@@ -476,8 +476,8 @@ Comprehensive local setup, testing, and production deployment instructions are p
 # 2. Run unit & Robolectric tests
 ./scripts/run_tests.sh
 
-# 3. Build debug APK
-./gradlew assembleDebug
+# 3. Build debug APK (or install & launch on a device with ./scripts/run_app.sh)
+./scripts/build_apk.sh
 
 # 4. Build production Google Play App Bundle (AAB)
 ./scripts/build_release.sh aab
@@ -496,7 +496,7 @@ Comprehensive local setup, testing, and production deployment instructions are p
 | [`LOCAL_SETUP_MAC.md`](LOCAL_SETUP_MAC.md) | macOS-specific 1-command setup (Homebrew JDK 17, Android SDK, AVD, helper scripts) |
 | [`showcase.html`](showcase.html) | Interactive web documentation hub — **live on GitHub Pages**: https://trantankhoa.github.io/ClubLedger/ |
 | [`firestore.rules`](firestore.rules) | Baseline Cloud Firestore security rules (deploy via `./scripts/deploy-firestore-rules.sh`) |
-| `scripts/` | `dev_setup.sh` (environment check) · `run_tests.sh` (unit tests) · `build_release.sh` (AAB/APK) · `deploy-firestore-rules.sh` |
+| `scripts/` | `setup_mac.sh` (1-command macOS setup) · `dev_setup.sh` (environment check) · `run_tests.sh` · `build_apk.sh` · `run_app.sh` · `clean_build.sh` · `build_release.sh` (AAB/APK) · `generate_release_keystore.sh` · `deploy-firestore-rules.sh` |
 
 ---
 

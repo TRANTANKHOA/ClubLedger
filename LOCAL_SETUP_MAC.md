@@ -8,10 +8,10 @@ Step-by-step instructions to set up, build, test, and run **ClubLedger** locally
 
 ```bash
 chmod +x gradlew scripts/*.sh
-./scripts/dev_setup.sh
+./scripts/setup_mac.sh
 ```
 
-`dev_setup.sh` verifies that a JDK 17+ and the Android SDK are available.
+`setup_mac.sh` installs and verifies everything on a clean Mac: Homebrew, OpenJDK 17, the Android SDK (Studio or Homebrew commandlinetools), `adb`, and script permissions. Already set up? `./scripts/dev_setup.sh` just verifies the environment.
 
 ---
 
@@ -72,12 +72,16 @@ keytool -genkeypair -v -keystore debug.keystore -alias androiddebugkey \
 
 | Task | Command |
 | :--- | :--- |
+| **Full macOS environment setup** | `./scripts/setup_mac.sh` |
 | **Check environment** | `./scripts/dev_setup.sh` |
 | **Run unit & Robolectric tests** | `./scripts/run_tests.sh` |
+| **Build debug APK** | `./scripts/build_apk.sh` |
+| **Build, install & launch on device** | `./scripts/run_app.sh` |
+| **Clean & rebuild** | `./scripts/clean_build.sh` |
 | **Build release AAB (Play Store)** | `./scripts/build_release.sh aab` |
 | **Build release APK (sideload)** | `./scripts/build_release.sh apk` |
+| **Generate release keystore** | `./scripts/generate_release_keystore.sh` |
 | **Deploy Firestore rules** | `./scripts/deploy-firestore-rules.sh` |
-| **Build & install debug on device** | `./gradlew installDebug` |
 | **Record Roborazzi screenshots** | `./gradlew :app:recordRoborazziDebug` |
 | **Verify Roborazzi screenshots** | `./gradlew :app:verifyRoborazziDebug` |
 
