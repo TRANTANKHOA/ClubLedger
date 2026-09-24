@@ -139,7 +139,7 @@
       <h4 style="margin: 24px 0 12px; font-weight: 700;">4. Release Keystore & Signing</h4>
       <div class="formula-box">
         <div class="formula-title">Generate + configure the release keystore</div>
-        <div class="formula-code">./scripts/generate_release_keystore.sh<br><br># then export before release builds (alias: clubledger)<br>export KEYSTORE_PATH=/absolute/path/release.keystore<br>export STORE_PASSWORD='&lt;your-keystore-password&gt;'<br>export KEY_PASSWORD='&lt;your-key-password&gt;'</div>
+        <div class="formula-code">./scripts/generate_release_keystore.sh<br><br># then export before release builds (alias: clubledger)<br>export KEYSTORE_PATH=/absolute/path/release.keystore<br>export STORE_PASSWORD='&lt;your-keystore-password&gt;'<br>export KEY_PASSWORD='&lt;your-key-password&gt;'<br>export RELEASE_KEY_ALIAS=clubledger   # defaults to 'upload' if unset</div>
         <div class="formula-expl">
           The signing config reads environment variables — gradle.properties has no effect. Never commit keystores or passwords.
         </div>
