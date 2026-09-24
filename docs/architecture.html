@@ -91,99 +91,49 @@
         </a>
       </div>
 
-      <div class="ascii-diagram">
-┌──────────────────────────────────────────────────────────────────────────────────┐
-│                             PRESENTATION LAYER (JETPACK COMPOSE)                 │
-│  ┌───────────────────────┐  ┌───────────────────────┐  ┌──────────────────────┐  │
-│  │ Member Dashboard      │  │ Admin Dashboard       │  │ Invoices & Receipts  │  │
-│  │ (KPIs, Ledger, Dues)  │  │ (Treasury, Approvals) │  │ (Allocation Proofs)  │  │
-│  └───────────┬───────────┘  └───────────┬───────────┘  └──────────┬───────────┘  │
-└──────────────┼──────────────────────────┼─────────────────────────┼──────────────┘
-               │                          │                         │
-               ▼                          ▼                         ▼
-┌──────────────────────────────────────────────────────────────────────────────────┐
-│                               VIEWMODEL STATE LAYER                              │
-│  • ClubViewModel: Manages StateFlows, UI State derivations, coroutine launches   │
-│  • Reactive aggregation: currentBalance, attendanceRatio, netTreasuryBalance     │
-└─────────────────────────────────────────┬────────────────────────────────────────┘
-                                          │
-                                          ▼
-┌──────────────────────────────────────────────────────────────────────────────────┐
-│                            DOMAIN & REPOSITORY LAYER                             │
-│  • ClubRepository: Coordinates ACID transactions, invoice generations, balances  │
-│  • Dispatches immutable ledger credits on deposit approvals and invoice debits   │
-└─────────────────────────────────────────┬────────────────────────────────────────┘
-                                          │
-                                          ▼
-┌──────────────────────────────────────────────────────────────────────────────────┐
-│                             LOCAL PERSISTENCE (ROOM)                             │
-│  • Tables: users, teams, fixtures, attendance, budgets, invoices, allocations,   │
-│            payments, transactions, disputes, join_requests (Database v2)         │
-└──────────────────────────────────────────────────────────────────────────────────┘
+      <p>
+        The interactive deep-dive is the canonical reference: it renders the end-to-end data flow, the layered system architecture, the complete <strong>12-entity Room schema</strong>, the CI/CD pipeline, and the technology stack as SVG diagrams. The summary below is the quick orientation.
+      </p>
+
+      <div class="grid-3" style="margin: 20px 0;">
+        <div class="feature-card">
+          <div class="feature-icon">🎨</div>
+          <h4>Presentation</h4>
+          <p>Jetpack Compose Material 3 — member dashboards, admin approvals, invoices &amp; receipts, attendance &amp; payments.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔄</div>
+          <h4>ViewModel &amp; State</h4>
+          <p>MVVM via <code>ClubViewModel</code>: StateFlow emissions, reactive aggregation (balance, attendance ratio), permission engine.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">⚙️</div>
+          <h4>Domain &amp; Repository</h4>
+          <p><code>ClubRepository</code> coordinates ACID transactions, the cost-allocation engine, and immutable ledger entries.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🗄️</div>
+          <h4>Local Persistence</h4>
+          <p>Room SQLite v2 — 12 entities with migration-safe upgrades, serving all UI reads offline-first.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">☁️</div>
+          <h4>Cloud Sync (Optional)</h4>
+          <p><code>FirestoreSyncManager</code> pushes with idempotent compound keys under Firestore rules ACLs — never blocking local flows.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🛡️</div>
+          <h4>Cross-Cutting Defense</h4>
+          <p><code>SecurityDefenseHelper</code> applies rate limiting, input sanitization, and payload caps across every layer.</p>
+        </div>
       </div>
 
-      <h4 style="margin: 24px 0 12px; font-weight: 700;">Entity Relationship & Database Schema</h4>
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Entity</th>
-              <th>Primary Key</th>
-              <th>Foreign Keys</th>
-              <th>Key Responsibility</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><span class="code-tag">User</span></td>
-              <td><code>id (Long)</code></td>
-              <td>—</td>
-              <td>Player profile, email, role (GLOBAL_ADMIN, TEAM_ADMIN, CAPTAIN, MEMBER)</td>
-            </tr>
-            <tr>
-              <td><span class="code-tag">Team</span></td>
-              <td><code>id (Long)</code></td>
-              <td><code>captainUserId, treasurerUserId</code></td>
-              <td>Sport team, invite code, default pitch fee, join link active flag</td>
-            </tr>
-            <tr>
-              <td><span class="code-tag">TeamBudget</span></td>
-              <td><code>id (Long)</code></td>
-              <td><code>teamId, declaredByUserId</code></td>
-              <td>Incurred cost declarations with category and attached receipt proofs</td>
-            </tr>
-            <tr>
-              <td><span class="code-tag">Invoice</span></td>
-              <td><code>id (Long)</code></td>
-              <td><code>budgetId, teamId</code></td>
-              <td>Published billing cycle with total approved sessions & per-session cost</td>
-            </tr>
-            <tr>
-              <td><span class="code-tag">InvoiceAllocation</span></td>
-              <td><code>id (Long)</code></td>
-              <td><code>invoiceId, userId</code></td>
-              <td>Individual member calculated share and payment settlement status</td>
-            </tr>
-            <tr>
-              <td><span class="code-tag">AttendanceRecord</span></td>
-              <td><code>id (Long)</code></td>
-              <td><code>fixtureId, userId, verifiedBy</code></td>
-              <td>Verified check-in status (APPROVED, REJECTED, PENDING) with check-in time</td>
-            </tr>
-            <tr>
-              <td><span class="code-tag">Transaction</span></td>
-              <td><code>id (Long)</code></td>
-              <td><code>userId, teamId, referenceId</code></td>
-              <td>Immutable ledger log with running balance after debit or credit</td>
-            </tr>
-            <tr>
-              <td><span class="code-tag">Dispute</span></td>
-              <td><code>id (Long)</code></td>
-              <td><code>userId, resolvedByUserId</code></td>
-              <td>Audit dispute ticket on attendance overcharge or invoice variance</td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="callout callout-info">
+        <div class="callout-icon">📐</div>
+        <div class="callout-text">
+          <h5>Looking for the entity relationship schema?</h5>
+          <p>The full 12-entity table with primary keys, foreign keys, and responsibilities lives in the <a href="clubledger-architecture.html">interactive architecture diagram</a> alongside the SVG data-flow and deployment views.</p>
+        </div>
       </div>
     </section>
 
