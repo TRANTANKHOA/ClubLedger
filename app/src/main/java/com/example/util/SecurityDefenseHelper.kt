@@ -91,6 +91,25 @@ object SecurityDefenseHelper {
     }
 
     /**
+     * Sanitizes general user text (names, messages, dispute titles, descriptions)
+     * Strips control characters, dangerous script tags, and bounds length to prevent bot payload bloat.
+     */
+    fun sanitizeInputText(rawText: String, maxLength: Int = 1000): String {
+        return rawText.trim()
+            .replace(Regex("[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F\\x7F]"), "") // Strip non-printable ASCII control chars
+            .replace(Regex("<[^>]*>"), "") // Strip HTML/script tags
+            .take(maxLength)
+    }
+
+    /**
+     * Validates that an incoming payload string does not exceed safe maximum bytes,
+     * protecting against cloud storage bloat and Denial-of-Wallet payload floods.
+     */
+    fun isPayloadSizeSafe(payload: String, maxBytes: Int = 64 * 1024): Boolean {
+        return payload.toByteArray(Charsets.UTF_8).size <= maxBytes
+    }
+
+    /**
      * Initializes Firebase App Check with Play Integrity if Firebase is available.
      */
     fun initDeviceAttestation(context: Context) {

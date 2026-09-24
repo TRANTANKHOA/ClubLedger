@@ -73,6 +73,11 @@ class ClubViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun syncAllToCloud() {
+        val rateLimit = SecurityDefenseHelper.checkRateLimit("cloud_sync_push", maxRequests = 2, windowMs = 60_000L)
+        if (rateLimit is RateLimitResult.Throttled) {
+            _snackbarMessage.value = "Cloud sync throttled to prevent quota exhaustion. Please wait ${rateLimit.retryAfterSeconds}s."
+            return
+        }
         viewModelScope.launch {
             firestoreSyncManager.pushAllLocalToCloud()
             _snackbarMessage.value = "Synced local records to cloud."

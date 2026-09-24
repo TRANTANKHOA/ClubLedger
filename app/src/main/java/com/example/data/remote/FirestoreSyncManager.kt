@@ -41,6 +41,18 @@ class FirestoreSyncManager(
     private var activeClubId: String = "sports-club-demo"
     private val listeners = mutableListOf<ListenerRegistration>()
 
+    /**
+     * Denial-of-Wallet guard: refuses to push documents whose serialized payload
+     * exceeds the safe byte cap, protecting cloud storage from bloat floods.
+     */
+    private fun isDocumentSafe(payload: Any): Boolean {
+        val safe = SecurityDefenseHelper.isPayloadSizeSafe(payload.toString())
+        if (!safe) {
+            Log.w(TAG, "Blocked cloud push of oversized payload (${payload::class.simpleName}) exceeding Denial-of-Wallet byte cap")
+        }
+        return safe
+    }
+
     init {
         checkFirebaseAvailability()
     }
@@ -208,14 +220,17 @@ class FirestoreSyncManager(
 
             // Sync users
             for (u in users) {
+                if (!isDocumentSafe(u)) continue
                 clubDoc.collection("users").document(u.id.toString()).set(u).await()
             }
             // Sync teams
             for (t in teams) {
+                if (!isDocumentSafe(t)) continue
                 clubDoc.collection("teams").document(t.id.toString()).set(t).await()
             }
             // Sync attendances with deterministic idempotency compound key
             for (a in attendances) {
+                if (!isDocumentSafe(a)) continue
                 val docId = SecurityDefenseHelper.createIdempotentAttendanceKey(
                     userId = a.userId,
                     teamId = a.teamId,
@@ -226,6 +241,7 @@ class FirestoreSyncManager(
             }
             // Sync payments with deterministic idempotency compound key
             for (p in payments) {
+                if (!isDocumentSafe(p)) continue
                 val docId = SecurityDefenseHelper.createIdempotentPaymentKey(
                     userId = p.userId,
                     amount = p.amount,
@@ -236,10 +252,12 @@ class FirestoreSyncManager(
             }
             // Sync budgets
             for (b in budgets) {
+                if (!isDocumentSafe(b)) continue
                 clubDoc.collection("budgets").document(b.id.toString()).set(b).await()
             }
             // Sync ledger
             for (l in ledgerEntries) {
+                if (!isDocumentSafe(l)) continue
                 clubDoc.collection("ledger").document(l.id.toString()).set(l).await()
             }
 
@@ -252,6 +270,7 @@ class FirestoreSyncManager(
 
     suspend fun pushAttendanceToCloud(attendance: Attendance) {
         val db = firestore ?: return
+        if (!isDocumentSafe(attendance)) return
         try {
             val docId = SecurityDefenseHelper.createIdempotentAttendanceKey(
                 userId = attendance.userId,
@@ -269,6 +288,7 @@ class FirestoreSyncManager(
 
     suspend fun pushPaymentToCloud(payment: Payment) {
         val db = firestore ?: return
+        if (!isDocumentSafe(payment)) return
         try {
             val docId = SecurityDefenseHelper.createIdempotentPaymentKey(
                 userId = payment.userId,
@@ -286,6 +306,7 @@ class FirestoreSyncManager(
 
     suspend fun pushLedgerEntryToCloud(entry: BalanceLedger) {
         val db = firestore ?: return
+        if (!isDocumentSafe(entry)) return
         try {
             db.collection("clubs").document(activeClubId)
                 .collection("ledger").document(entry.id.toString())

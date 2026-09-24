@@ -1,6 +1,7 @@
 package com.example.util
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -102,5 +103,37 @@ class SecurityDefenseHelperTest {
         // Attendance submission with a distinct key must still be allowed
         val attendanceRes = SecurityDefenseHelper.checkRateLimit("submit_attendance")
         assertTrue("Attendance attempt must be allowed independently", attendanceRes is RateLimitResult.Allowed)
+    }
+
+    @Test
+    fun `sanitizeInputText strips control characters and tags and trims whitespace`() {
+        assertEquals("Hello world", SecurityDefenseHelper.sanitizeInputText("\u0000Hello\u0007 world\u007F"))
+        assertEquals("alert(1)Hello world", SecurityDefenseHelper.sanitizeInputText("<script>alert(1)</script>Hello world"))
+        assertEquals("Invoice dispute", SecurityDefenseHelper.sanitizeInputText("  Invoice <b>dispute</b>  "))
+        // Printable whitespace (tab, newline) must be preserved
+        assertEquals("line1\nline2", SecurityDefenseHelper.sanitizeInputText("line1\nline2"))
+    }
+
+    @Test
+    fun `sanitizeInputText enforces maximum length bound`() {
+        val oversized = "A".repeat(1500)
+        assertEquals(1000, SecurityDefenseHelper.sanitizeInputText(oversized).length)
+        assertEquals(50, SecurityDefenseHelper.sanitizeInputText(oversized, maxLength = 50).length)
+        assertEquals("Short", SecurityDefenseHelper.sanitizeInputText("Short"))
+    }
+
+    @Test
+    fun `isPayloadSizeSafe accepts payloads within the byte cap`() {
+        assertTrue(SecurityDefenseHelper.isPayloadSizeSafe("normal ledger entry"))
+        assertTrue(SecurityDefenseHelper.isPayloadSizeSafe("x".repeat(64 * 1024)))
+        assertTrue(SecurityDefenseHelper.isPayloadSizeSafe("x".repeat(64 * 1024), maxBytes = 64 * 1024))
+    }
+
+    @Test
+    fun `isPayloadSizeSafe rejects oversized payloads and counts multibyte characters`() {
+        assertFalse(SecurityDefenseHelper.isPayloadSizeSafe("x".repeat(64 * 1024 + 1)))
+        // '€' encodes to 3 UTF-8 bytes: 100 chars = 300 bytes
+        assertTrue(SecurityDefenseHelper.isPayloadSizeSafe("€".repeat(100), maxBytes = 300))
+        assertFalse(SecurityDefenseHelper.isPayloadSizeSafe("€".repeat(101), maxBytes = 300))
     }
 }

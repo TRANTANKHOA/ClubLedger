@@ -2,6 +2,7 @@ package com.example.data.repository
 
 import com.example.data.dao.ClubDao
 import com.example.data.entity.*
+import com.example.util.SecurityDefenseHelper
 import kotlinx.coroutines.flow.Flow
 import java.text.SimpleDateFormat
 import java.util.*
@@ -41,14 +42,15 @@ class ClubRepository(private val clubDao: ClubDao) {
 
     // --- User Actions ---
     suspend fun createUser(user: User): Long {
-        val id = clubDao.insertUser(user)
+        val safeUser = user.copy(name = SecurityDefenseHelper.sanitizeInputText(user.name, maxLength = 120))
+        val id = clubDao.insertUser(safeUser)
         clubDao.insertAuditLog(
             AuditLog(
                 action = "USER_REGISTERED",
                 entityType = "User",
                 entityId = id,
                 performedByUserId = id,
-                details = "Registered member: ${user.name} (${user.email})"
+                details = "Registered member: ${safeUser.name} (${safeUser.email})"
             )
         )
         return id
@@ -651,6 +653,8 @@ class ClubRepository(private val clubDao: ClubDao) {
         memo: String,
         adminId: Long
     ): Int {
+        val safeTitle = SecurityDefenseHelper.sanitizeInputText(title)
+        val safeMemo = SecurityDefenseHelper.sanitizeInputText(memo)
         val now = System.currentTimeMillis()
         var count = 0
         for (uId in userIds) {
@@ -665,7 +669,7 @@ class ClubRepository(private val clubDao: ClubDao) {
                 runningBalanceAfter = newBalance,
                 referenceType = "PAYMENT_REQUEST",
                 referenceId = 0,
-                description = "Payment Request: $title${if (memo.isNotBlank()) " ($memo)" else ""}",
+                description = "Payment Request: $safeTitle${if (safeMemo.isNotBlank()) " ($safeMemo)" else ""}",
                 createdAt = now,
                 createdByUserId = adminId
             )
@@ -679,7 +683,7 @@ class ClubRepository(private val clubDao: ClubDao) {
                 entityType = "BalanceLedger",
                 entityId = 0,
                 performedByUserId = adminId,
-                details = "Issued '$title' payment request ($${String.format(Locale.US, "%.2f", amount)}) to $count member(s). Memo: $memo"
+                details = "Issued '$safeTitle' payment request ($${String.format(Locale.US, "%.2f", amount)}) to $count member(s). Memo: $safeMemo"
             )
         )
         return count
@@ -735,13 +739,14 @@ class ClubRepository(private val clubDao: ClubDao) {
         description: String,
         requestedAdjustmentAmount: Double
     ): Long {
+        val safeTitle = SecurityDefenseHelper.sanitizeInputText(title)
         val dispute = Dispute(
             userId = userId,
             category = category,
             referenceType = referenceType,
             referenceId = referenceId,
-            title = title,
-            description = description,
+            title = safeTitle,
+            description = SecurityDefenseHelper.sanitizeInputText(description),
             requestedAdjustmentAmount = requestedAdjustmentAmount,
             status = "OPEN",
             createdAt = System.currentTimeMillis()
@@ -755,7 +760,7 @@ class ClubRepository(private val clubDao: ClubDao) {
                 entityType = "Dispute",
                 entityId = disputeId,
                 performedByUserId = userId,
-                details = "Member ${user?.name ?: "User #$userId"} raised dispute on $referenceType #$referenceId: \"$title\" (${category.replace("_", " ")})"
+                details = "Member ${user?.name ?: "User #$userId"} raised dispute on $referenceType #$referenceId: \"$safeTitle\" (${category.replace("_", " ")})"
             )
         )
         return disputeId
