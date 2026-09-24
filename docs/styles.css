@@ -334,6 +334,7 @@ main {
 .badge-amber { background: var(--amber-bg); color: var(--amber); }
 .badge-emerald { background: var(--emerald-bg); color: var(--emerald); }
 .badge-purple { background: var(--purple-bg); color: var(--purple); }
+.badge-rose { background: var(--rose-bg); color: var(--rose); }
 
 /* Grids & Cards */
 .grid-2 {
