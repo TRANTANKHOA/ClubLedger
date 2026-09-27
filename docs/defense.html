@@ -176,7 +176,7 @@
             <span class="badge" style="background: #EEF2FF; color: #3730A3; font-weight: 700;">Blocks Headless Scripts</span>
           </div>
           <p>
-            Adversaries often deploy automated Python <code>curl</code> scripts or headless emulator farms to scrape member directories or flood invite codes. ClubLedger integrates <strong>Firebase App Check with the reCAPTCHA provider</strong> — the attestation artifact declared in the Gradle build and installed at app start.
+            Adversaries often deploy automated Python <code>curl</code> scripts or headless emulator farms to scrape member directories or flood invite codes. ClubLedger integrates <strong>Firebase App Check with the reCAPTCHA provider</strong> — the attestation artifact declared in the Gradle build — installed at app start once the site key resource is filled in (Firebase Console → App Check → reCAPTCHA).
           </p>
           <p style="margin-top: 6px;">
             Once installed, App Check attaches an attestation token to Firebase requests, and App-Check-enabled Firestore rules reject traffic that cannot pass the provider's verification — scripted clients, repackaged APKs, and raw API calls never carrying a valid token.
@@ -185,8 +185,10 @@
             <span style="color: #94A3B8;">// SecurityDefenseHelper.kt: install App Check (reCAPTCHA provider)</span><br>
             <span style="color: #38BDF8;">fun</span> initDeviceAttestation(context: Context) {<br>
             &nbsp;&nbsp;<span style="color: #F472B6;">if</span> (FirebaseApp.getApps(context).isNotEmpty()) {<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;FirebaseAppCheck.getInstance().installAppCheckProviderFactory(<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ReCaptchaAppCheckProviderFactory.getInstance())<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #F472B6;">val</span> siteKey = context.getString(R.string.firebase_appcheck_recaptcha_site_key)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #F472B6;">if</span> (siteKey.isNotBlank())<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FirebaseAppCheck.getInstance().installAppCheckProviderFactory(<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RecaptchaAppCheckProviderFactory.getInstance(siteKey))<br>
             &nbsp;&nbsp;}<br>
             }
           </div>

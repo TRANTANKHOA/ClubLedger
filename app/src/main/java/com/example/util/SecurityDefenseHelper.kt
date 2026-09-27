@@ -2,9 +2,10 @@ package com.example.util
 
 import android.content.Context
 import android.util.Log
+import com.example.R
 import com.google.firebase.FirebaseApp
 import com.google.firebase.appcheck.FirebaseAppCheck
-import com.google.firebase.appcheck.recaptcha.ReCaptchaAppCheckProviderFactory
+import com.google.firebase.appcheck.recaptcha.RecaptchaAppCheckProviderFactory
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -114,14 +115,22 @@ object SecurityDefenseHelper {
     /**
      * Installs the Firebase App Check provider (reCAPTCHA — the artifact declared
      * in the build) so Firestore requests carry an attestation token that
-     * App-Check-enabled security rules can require.
+     * App-Check-enabled security rules can require. Installs only when a
+     * reCAPTCHA site key is configured in the
+     * [R.string.firebase_appcheck_recaptcha_site_key] resource; otherwise the
+     * app keeps running without attestation.
      */
     fun initDeviceAttestation(context: Context) {
         try {
             if (FirebaseApp.getApps(context).isNotEmpty()) {
-                FirebaseAppCheck.getInstance()
-                    .installAppCheckProviderFactory(ReCaptchaAppCheckProviderFactory.getInstance())
-                Log.d(TAG, "Firebase App Check installed with the reCAPTCHA provider.")
+                val siteKey = context.getString(R.string.firebase_appcheck_recaptcha_site_key)
+                if (siteKey.isNotBlank()) {
+                    FirebaseAppCheck.getInstance()
+                        .installAppCheckProviderFactory(RecaptchaAppCheckProviderFactory.getInstance(siteKey))
+                    Log.d(TAG, "Firebase App Check installed with the reCAPTCHA provider.")
+                } else {
+                    Log.d(TAG, "App Check reCAPTCHA site key not configured; skipping install.")
+                }
             }
         } catch (e: Exception) {
             Log.w(TAG, "Device attestation initialization skipped: ${e.message}")

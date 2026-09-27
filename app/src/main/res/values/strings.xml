@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">ClubLedger</string>
+    <!-- Firebase App Check reCAPTCHA site key (public by design). Empty disables
+         attestation installation; fill after registering the app under
+         Firebase Console → App Check → reCAPTCHA. -->
+    <string name="firebase_appcheck_recaptcha_site_key" translatable="false"></string>
 </resources>
