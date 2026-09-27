@@ -121,6 +121,9 @@
           </tbody>
         </table>
       </div>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">
+        No extra OAuth setup is needed: Google Sign-In's server client ID is auto-wired from <code>google-services.json</code> (the plugin generates the <code>default_web_client_id</code> resource that <code>FirebaseAuthManager</code> reads). Without the json file, a placeholder ID is used and social sign-in stays inert — the app keeps running in Local Mode.
+      </p>
 
       <!-- 3. Firestore rules -->
       <h4 style="margin: 24px 0 12px; font-weight: 700;">3. Firestore Security Rules</h4>
@@ -201,7 +204,7 @@ jobs:
         run: chmod +x gradlew scripts/*.sh || true
       - name: Decode Keystore (if secret provided)
         env: { KEYSTORE_BASE64: "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" }
-        run: echo "$KEYSTORE_BASE64" | base64 -d &gt; release.keystore
+        run: echo "$KEYSTORE_BASE64" | base64 -d &gt; app/release.keystore   # skipped when secret absent
       - name: Build Production Android App Bundle (AAB)
         run: ./gradlew :app:bundleRelease</div>
 
@@ -220,6 +223,9 @@ jobs:
             <tr><td><strong>Short description</strong></td><td>≤ 80 chars — e.g. <em>"Club treasury: attendance-based fair-share dues, payments &amp; audit trail."</em></td></tr>
             <tr><td><strong>Data safety</strong></td><td>Declare name/email (member identity, social sign-in) and user-provided payment references; encrypted in transit (TLS via Firebase)</td></tr>
             <tr><td><strong>Upload</strong></td><td><code>app-release.aab</code> → Release ➔ Production or Internal Testing → rollout</td></tr>
+            <tr><td><strong>Adaptive launcher icon</strong></td><td>Foreground/background layers via <code>mipmap-anydpi-v26/ic_launcher.xml</code> (already configured)</td></tr>
+            <tr><td><strong>Edge-to-edge UI</strong></td><td><code>enableEdgeToEdge()</code> in <code>MainActivity.onCreate</code> (already enabled)</td></tr>
+            <tr><td><strong>Test gate green</strong></td><td>Full 58-test Robolectric/JVM suite passes — CI runs <code>testDebugUnitTest</code> on every push</td></tr>
           </tbody>
         </table>
       </div>
@@ -241,11 +247,20 @@ jobs:
         </table>
       </div>
 
+      <!-- 9. Docs hub publishing -->
+      <h4 style="margin: 24px 0 12px; font-weight: 700;">9. Docs Hub Publishing (GitHub Pages)</h4>
+      <p style="font-size: 0.9rem; color: var(--text-muted);">
+        This documentation hub auto-publishes with zero manual steps: every push to <code>main</code> triggers
+        <code>deploy_pages.yml</code>, which copies <code>docs/</code> (plus root <code>assets/</code> if present) into a
+        Pages artifact and deploys it. No Firebase Hosting or separate site to maintain — edits to any
+        <code>docs/*.html</code> page are live on the next push.
+      </p>
+
       <div class="callout callout-success">
         <div class="callout-icon">✅</div>
         <div class="callout-text">
           <h5>Production Build Verified</h5>
-          <p>The pipeline compiles with Gradle (Kotlin DSL), JDK 17, AndroidX Compose Material 3, and Room SQLite KSP — and runs the full 45-test suite on every push.</p>
+          <p>The pipeline compiles with Gradle (Kotlin DSL), JDK 17, AndroidX Compose Material 3, and Room SQLite KSP — and runs the full 58-test suite on every push.</p>
         </div>
       </div>
     </section>
