@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Financial Engine & Mathematical Definitions - ClubLedger Docs</title>
-  <meta name="description" content="ClubLedger documentation hub — architecture, portability, distributed defense, treasury math, receipts, training, and production CI/CD." />
+  <meta name="description" content="ClubLedger treasury math: monthly budget as the sum of declared costs, member collections, net pool position, and the attendance-weighted fair-share allocation formula with cent-perfect rounding." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
@@ -114,7 +114,7 @@
           • Deficit (&lt; $0.00): Dues outstanding or pending collection
         </div>
         <div class="formula-expl">
-          Displayed dynamically on the Team Treasury Position KPI card in the Admin Budgets screen.
+          Displayed dynamically on the “Net Pool Position” card (with its SURPLUS 🟢 / DEFICIT 🟠 status) in the Admin Budgets screen.
         </div>
       </div>
 
@@ -123,6 +123,7 @@
         <div class="formula-code">
           Member Charge = (Member Verified Attended Sessions ÷ Total Squad Sessions) × Incurred Cost
           • Zero Attendance Exemption: Attended = 0 ➔ Member Charge = $0.00
+          • Cent-Perfect Rounding: each share rounds to whole cents; any residual penny (up or down) is assigned to the first member so charges always sum to the exact budget
         </div>
         <div class="formula-expl">
           Ensures absolute fairness so players pay only for the games and training sessions they attend.
