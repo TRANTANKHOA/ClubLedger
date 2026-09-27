@@ -42,17 +42,19 @@ class CostAllocationEngineTest {
     }
 
     @Test
-    fun `zero total amount allocates zeros regardless of session counts`() {
+    fun `zero total amount allocates zeros but still reports session shares`() {
         val result = CostAllocationEngine.allocate(
             totalAmount = 0.00,
             sessionsByUser = mapOf(1L to 2, 2L to 3)
         )
 
         assertEquals(2, result.size)
-        result.forEach {
-            assertEquals(0.0, it.allocatedAmount, 0.0)
-            assertEquals(0.0, it.percentage, 0.0001)
-        }
+        val byUser = result.associateBy { it.userId }
+        assertEquals(0.0, byUser.getValue(1L).allocatedAmount, 0.0)
+        assertEquals(0.0, byUser.getValue(2L).allocatedAmount, 0.0)
+        // Percentages track session shares regardless of the pot being empty.
+        assertEquals(40.0, byUser.getValue(1L).percentage, 0.0001)
+        assertEquals(60.0, byUser.getValue(2L).percentage, 0.0001)
     }
 
     @Test
