@@ -38,6 +38,10 @@ class FirestoreSyncManager(
 
     private var firestore: FirebaseFirestore? = null
     private var auth: FirebaseAuth? = null
+
+    // Written by enableCloudSync (main thread) and read by the push methods on
+    // IO dispatchers; volatile guarantees every push sees the latest club id.
+    @Volatile
     private var activeClubId: String = "sports-club-demo"
     private val listeners = mutableListOf<ListenerRegistration>()
 

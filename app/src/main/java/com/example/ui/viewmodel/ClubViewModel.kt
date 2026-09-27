@@ -43,13 +43,13 @@ data class TeamDashboardStats(
 class ClubViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: ClubRepository
-    private val firestoreSyncManager: CloudSyncAdapter
+    private val cloudSyncAdapter: CloudSyncAdapter
     private val authManager: FirebaseAuthManager
 
     init {
         val db = ClubDatabase.getDatabase(application, viewModelScope)
         repository = ClubRepository(db.clubDao())
-        firestoreSyncManager = FirestoreSyncManager(application, db.clubDao(), viewModelScope)
+        cloudSyncAdapter = FirestoreSyncManager(application, db.clubDao(), viewModelScope)
         authManager = FirebaseAuthManager(application)
 
         // Ensure Marcus has all access, team memberships, and roles that Sarah has
@@ -59,17 +59,17 @@ class ClubViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     // Cloud Multi-User Sync & Auth States
-    val cloudSyncState: StateFlow<CloudSyncState> = firestoreSyncManager.syncState
+    val cloudSyncState: StateFlow<CloudSyncState> = cloudSyncAdapter.syncState
     val authState: StateFlow<AuthState> = authManager.authState
-    fun isFirebaseConfigured(): Boolean = firestoreSyncManager.isBackendConfigured()
+    fun isFirebaseConfigured(): Boolean = cloudSyncAdapter.isBackendConfigured()
 
     fun enableCloudSync(clubId: String) {
-        firestoreSyncManager.enableCloudSync(clubId)
+        cloudSyncAdapter.enableCloudSync(clubId)
         _snackbarMessage.value = "Cloud Sync enabled for Club ID: $clubId"
     }
 
     fun disableCloudSync() {
-        firestoreSyncManager.disableCloudSync()
+        cloudSyncAdapter.disableCloudSync()
         _snackbarMessage.value = "Cloud Sync disabled (Local Mode Active)"
     }
 
@@ -80,7 +80,7 @@ class ClubViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
         viewModelScope.launch {
-            firestoreSyncManager.pushAllLocalToCloud()
+            cloudSyncAdapter.pushAllLocalToCloud()
             _snackbarMessage.value = "Synced local records to cloud."
         }
     }
@@ -129,7 +129,7 @@ class ClubViewModel(application: Application) : AndroidViewModel(application) {
 
     fun signOutCloud() {
         authManager.signOut()
-        firestoreSyncManager.disableCloudSync()
+        cloudSyncAdapter.disableCloudSync()
         _snackbarMessage.value = "Signed out of Cloud Authentication."
     }
 
