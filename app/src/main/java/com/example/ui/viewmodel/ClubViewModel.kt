@@ -9,6 +9,7 @@ import com.example.data.model.PermissionEngine
 import com.example.data.model.RoleConstants
 import com.example.data.model.UserRoleProfile
 import com.example.data.remote.AuthState
+import com.example.data.remote.CloudSyncAdapter
 import com.example.data.remote.CloudSyncState
 import com.example.data.remote.FirebaseAuthManager
 import com.example.data.remote.FirestoreSyncManager
@@ -42,7 +43,7 @@ data class TeamDashboardStats(
 class ClubViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: ClubRepository
-    private val firestoreSyncManager: FirestoreSyncManager
+    private val firestoreSyncManager: CloudSyncAdapter
     private val authManager: FirebaseAuthManager
 
     init {
@@ -60,7 +61,7 @@ class ClubViewModel(application: Application) : AndroidViewModel(application) {
     // Cloud Multi-User Sync & Auth States
     val cloudSyncState: StateFlow<CloudSyncState> = firestoreSyncManager.syncState
     val authState: StateFlow<AuthState> = authManager.authState
-    fun isFirebaseConfigured(): Boolean = firestoreSyncManager.isFirebaseConfigured()
+    fun isFirebaseConfigured(): Boolean = firestoreSyncManager.isBackendConfigured()
 
     fun enableCloudSync(clubId: String) {
         firestoreSyncManager.enableCloudSync(clubId)

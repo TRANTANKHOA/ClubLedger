@@ -30,11 +30,11 @@ class FirestoreSyncManager(
     private val context: Context,
     private val dao: ClubDao,
     private val scope: CoroutineScope
-) {
+) : CloudSyncAdapter {
     private val TAG = "FirestoreSyncManager"
 
     private val _syncState = MutableStateFlow<CloudSyncState>(CloudSyncState.Disabled)
-    val syncState: StateFlow<CloudSyncState> = _syncState.asStateFlow()
+    override val syncState: StateFlow<CloudSyncState> = _syncState.asStateFlow()
 
     private var firestore: FirebaseFirestore? = null
     private var auth: FirebaseAuth? = null
@@ -57,7 +57,7 @@ class FirestoreSyncManager(
         checkFirebaseAvailability()
     }
 
-    fun isFirebaseConfigured(): Boolean {
+    override fun isBackendConfigured(): Boolean {
         return try {
             FirebaseApp.getApps(context).isNotEmpty() || FirebaseApp.initializeApp(context) != null
         } catch (e: Exception) {
@@ -67,7 +67,7 @@ class FirestoreSyncManager(
 
     private fun checkFirebaseAvailability() {
         try {
-            if (isFirebaseConfigured()) {
+            if (isBackendConfigured()) {
                 firestore = FirebaseFirestore.getInstance()
                 auth = FirebaseAuth.getInstance()
             } else {
@@ -78,7 +78,7 @@ class FirestoreSyncManager(
         }
     }
 
-    fun enableCloudSync(clubId: String = "sports-club-demo") {
+    override fun enableCloudSync(clubId: String) {
         activeClubId = clubId.trim().ifEmpty { "sports-club-demo" }
         _syncState.value = CloudSyncState.Connecting
 
@@ -100,7 +100,7 @@ class FirestoreSyncManager(
                 attachRemoteListeners(db, activeClubId)
 
                 // Push initial local state to cloud & update status
-                pushAllLocalToCloud(activeClubId)
+                pushAllLocalToCloud()
                 _syncState.value = CloudSyncState.Active(activeClubId, System.currentTimeMillis())
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to enable cloud sync", e)
@@ -109,7 +109,7 @@ class FirestoreSyncManager(
         }
     }
 
-    fun disableCloudSync() {
+    override fun disableCloudSync() {
         listeners.forEach { it.remove() }
         listeners.clear()
         _syncState.value = CloudSyncState.Disabled
@@ -203,7 +203,8 @@ class FirestoreSyncManager(
         listeners.add(paymentListener)
     }
 
-    suspend fun pushAllLocalToCloud(clubId: String = activeClubId) {
+    override suspend fun pushAllLocalToCloud() {
+        val clubId = activeClubId
         val db = firestore ?: return
         _syncState.value = CloudSyncState.Syncing("Pushing local data to cloud...")
 
@@ -268,7 +269,7 @@ class FirestoreSyncManager(
         }
     }
 
-    suspend fun pushAttendanceToCloud(attendance: Attendance) {
+    override suspend fun pushAttendanceToCloud(attendance: Attendance) {
         val db = firestore ?: return
         if (!isDocumentSafe(attendance)) return
         try {
@@ -286,7 +287,7 @@ class FirestoreSyncManager(
         }
     }
 
-    suspend fun pushPaymentToCloud(payment: Payment) {
+    override suspend fun pushPaymentToCloud(payment: Payment) {
         val db = firestore ?: return
         if (!isDocumentSafe(payment)) return
         try {
@@ -304,7 +305,7 @@ class FirestoreSyncManager(
         }
     }
 
-    suspend fun pushLedgerEntryToCloud(entry: BalanceLedger) {
+    override suspend fun pushLedgerEntryToCloud(entry: BalanceLedger) {
         val db = firestore ?: return
         if (!isDocumentSafe(entry)) return
         try {

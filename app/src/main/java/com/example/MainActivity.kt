@@ -50,9 +50,16 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         com.example.util.SecurityDefenseHelper.initDeviceAttestation(applicationContext)
 
+        // Cold-start deep link: clubledger://join?code=TEAM-1234 pre-opens the join flow
+        val deepLinkJoinCode = intent?.data
+            ?.takeIf { it.scheme == "clubledger" && it.host == "join" }
+            ?.getQueryParameter("code")
+            ?.trim()
+            ?.takeIf { it.isNotEmpty() }
+
         setContent {
             ClubLedgerTheme {
-                ClubLedgerApp(viewModel = viewModel)
+                ClubLedgerApp(viewModel = viewModel, deepLinkJoinCode = deepLinkJoinCode)
             }
         }
     }
@@ -60,7 +67,7 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ClubLedgerApp(viewModel: ClubViewModel) {
+fun ClubLedgerApp(viewModel: ClubViewModel, deepLinkJoinCode: String? = null) {
     val currentUser by viewModel.currentUser.collectAsState()
     val allUsers by viewModel.allUsers.collectAsState()
     val teams by viewModel.allTeams.collectAsState()
@@ -78,7 +85,7 @@ fun ClubLedgerApp(viewModel: ClubViewModel) {
     var showQuickAttendanceDialog by remember { mutableStateOf(false) }
     var showQuickPaymentDialog by remember { mutableStateOf(false) }
     var showRegisterMemberDialog by remember { mutableStateOf(false) }
-    var showJoinTeamDialog by remember { mutableStateOf(false) }
+    var showJoinTeamDialog by remember { mutableStateOf(deepLinkJoinCode != null) }
 
     // Sync default screen when user changes role
     LaunchedEffect(currentUser?.role) {
@@ -303,6 +310,7 @@ fun ClubLedgerApp(viewModel: ClubViewModel) {
         JoinTeamWithLinkDialog(
             viewModel = viewModel,
             currentUser = currentUser,
+            prefilledCode = deepLinkJoinCode.orEmpty(),
             onDismiss = { showJoinTeamDialog = false }
         )
     }

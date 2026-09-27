@@ -2,11 +2,11 @@ package com.example.data.repository
 
 import com.example.data.dao.ClubDao
 import com.example.data.entity.*
+import com.example.domain.CostAllocationEngine
 import com.example.util.SecurityDefenseHelper
 import kotlinx.coroutines.flow.Flow
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.math.roundToInt
 
 class ClubRepository(private val clubDao: ClubDao) {
 
@@ -368,40 +368,21 @@ class ClubRepository(private val clubDao: ClubDao) {
         val savedInvoice = invoice.copy(id = invoiceId)
 
         // Generate proportional allocations
-        val allocations = mutableListOf<InvoiceAllocation>()
-        var allocatedSum = 0.0
-
-        val userList = attendanceByUser.keys.toList()
-        for (i in userList.indices) {
-            val uId = userList[i]
-            val userSessions = attendanceByUser[uId]?.size ?: 0
-            val percentage = (userSessions.toDouble() / totalSessions.toDouble()) * 100.0
-
-            // Exact rounded cent allocation
-            val rawAmount = (userSessions.toDouble() / totalSessions.toDouble()) * budget.totalAmount
-            val roundedAmount = (rawAmount * 100.0).roundToInt() / 100.0
-
-            allocations.add(
-                InvoiceAllocation(
-                    invoiceId = invoiceId,
-                    userId = uId,
-                    teamId = budget.teamId,
-                    approvedSessionsCount = userSessions,
-                    percentage = (percentage * 100.0).roundToInt() / 100.0,
-                    allocatedAmount = roundedAmount,
-                    status = "APPLIED_TO_LEDGER",
-                    calculatedAt = System.currentTimeMillis()
-                )
+        val allocations = CostAllocationEngine.allocate(
+            totalAmount = budget.totalAmount,
+            sessionsByUser = attendanceByUser.mapValues { it.value.size }
+        ).map {
+            InvoiceAllocation(
+                invoiceId = invoiceId,
+                userId = it.userId,
+                teamId = budget.teamId,
+                approvedSessionsCount = it.approvedSessionsCount,
+                percentage = it.percentage,
+                allocatedAmount = it.allocatedAmount,
+                status = "APPLIED_TO_LEDGER",
+                calculatedAt = System.currentTimeMillis()
             )
-            allocatedSum += roundedAmount
-        }
-
-        // Adjust cents rounding difference if any
-        val diff = ((budget.totalAmount - allocatedSum) * 100.0).roundToInt() / 100.0
-        if (diff != 0.0 && allocations.isNotEmpty()) {
-            val first = allocations[0]
-            allocations[0] = first.copy(allocatedAmount = ((first.allocatedAmount + diff) * 100.0).roundToInt() / 100.0)
-        }
+        }.toMutableList()
 
         // Insert allocations and write back the generated IDs so ledger entries
         // carry a referenceId that deleteLedgerEntriesForInvoice() can match on recalculation.
@@ -483,36 +464,21 @@ class ClubRepository(private val clubDao: ClubDao) {
         clubDao.deleteAllocationsByInvoiceId(invoiceId)
 
         // Generate new allocations
-        val allocations = mutableListOf<InvoiceAllocation>()
-        var allocatedSum = 0.0
-
-        val userList = attendanceByUser.keys.toList()
-        for (uId in userList) {
-            val userSessions = attendanceByUser[uId]?.size ?: 0
-            val percentage = (userSessions.toDouble() / totalSessions.toDouble()) * 100.0
-            val rawAmount = (userSessions.toDouble() / totalSessions.toDouble()) * budget.totalAmount
-            val roundedAmount = (rawAmount * 100.0).roundToInt() / 100.0
-
-            allocations.add(
-                InvoiceAllocation(
-                    invoiceId = invoiceId,
-                    userId = uId,
-                    teamId = invoice.teamId,
-                    approvedSessionsCount = userSessions,
-                    percentage = (percentage * 100.0).roundToInt() / 100.0,
-                    allocatedAmount = roundedAmount,
-                    status = "APPLIED_TO_LEDGER",
-                    calculatedAt = System.currentTimeMillis()
-                )
+        val allocations = CostAllocationEngine.allocate(
+            totalAmount = budget.totalAmount,
+            sessionsByUser = attendanceByUser.mapValues { it.value.size }
+        ).map {
+            InvoiceAllocation(
+                invoiceId = invoiceId,
+                userId = it.userId,
+                teamId = invoice.teamId,
+                approvedSessionsCount = it.approvedSessionsCount,
+                percentage = it.percentage,
+                allocatedAmount = it.allocatedAmount,
+                status = "APPLIED_TO_LEDGER",
+                calculatedAt = System.currentTimeMillis()
             )
-            allocatedSum += roundedAmount
-        }
-
-        val diff = ((budget.totalAmount - allocatedSum) * 100.0).roundToInt() / 100.0
-        if (diff != 0.0 && allocations.isNotEmpty()) {
-            val first = allocations[0]
-            allocations[0] = first.copy(allocatedAmount = ((first.allocatedAmount + diff) * 100.0).roundToInt() / 100.0)
-        }
+        }.toMutableList()
 
         // Insert allocations and write back the generated IDs so ledger entries
         // carry a referenceId that deleteLedgerEntriesForInvoice() can match on recalculation.
