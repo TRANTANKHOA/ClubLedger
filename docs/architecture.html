@@ -210,7 +210,7 @@
 
         <!-- Security shield -->
         <rect x="20" y="300" width="690" height="32" rx="8" fill="#FEF3C7" stroke="#D97706" stroke-width="1"/>
-        <text x="365" y="321" text-anchor="middle" fill="#92400E" font-size="9" font-weight="700">🛡️ 5-LAYER DEFENSE: Edge DDoS ← Play Integrity ← Rate Limiter ← firestore.rules ACL ← Budget Hard Caps</text>
+        <text x="365" y="321" text-anchor="middle" fill="#92400E" font-size="9" font-weight="700">🛡️ 5-LAYER DEFENSE: Edge DDoS ← App Check ← Rate Limiter ← firestore.rules ACL ← Budget Hard Caps</text>
       </svg>
     </section>
 
@@ -307,7 +307,7 @@
         <!-- Bottom security bar -->
         <rect x="50" y="430" width="1000" height="50" rx="12" fill="#0F172A"/>
         <text x="550" y="450" text-anchor="middle" fill="#F59E0B" font-size="10" font-weight="700">🛡️ 5-LAYER DISTRIBUTED DEFENSE STACK</text>
-        <text x="550" y="468" text-anchor="middle" fill="#94A3B8" font-size="8.5">Cloud Armor DDoS → Play Integrity Attestation → Sliding-Window Rate Limiter → Firestore Rules ACL → GCP Budget Hard Caps</text>
+        <text x="550" y="468" text-anchor="middle" fill="#94A3B8" font-size="8.5">Cloud Armor DDoS → App Check Attestation → Sliding-Window Rate Limiter → Firestore Rules ACL → GCP Budget Hard Caps</text>
       </svg>
     </section>
 
@@ -357,9 +357,9 @@
         <div class="column-stack">
           <h4>Non-Functional Requirements</h4>
           <div class="feature-card"><div class="feature-icon">📱</div><h4>Offline-First Architecture</h4><p>Room SQLite serves all UI reads instantly. Cloud sync is optional and additive — never blocking.</p></div>
-          <div class="feature-card"><div class="feature-icon">🛡️</div><h4>5-Layer Defense-in-Depth</h4><p>Edge DDoS, Play Integrity attestation, rate limiting, Firestore ACL, budget hard caps.</p></div>
+          <div class="feature-card"><div class="feature-icon">🛡️</div><h4>5-Layer Defense-in-Depth</h4><p>Edge DDoS, App Check (reCAPTCHA) attestation, rate limiting, Firestore ACL, budget hard caps.</p></div>
           <div class="feature-card"><div class="feature-icon">🔒</div><h4>Immutable Append-Only Ledger</h4><p>No user can delete historical financial transactions. All records remain AGM-verifiable.</p></div>
-          <div class="feature-card"><div class="feature-icon">🏗️</div><h4>Room Migration Safety (v1→v2)</h4><p>Safe column alterations with backward compatibility and zero data loss on app upgrades.</p></div>
+          <div class="feature-card"><div class="feature-icon">🏗️</div><h4>Room Migration Safety (v1→v2)</h4><p>Explicit <code>MIGRATION_1_2</code> rebuilds budget/invoice tables preserving every row; verified by a Robolectric upgrade test.</p></div>
           <div class="feature-card"><div class="feature-icon">✅</div><h4>45+ JUnit/Robolectric Test Suite</h4><p>Covers allocation engine, ledger balance, CSV generator, permission engine, and security defense.</p></div>
           <div class="feature-card"><div class="feature-icon">🚀</div><h4>GitHub Actions CI/CD</h4><p>Automated test → build → release bundle pipeline on every push to main. Keystore-based signing.</p></div>
         </div>
@@ -432,7 +432,7 @@
         <div class="feature-card"><div class="feature-icon">🎨</div><h4>Jetpack Compose + M3</h4><p>Declarative UI with Material Design 3 dynamic theming & edge-to-edge</p></div>
         <div class="feature-card"><div class="feature-icon">🗄️</div><h4>Room SQLite (v2)</h4><p>12 entities, KSP codegen, safe schema migrations, prepopulated seed data</p></div>
         <div class="feature-card"><div class="feature-icon">☁️</div><h4>Firebase Firestore</h4><p>Optional real-time multi-device sync with compound idempotent document keys</p></div>
-        <div class="feature-card"><div class="feature-icon">🔐</div><h4>Firebase Auth + App Check</h4><p>Google Sign-In, Credential Manager, Play Integrity hardware attestation</p></div>
+        <div class="feature-card"><div class="feature-icon">🔐</div><h4>Firebase Auth + App Check</h4><p>Google Sign-In, Credential Manager, App Check (reCAPTCHA) attestation</p></div>
         <div class="feature-card"><div class="feature-icon">⚙️</div><h4>GitHub Actions CI/CD</h4><p>Automated test, build, sign, and release pipeline with keystore decoding</p></div>
       </div>
     </section>
