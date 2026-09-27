@@ -25,6 +25,7 @@ import com.example.ui.theme.*
 import com.example.ui.viewmodel.ClubViewModel
 import com.example.util.RateLimitResult
 import com.example.util.SecurityDefenseHelper
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -48,9 +49,12 @@ fun JoinTeamWithLinkDialog(
     var isSubmitting by remember { mutableStateOf(false) }
     var submitError by remember { mutableStateOf<String?>(null) }
 
-    // Automatically search team when input changes with rate-limiting and sanitization
+    // Debounced team search: LaunchedEffect restarts on every keystroke, cancelling the
+    // previous delay, so only a settled input fires the lookup — one rate-limited query
+    // per entered code instead of one per character.
     LaunchedEffect(inviteInput) {
         if (inviteInput.isNotBlank()) {
+            delay(300)
             val rateLimit = SecurityDefenseHelper.checkRateLimit("join_team_lookup")
             when (rateLimit) {
                 is RateLimitResult.Throttled -> {

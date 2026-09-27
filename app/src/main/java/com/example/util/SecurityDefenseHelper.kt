@@ -3,6 +3,8 @@ package com.example.util
 import android.content.Context
 import android.util.Log
 import com.google.firebase.FirebaseApp
+import com.google.firebase.appcheck.FirebaseAppCheck
+import com.google.firebase.appcheck.recaptcha.ReCaptchaAppCheckProviderFactory
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -10,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap
  * - Layer 1: Sliding-Window Rate Limiter for invite code lookups & API spam prevention
  * - Layer 2: Deterministic Idempotency Key generator for payments, ledger entries, and attendances
  * - Layer 3: Input sanitization for team invite codes
- * - Layer 4: Hardware Device Attestation (Play Integrity / Firebase App Check initialization)
+ * - Layer 4: Device Attestation (Firebase App Check with the reCAPTCHA provider)
  */
 object SecurityDefenseHelper {
 
@@ -110,12 +112,16 @@ object SecurityDefenseHelper {
     }
 
     /**
-     * Initializes Firebase App Check with Play Integrity if Firebase is available.
+     * Installs the Firebase App Check provider (reCAPTCHA — the artifact declared
+     * in the build) so Firestore requests carry an attestation token that
+     * App-Check-enabled security rules can require.
      */
     fun initDeviceAttestation(context: Context) {
         try {
             if (FirebaseApp.getApps(context).isNotEmpty()) {
-                Log.d(TAG, "Firebase initialized. Device Play Integrity / App Check ready.")
+                FirebaseAppCheck.getInstance()
+                    .installAppCheckProviderFactory(ReCaptchaAppCheckProviderFactory.getInstance())
+                Log.d(TAG, "Firebase App Check installed with the reCAPTCHA provider.")
             }
         } catch (e: Exception) {
             Log.w(TAG, "Device attestation initialization skipped: ${e.message}")
