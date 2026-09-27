@@ -437,7 +437,7 @@ ClubLedger's documentation is divided into structured modules, operational train
 - **Local Persistence:** Android Jetpack Room (SQLite) with Kotlin Coroutines & Flow
 - **State Management:** MVVM (`ClubViewModel`, `StateFlow`, `collectAsStateWithLifecycle`)
 - **Theme & Design:** Dynamic Material 3 theming with Emerald Green (`#00897B`), Navy (`#1E3A8A`), and Amber accents, edge-to-edge support, and responsive layouts.
-- **Unit Testing:** 39 JUnit 4 / Robolectric tests in `app/src/test` covering the proportional allocation engine (fair-share formula, zero-attendance exemption, cent-rounding conservation, invoice recalculation without double billing), running-balance ledger calculations and adjustment sign conventions, CSV export generators, and the superset permission engine.
+- **Unit Testing:** the full JUnit 4 / Robolectric suite in `app/src/test` covering the proportional allocation engine (fair-share formula, zero-attendance exemption, cent-rounding conservation in both directions, invoice recalculation without double billing), running-balance ledger calculations and adjustment sign conventions, CSV export generators, the superset permission engine, the v1→v2 Room data migration, deep-link parsing, and the sliding-window rate limiter (including concurrent access).
 
 ---
 

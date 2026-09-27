@@ -62,9 +62,9 @@ abstract class ClubDatabase : RoomDatabase() {
                 )
                 db.execSQL(
                     "INSERT INTO `team_budgets_new` " +
-                        "(`id`,`teamId`,`periodMonth`,`periodYear`,`totalAmount`,`title`,`description`,`category`,`status`,`createdAt`) " +
+                        "(`id`,`teamId`,`periodMonth`,`periodYear`,`totalAmount`,`title`,`description`,`category`,`attachmentType`,`status`,`createdAt`) " +
                         "SELECT `id`,`teamId`,`periodMonth`,`periodYear`,`totalAmount`,`title`,`description`," +
-                        "'COURT_RENTAL',`status`,`createdAt` FROM `team_budgets`"
+                        "'COURT_RENTAL','RECEIPT_IMAGE',`status`,`createdAt` FROM `team_budgets`"
                 )
                 db.execSQL("DROP TABLE `team_budgets`")
                 db.execSQL("ALTER TABLE `team_budgets_new` RENAME TO `team_budgets`")
@@ -82,9 +82,9 @@ abstract class ClubDatabase : RoomDatabase() {
                 )
                 db.execSQL(
                     "INSERT INTO `invoices_new` " +
-                        "(`id`,`budgetId`,`teamId`,`invoiceNumber`,`title`,`totalAmount`,`periodMonth`,`periodYear`,`category`,`status`,`issuedAt`,`totalApprovedSessions`,`costPerSession`) " +
+                        "(`id`,`budgetId`,`teamId`,`invoiceNumber`,`title`,`totalAmount`,`periodMonth`,`periodYear`,`category`,`attachmentType`,`status`,`issuedAt`,`totalApprovedSessions`,`costPerSession`) " +
                         "SELECT `id`,`budgetId`,`teamId`,`invoiceNumber`,`title`,`totalAmount`,`periodMonth`,`periodYear`," +
-                        "'COURT_RENTAL',`status`,`issuedAt`,`totalApprovedSessions`,`costPerSession` FROM `invoices`"
+                        "'COURT_RENTAL','RECEIPT_IMAGE',`status`,`issuedAt`,`totalApprovedSessions`,`costPerSession` FROM `invoices`"
                 )
                 db.execSQL("DROP TABLE `invoices`")
                 db.execSQL("ALTER TABLE `invoices_new` RENAME TO `invoices`")

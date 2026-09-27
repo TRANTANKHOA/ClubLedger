@@ -97,7 +97,7 @@
         <div class="feature-card">
           <div class="feature-icon">🧪</div>
           <h4>Test & Build Loop</h4>
-          <p><code>./scripts/run_tests.sh</code> (58 unit tests), <code>./scripts/build_apk.sh</code> (debug APK), <code>./scripts/run_app.sh</code> (install & launch on a device).</p>
+          <p><code>./scripts/run_tests.sh</code> (full unit suite), <code>./scripts/build_apk.sh</code> (debug APK), <code>./scripts/run_app.sh</code> (install & launch on a device).</p>
         </div>
       </div>
 
@@ -225,7 +225,7 @@ jobs:
             <tr><td><strong>Upload</strong></td><td><code>app-release.aab</code> → Release ➔ Production or Internal Testing → rollout</td></tr>
             <tr><td><strong>Adaptive launcher icon</strong></td><td>Foreground/background layers via <code>mipmap-anydpi-v26/ic_launcher.xml</code> (already configured)</td></tr>
             <tr><td><strong>Edge-to-edge UI</strong></td><td><code>enableEdgeToEdge()</code> in <code>MainActivity.onCreate</code> (already enabled)</td></tr>
-            <tr><td><strong>Test gate green</strong></td><td>Full 58-test Robolectric/JVM suite passes — CI runs <code>testDebugUnitTest</code> on every push</td></tr>
+            <tr><td><strong>Test gate green</strong></td><td>Full Robolectric/JVM unit suite passes — CI runs <code>testDebugUnitTest</code> on every push</td></tr>
           </tbody>
         </table>
       </div>
@@ -260,7 +260,7 @@ jobs:
         <div class="callout-icon">✅</div>
         <div class="callout-text">
           <h5>Production Build Verified</h5>
-          <p>The pipeline compiles with Gradle (Kotlin DSL), JDK 17, AndroidX Compose Material 3, and Room SQLite KSP — and runs the full 58-test suite on every push.</p>
+          <p>The pipeline compiles with Gradle (Kotlin DSL), JDK 17, AndroidX Compose Material 3, and Room SQLite KSP — and runs the full unit-test suite (Robolectric + JVM) on every push.</p>
         </div>
       </div>
     </section>

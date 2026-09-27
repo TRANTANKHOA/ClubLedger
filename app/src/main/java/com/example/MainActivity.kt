@@ -51,11 +51,7 @@ class MainActivity : ComponentActivity() {
         com.example.util.SecurityDefenseHelper.initDeviceAttestation(applicationContext)
 
         // Cold-start deep link: clubledger://join?code=TEAM-1234 pre-opens the join flow
-        val deepLinkJoinCode = intent?.data
-            ?.takeIf { it.scheme == "clubledger" && it.host == "join" }
-            ?.getQueryParameter("code")
-            ?.trim()
-            ?.takeIf { it.isNotEmpty() }
+        val deepLinkJoinCode = com.example.util.DeepLinks.parseJoinCode(intent?.data)
 
         setContent {
             ClubLedgerTheme {

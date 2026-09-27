@@ -28,6 +28,34 @@ class CostAllocationEngineTest {
     }
 
     @Test
+    fun `rounding overshoot is clawed back from the first member`() {
+        // $0.05 over 3/3 sessions: 0.025 each rounds UP to 0.03, so the pot
+        // overshoots by a cent — the first member absorbs the negative residual.
+        val result = CostAllocationEngine.allocate(
+            totalAmount = 0.05,
+            sessionsByUser = mapOf(1L to 3, 2L to 3)
+        )
+
+        assertEquals(0.02, result[0].allocatedAmount, 0.0001)
+        assertEquals(0.03, result[1].allocatedAmount, 0.0001)
+        assertEquals("Negative residual must still conserve the total", 0.05, result.sumOf { it.allocatedAmount }, 0.0001)
+    }
+
+    @Test
+    fun `zero total amount allocates zeros regardless of session counts`() {
+        val result = CostAllocationEngine.allocate(
+            totalAmount = 0.00,
+            sessionsByUser = mapOf(1L to 2, 2L to 3)
+        )
+
+        assertEquals(2, result.size)
+        result.forEach {
+            assertEquals(0.0, it.allocatedAmount, 0.0)
+            assertEquals(0.0, it.percentage, 0.0001)
+        }
+    }
+
+    @Test
     fun `exact split needs no residual adjustment`() {
         val result = CostAllocationEngine.allocate(
             totalAmount = 100.00,

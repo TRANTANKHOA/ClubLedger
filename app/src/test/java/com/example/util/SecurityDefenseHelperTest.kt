@@ -136,4 +136,51 @@ class SecurityDefenseHelperTest {
         assertTrue(SecurityDefenseHelper.isPayloadSizeSafe("€".repeat(100), maxBytes = 300))
         assertFalse(SecurityDefenseHelper.isPayloadSizeSafe("€".repeat(101), maxBytes = 300))
     }
+
+    @Test
+    fun `sliding window re-admits requests only after the window elapses`() {
+        val action = "test_window_slide"
+        repeat(3) {
+            SecurityDefenseHelper.checkRateLimit(actionKey = action, maxRequests = 3, windowMs = 300)
+        }
+        val throttled = SecurityDefenseHelper.checkRateLimit(actionKey = action, maxRequests = 3, windowMs = 300)
+        assertTrue(throttled is RateLimitResult.Throttled)
+        assertTrue("Retry hint must be at least one second", (throttled as RateLimitResult.Throttled).retryAfterSeconds >= 1)
+
+        // Window has lapsed: the oldest timestamp expired, so the limiter re-admits.
+        Thread.sleep(450)
+        assertTrue(
+            "Requests must flow again after the window slides past the oldest hit",
+            SecurityDefenseHelper.checkRateLimit(actionKey = action, maxRequests = 3, windowMs = 300) is RateLimitResult.Allowed
+        )
+    }
+
+    @Test
+    fun `concurrent callers never exceed the sliding window cap`() {
+        val action = "test_concurrent_race"
+        val allowed = java.util.concurrent.atomic.AtomicInteger(0)
+        val threads = 8
+        val callsPerThread = 25
+        val executor = java.util.concurrent.Executors.newFixedThreadPool(threads)
+        try {
+            val futures = (1..threads).map {
+                executor.submit {
+                    repeat(callsPerThread) {
+                        val result = SecurityDefenseHelper.checkRateLimit(
+                            actionKey = action, maxRequests = 10, windowMs = 60_000
+                        )
+                        if (result is RateLimitResult.Allowed) allowed.incrementAndGet()
+                    }
+                }
+            }
+            futures.forEach { it.get() } // propagate worker failures
+        } finally {
+            executor.shutdown()
+        }
+        assertEquals(
+            "Exactly the cap is admitted under contention — never more (checkRateLimit must stay synchronized)",
+            10,
+            allowed.get()
+        )
+    }
 }

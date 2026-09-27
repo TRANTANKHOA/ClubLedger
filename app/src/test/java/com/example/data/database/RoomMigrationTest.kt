@@ -40,7 +40,7 @@ class RoomMigrationTest {
     }
 
     /** v1 schema: today's shapes for the 10 untouched tables, v1 shapes of team_budgets/invoices. */
-    private fun createV1Database() {
+    private fun createV1Database(seedLegacyRows: Boolean = true) {
         val db = context.openOrCreateDatabase(dbName, Context.MODE_PRIVATE, null)
         db.execSQL(
             "CREATE TABLE `users` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
@@ -121,16 +121,18 @@ class RoomMigrationTest {
         )
 
         // Legacy rows written before the category/attachment columns existed.
-        db.execSQL(
-            "INSERT INTO `team_budgets` " +
-                "(`id`,`teamId`,`periodMonth`,`periodYear`,`totalAmount`,`title`,`description`,`status`,`createdAt`) " +
-                "VALUES (1, 1, 8, 2026, 600.0, 'August Pitch Rental', 'legacy description', 'APPROVED', 1754000000000)"
-        )
-        db.execSQL(
-            "INSERT INTO `invoices` " +
-                "(`id`,`budgetId`,`teamId`,`invoiceNumber`,`title`,`totalAmount`,`periodMonth`,`periodYear`,`status`,`issuedAt`,`totalApprovedSessions`,`costPerSession`) " +
-                "VALUES (1, 1, 1, 'INV-2026-8-LEG1', 'Legacy Allocation', 600.0, 8, 2026, 'ISSUED', 1754000001000, 10, 60.0)"
-        )
+        if (seedLegacyRows) {
+            db.execSQL(
+                "INSERT INTO `team_budgets` " +
+                    "(`id`,`teamId`,`periodMonth`,`periodYear`,`totalAmount`,`title`,`description`,`status`,`createdAt`) " +
+                    "VALUES (1, 1, 8, 2026, 600.0, 'August Pitch Rental', 'legacy description', 'APPROVED', 1754000000000)"
+            )
+            db.execSQL(
+                "INSERT INTO `invoices` " +
+                    "(`id`,`budgetId`,`teamId`,`invoiceNumber`,`title`,`totalAmount`,`periodMonth`,`periodYear`,`status`,`issuedAt`,`totalApprovedSessions`,`costPerSession`) " +
+                    "VALUES (1, 1, 1, 'INV-2026-8-LEG1', 'Legacy Allocation', 600.0, 8, 2026, 'ISSUED', 1754000001000, 10, 60.0)"
+            )
+        }
 
         db.version = 1
         db.close()
@@ -154,11 +156,11 @@ class RoomMigrationTest {
         assertEquals(8, budget?.periodMonth)
         assertEquals(2026, budget?.periodYear)
         assertEquals("APPROVED", budget?.status)
-        // Defaults supplied by the migration, mirroring the Kotlin signatures:
+        // Kotlin-signature defaults supplied by the migration:
         assertEquals("COURT_RENTAL", budget?.category)
+        assertEquals("RECEIPT_IMAGE", budget?.attachmentType)
         // Nullable new columns are NULL for migrated (pre-v2) rows:
         assertNull(budget?.attachmentUrl)
-        assertNull(budget?.attachmentType)
         assertNull(budget?.attachmentName)
         assertNull(budget?.declaredByUserId)
 
@@ -169,12 +171,39 @@ class RoomMigrationTest {
         assertEquals(10, invoice?.totalApprovedSessions)
         assertEquals(60.0, invoice?.costPerSession!!, 0.0)
         assertEquals("COURT_RENTAL", invoice?.category)
+        assertEquals("RECEIPT_IMAGE", invoice?.attachmentType)
         assertNull(invoice?.attachmentUrl)
-        assertNull(invoice?.attachmentType)
         assertNull(invoice?.attachmentName)
 
         val raw = context.openOrCreateDatabase(dbName, Context.MODE_PRIVATE, null)
         assertEquals("Room must persist the upgraded version marker", 2, raw.version)
         raw.close()
+    }
+
+    @Test
+    fun `migration succeeds on an empty v1 database with no rows to carry`() = runTest {
+        createV1Database(seedLegacyRows = false)
+
+        val database = Room.databaseBuilder(context, ClubDatabase::class.java, dbName)
+            .addMigrations(ClubDatabase.MIGRATION_1_2)
+            .allowMainThreadQueries()
+            .build()
+        room = database
+        val dao: ClubDao = database.clubDao()
+
+        assertNull("No legacy budget existed, so none survives", dao.getBudgetById(1))
+        assertNull(dao.getInvoiceById(1))
+
+        // The rebuilt tables accept fresh v2 inserts with all new columns.
+        val budgetId = dao.insertBudget(
+            com.example.data.entity.TeamBudget(
+                teamId = 1, periodMonth = 9, periodYear = 2026,
+                totalAmount = 90.0, title = "September Kit Wash",
+                attachmentUrl = "https://example.com/receipt.pdf",
+                attachmentName = "kit_wash.pdf"
+            )
+        )
+        assertEquals("COURT_RENTAL", dao.getBudgetById(budgetId)?.category)
+        assertEquals("kit_wash.pdf", dao.getBudgetById(budgetId)?.attachmentName)
     }
 }
