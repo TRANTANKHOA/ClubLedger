@@ -3,12 +3,40 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Portability, KMP Readiness & Exports - ClubLedger Docs</title>
-  <meta name="description" content="ClubLedger documentation hub — architecture, portability, distributed defense, treasury math, receipts, training, and production CI/CD." />
+  <title>Backend Portability & Cloud Independence - ClubLedger Docs</title>
+  <meta name="description" content="ClubLedger's pluggable cloud sync architecture: the CloudSyncAdapter contract over Firebase today, with Supabase, AWS AppSync, or self-hosted Ktor adapters specified — plus KMP-ready treasury math and clubledger:// share deep links." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Page-local styles for the interactive adapter explorer (kept out of the shared stylesheet) */
+    .adapter-tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .adapter-tab {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 14px; border-radius: var(--radius-sm);
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.82rem; font-weight: 700;
+      cursor: pointer; transition: all 0.2s ease; border: 1px solid var(--border);
+      background: #F1F5F9; color: var(--navy);
+    }
+    .adapter-tab:hover { background: #E2E8F0; transform: translateY(-1px); }
+    .adapter-tab.active { background: var(--primary, #00897B); border-color: var(--primary, #00897B); color: #fff; box-shadow: 0 4px 12px rgba(0,137,123,0.35); }
+    .adapter-badge { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 3px 9px; border-radius: 6px; }
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+      display: flex; align-items: center; gap: 10px;
+      background: #0F172A; color: #F8FAFC; padding: 12px 20px; border-radius: 10px;
+      font-size: 0.85rem; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+      opacity: 0; pointer-events: none; transition: all 0.35s ease; z-index: 999;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .code-panel { background: #0F172A; border-radius: var(--radius-sm); padding: 18px 20px; color: #F8FAFC; }
+    .code-panel pre { margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; line-height: 1.6; overflow-x: auto; }
+    .code-panel .kw { color: #F472B6; } .code-panel .ty { color: #38BDF8; }
+    .code-panel .fn { color: #60A5FA; } .code-panel .st { color: #A7F3D0; }
+    .code-panel .cm { color: #64748B; }
+    .spec-note { font-size: 0.74rem; color: #94A3B8; margin-top: 12px; text-align: right; }
+  </style>
 </head>
 <body>
 
@@ -76,52 +104,226 @@
     <section id="portability" class="doc-section">
       <div class="section-header">
         <div class="section-title">
-          <span>🔄</span> Portability, KMP Readiness & Exports
+          <span>🔄</span> Backend Portability & Cloud Independence
         </div>
         <span class="section-badge badge-amber">Module 3</span>
       </div>
 
       <p>
-        ClubLedger’s domain entities, mathematical allocation formulas, and data repositories are engineered for frictionless portability across Android, Kotlin Multiplatform (KMP), Desktop (JVM), and Cloud Sync engines.
+        ClubLedger follows strict Clean MVVM boundaries: the UI never touches a backend SDK.
+        The entire cloud relay is abstracted behind one Kotlin interface —
+        <code>CloudSyncAdapter</code> — with <b>Firebase Firestore as the shipped default</b>
+        (<code>FirestoreSyncManager</code>). Swapping to Supabase, AWS AppSync, or a
+        self-hosted backend means writing one new implementation of that contract;
+        nothing above the data layer changes. All treasury math runs on-device in
+        pure Kotlin, and the app is 100% functional offline in Room SQLite.
       </p>
 
-      <div class="grid-2">
-        <div class="feature-card">
-          <div class="feature-icon">📦</div>
-          <h4>Clean Architecture Decoupling</h4>
-          <p>Pure Kotlin data classes and zero Android framework dependencies in the calculation engine enable drop-in reuse across iOS (Kotlin/Native), Web (KMP/Wasm), and backend Kotlin microservices.</p>
+      <!-- Interactive adapter explorer -->
+      <div style="border:1px solid var(--border); border-radius:var(--radius); padding:24px; margin:22px 0; background:#F8FAFC;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; border-bottom:1px solid var(--border); padding-bottom:14px; margin-bottom:18px;">
+          <div>
+            <h4 style="margin:0; font-size:1.1rem; color:var(--navy-dark);">🔄 Pluggable Cloud Sync Adapters</h4>
+            <p style="margin:4px 0 0; font-size:0.84rem; color:#64748B;">
+              Click a backend to inspect how ClubLedger adapts. Every snippet implements the same <code>CloudSyncAdapter</code> contract:
+            </p>
+          </div>
+          <div class="adapter-tabs">
+            <button class="adapter-tab active" id="tab-firebase" onclick="switchAdapter('firebase')">🔥 Firebase (Default)</button>
+            <button class="adapter-tab" id="tab-supabase" onclick="switchAdapter('supabase')">⚡ Supabase / Postgres</button>
+            <button class="adapter-tab" id="tab-aws" onclick="switchAdapter('aws')">☁️ AWS AppSync</button>
+            <button class="adapter-tab" id="tab-ktor" onclick="switchAdapter('ktor')">🛠️ Self-Hosted Ktor</button>
+          </div>
         </div>
-        <div class="feature-card">
-          <div class="feature-icon">📊</div>
-          <h4>Universal CSV & Financial Exports</h4>
-          <p>1-Click comprehensive CSV export of the entire ledger, attendance matrices, and invoice breakdowns suitable for standard spreadsheet software (Excel, Google Sheets, QuickBooks).</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">☁️</div>
-          <h4>Offline-First with Cloud Sync Readiness</h4>
-          <p>Room local-first persistence guarantees 100% functionality on pitch-side offline mode, ready for synchronization with Firebase Firestore or PostgreSQL.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">🔗</div>
-          <h4>Deep-Link & Share API</h4>
-          <p>Uniform URI schema (<code>clubledger://join?code=...</code>) enables instant team sharing over WhatsApp, SMS, Slack, and email across any mobile device.</p>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+          <!-- Left: explanation -->
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <span id="adapterIcon" style="font-size:2.1rem;">🔥</span>
+              <div>
+                <h5 id="adapterTitle" style="margin:0; font-size:1.08rem; color:var(--navy-dark);">Firebase Cloud Firestore (Default)</h5>
+                <span id="adapterBadge" class="adapter-badge" style="color:#B45309; background:#FEF3C7;">Implemented • ships in the app</span>
+              </div>
+            </div>
+            <p id="adapterDesc" style="font-size:0.87rem; color:#475569; line-height:1.65; margin:0;">
+              FirestoreSyncManager is the concrete <code>CloudSyncAdapter</code> the ViewModel binds to today.
+              Snapshot listeners stream remote attendances and payments into Room, while every outbound
+              document passes a <b>64KB Denial-of-Wallet payload guard</b> (<code>isDocumentSafe</code>) and is
+              written under an <b>idempotent compound key</b> so replays never duplicate a record.
+            </p>
+            <div style="background:#EEF2F7; border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px;">
+              <div style="font-size:0.72rem; font-weight:700; color:var(--primary,#00897B); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:8px;">Key Architecture Traits</div>
+              <ul id="adapterTraits" style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:8px; font-size:0.83rem; color:var(--navy-dark);">
+                <li style="display:flex; gap:8px;"><span>⚡</span> <span><b>Sync engine:</b> Firestore snapshot listeners → Room → Compose <code>StateFlow</code></span></li>
+                <li style="display:flex; gap:8px;"><span>🔑</span> <span><b>Auth:</b> Google / Apple / Facebook via <code>FirebaseAuthManager</code> (CredentialManager)</span></li>
+                <li style="display:flex; gap:8px;"><span>💾</span> <span><b>Local cache:</b> Room SQLite — 12 entities, instant offline UI</span></li>
+                <li style="display:flex; gap:8px;"><span>🛡️</span> <span><b>Guards:</b> <code>isDocumentSafe()</code> 64KB cap + idempotent compound keys per record</span></li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Right: code panel -->
+          <div class="code-panel" style="display:flex; flex-direction:column;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #334155; padding-bottom:8px; margin-bottom:12px;">
+              <span id="adapterFilename" style="font-family:'JetBrains Mono',monospace; font-size:0.76rem; color:#94A3B8;">FirestoreSyncManager.kt</span>
+              <span id="adapterLangTag" style="font-size:0.68rem; font-weight:700; color:#38BDF8;">SHIPPED ADAPTER</span>
+            </div>
+            <pre id="adapterCode"><span class="cm">// data/remote/FirestoreSyncManager.kt — the default CloudSyncAdapter</span>
+<span class="kw">class</span> <span class="ty">FirestoreSyncManager</span>(
+    <span class="kw">private val</span> context: <span class="ty">Context</span>,
+    <span class="kw">private val</span> dao: <span class="ty">ClubDao</span>,
+    <span class="kw">private val</span> scope: <span class="ty">CoroutineScope</span>
+) : <span class="ty">CloudSyncAdapter</span> {
+
+    <span class="kw">override fun</span> <span class="fn">isBackendConfigured</span>(): <span class="ty">Boolean</span> = <span class="cm">/* FirebaseApp ready? */</span>
+
+    <span class="kw">override suspend fun</span> <span class="fn">pushAttendanceToCloud</span>(a: <span class="ty">Attendance</span>) {
+        <span class="kw">val</span> db = firestore ?: <span class="kw">return</span>
+        <span class="kw">if</span> (!isDocumentSafe(a)) <span class="kw">return</span>  <span class="cm">// 64KB payload guard</span>
+        <span class="kw">val</span> docId = <span class="ty">SecurityDefenseHelper</span>.createIdempotentAttendanceKey(
+            userId = a.userId, teamId = a.teamId,
+            sessionDate = a.sessionDate, sessionType = a.sessionType
+        )
+        db.collection(<span class="st">"clubs"</span>).document(activeClubId)
+            .collection(<span class="st">"attendances"</span>).document(docId)
+            .set(a).<span class="fn">await</span>()
+    }
+}</pre>
+            <div id="adapterFootnote" class="spec-note">💡 <i>Swapping backends means implementing this one interface file.</i></div>
+          </div>
         </div>
       </div>
 
-      <div class="ascii-diagram">
-// Portable Calculation Function (KMP Common Code)
-fun calculateMemberAllocations(
-    totalIncurredCost: Double,
-    memberAttendanceMap: Map&lt;Long, Int&gt; // userId -> verifiedCount
-): Map&lt;Long, Double&gt; {
-    val totalSquadSessions = memberAttendanceMap.values.sum()
-    if (totalSquadSessions == 0) return memberAttendanceMap.mapValues { 0.0 }
-    
-    return memberAttendanceMap.mapValues { (_, attended) ->
-        val exactShare = (attended.toDouble() / totalSquadSessions) * totalIncurredCost
-        kotlin.math.round(exactShare * 100.0) / 100.0 // Cent-perfect rounding
+      <!-- Pillar 1.5: comparison matrix -->
+      <h4 style="margin:26px 0 4px; color:var(--navy-dark);">📊 Backend Provider Comparison Matrix</h4>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Backend Option</th>
+              <th>Sync Protocol</th>
+              <th>Auth</th>
+              <th>Offline Cache</th>
+              <th>Hosting Cost</th>
+              <th>Migration Effort</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>🔥 Firebase Firestore</b><br><span style="color:var(--primary,#00897B); font-weight:700; font-size:0.78rem;">Shipped default</span></td>
+              <td>TLS WebSockets (snapshot listeners)</td>
+              <td>Google, Apple, Facebook, Guest</td>
+              <td>Room SQLite (12 entities)</td>
+              <td>$0 Spark tier to start</td>
+              <td><span class="adapter-badge" style="color:#166534; background:#DCFCE7;">Built-in</span></td>
+            </tr>
+            <tr>
+              <td><b>⚡ Supabase / PostgreSQL</b></td>
+              <td>Postgres Realtime WebSockets</td>
+              <td>Supabase Auth (JWT / OAuth2)</td>
+              <td>Room SQLite (unchanged)</td>
+              <td>Free tier / $25 Pro / $0 self-host Docker</td>
+              <td><span class="adapter-badge" style="color:#92400E; background:#FEF3C7;">1 adapter class (~1 day)</span></td>
+            </tr>
+            <tr>
+              <td><b>☁️ AWS AppSync + DynamoDB</b></td>
+              <td>GraphQL subscriptions</td>
+              <td>AWS Cognito</td>
+              <td>Room SQLite (unchanged)</td>
+              <td>AWS free tier / pay-per-request</td>
+              <td><span class="adapter-badge" style="color:#92400E; background:#FEF3C7;">1 adapter class (~2 days)</span></td>
+            </tr>
+            <tr>
+              <td><b>🛠️ Self-Hosted Ktor</b></td>
+              <td>Raw WebSockets or REST polling</td>
+              <td>JWT / LDAP / SSO of choice</td>
+              <td>Room SQLite (unchanged)</td>
+              <td>$5/mo VPS or club-owned LAN — full data sovereignty</td>
+              <td><span class="adapter-badge" style="color:#92400E; background:#FEF3C7;">1 adapter class (~2 days)</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:0.8rem; color:#64748B; margin-top:8px;">
+        The offline cache is identical under every backend: Room SQLite on-device stays the source of truth, and the
+        adapter only ferries deltas. Migration effort covers implementing and wiring one <code>CloudSyncAdapter</code>
+        implementation — the ViewModel already depends on the interface, not on Firebase.
+      </p>
+
+      <!-- Three pillars -->
+      <div class="grid-3">
+        <div class="feature-card">
+          <div class="feature-icon">🛡️</div>
+          <h4>1. The CloudSyncAdapter Contract</h4>
+          <p>The ViewModel and screens talk to <code>ClubViewModel</code>'s <code>CloudSyncAdapter</code>-typed field only.
+             No Firebase import leaks above the data layer — the shipped manager is one interchangeable implementation:</p>
+          <div class="ascii-diagram" style="margin:12px 0 0; font-size:0.72rem;">interface CloudSyncAdapter {
+    val syncState: StateFlow&lt;CloudSyncState&gt;
+    fun isBackendConfigured(): Boolean
+    fun enableCloudSync(clubId: String)
+    fun disableCloudSync()
+    suspend fun pushAllLocalToCloud()
+    suspend fun pushAttendanceToCloud(attendance: Attendance)
+    suspend fun pushPaymentToCloud(payment: Payment)
+    suspend fun pushLedgerEntryToCloud(entry: BalanceLedger)
+}</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">💾</div>
+          <h4>2. Vendor-Neutral Room — 12 Entities</h4>
+          <p>All twelve entities (User, Team, TeamMembership, Attendance, Payment, TeamBudget, Invoice,
+             InvoiceAllocation, BalanceLedger, AuditLog, Dispute, TeamJoinRequest) live in local Room SQLite.
+             Shares, percentages, cent rounding, ledger balances, and dispute credits are computed
+             on-device — zero network required for the app to be fully usable pitch-side.</p>
+          <div style="margin-top:10px; font-size:0.8rem; background:#EEF2F7; padding:8px 12px; border-radius:6px;">
+            <b>✓ Zero cloud locks:</b> even cloud sync itself is feature-detected — without
+            <code>google-services.json</code> the app runs happily in Local Mode.
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔗</div>
+          <h4>3. Share API & 1-Click Exports</h4>
+          <p>Team invites travel as <code>clubledger://join?code=TEAM-1234</code> deep links — registered in
+             <code>AndroidManifest.xml</code>, parsed in <code>MainActivity</code> on cold start, and prefilled straight
+             into the Join Team dialog over WhatsApp, SMS, Slack, or email.</p>
+          <div style="margin-top:10px; font-size:0.8rem; background:#EEF2F7; padding:8px 12px; border-radius:6px;">
+            <b>✓ 1-click CSV exports:</b> <code>generateAttendanceCsv()</code> and <code>generatePaymentsCsv()</code>
+            (plus the ledger export) produce spreadsheet-ready files for Excel, Google Sheets, or QuickBooks — no backend involved.
+          </div>
+        </div>
+      </div>
+
+      <!-- KMP readiness -->
+      <div style="background:linear-gradient(135deg, #0B1F1B 0%, #0F172A 100%); border-radius:var(--radius); padding:26px; color:#F8FAFC; margin-top:26px;">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+          <span style="font-size:1.4rem;">🌐</span>
+          <h4 style="margin:0; font-size:1.15rem; color:#FFFFFF;">Future Portability: Kotlin Multiplatform (KMP) Ready</h4>
+        </div>
+        <p style="color:#94A3B8; font-size:0.87rem; line-height:1.65; margin:0 0 14px;">
+          The proportional cost-allocation engine lives in <code>domain/CostAllocationEngine.kt</code> as
+          <b>pure Kotlin with zero Android framework imports</b> — only <code>kotlin.math.roundToInt</code>.
+          Proportional shares, whole-cent rounding, and the first-member penny-residual rule run unchanged
+          on JVM, iOS (Kotlin/Native), and Web (Kotlin/Wasm) targets.
+        </p>
+        <div class="ascii-diagram" style="margin:0 0 14px; border-color:#334155;"><span class="cm" style="color:#64748B;">// domain/CostAllocationEngine.kt — pure common code, no Android imports</span>
+<span class="kw" style="color:#F472B6;">object</span> <span class="ty" style="color:#38BDF8;">CostAllocationEngine</span> {
+    <span class="kw" style="color:#F472B6;">fun</span> <span class="fn" style="color:#60A5FA;">allocate</span>(
+        totalAmount: <span class="ty" style="color:#38BDF8;">Double</span>,
+        sessionsByUser: <span class="ty" style="color:#38BDF8;">Map</span>&lt;<span class="ty" style="color:#38BDF8;">Long</span>, <span class="ty" style="color:#38BDF8;">Int</span>&gt;
+    ): <span class="ty" style="color:#38BDF8;">List</span>&lt;<span class="ty" style="color:#38BDF8;">MemberAllocation</span>&gt; {
+        <span class="cm" style="color:#64748B;">// share = sessions / totalSessions</span>
+        <span class="cm" style="color:#64748B;">// percentage &amp; amount rounded to whole cents</span>
+        <span class="cm" style="color:#64748B;">// residual penny assigned to the first member</span>
+        <span class="cm" style="color:#64748B;">// → allocations always sum to exactly totalAmount</span>
     }
-}
+}</div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <span class="adapter-badge" style="background:rgba(255,255,255,0.1); color:#E2E8F0;">🤖 Android (Active)</span>
+          <span class="adapter-badge" style="background:rgba(255,255,255,0.1); color:#E2E8F0;">💻 JVM Desktop (Ready via KMP)</span>
+          <span class="adapter-badge" style="background:rgba(255,255,255,0.1); color:#E2E8F0;">🍎 iOS (Ready via KMP)</span>
+          <span class="adapter-badge" style="background:rgba(255,255,255,0.1); color:#E2E8F0;">🌐 Web (Ready via Kotlin/Wasm)</span>
+        </div>
       </div>
     </section>
 
@@ -132,7 +334,200 @@ fun calculateMemberAllocations(
 
   </main>
 
+  <div class="toast" id="toastBox">
+    <span>💡</span>
+    <span id="toastMsg">Switched adapter</span>
+  </div>
+
   <script>
+    const ADAPTER_SPECS = {
+      firebase: {
+        icon: '🔥',
+        title: 'Firebase Cloud Firestore (Default)',
+        badgeText: 'Implemented • ships in the app',
+        badgeColor: '#B45309',
+        badgeBg: '#FEF3C7',
+        desc: 'FirestoreSyncManager is the concrete <code>CloudSyncAdapter</code> the ViewModel binds to today. Snapshot listeners stream remote attendances and payments into Room, while every outbound document passes a <b>64KB Denial-of-Wallet payload guard</b> (<code>isDocumentSafe</code>) and is written under an <b>idempotent compound key</b> so replays never duplicate a record.',
+        traits: [
+          '<li style="display:flex; gap:8px;"><span>⚡</span> <span><b>Sync engine:</b> Firestore snapshot listeners → Room → Compose <code>StateFlow</code></span></li>',
+          '<li style="display:flex; gap:8px;"><span>🔑</span> <span><b>Auth:</b> Google / Apple / Facebook via <code>FirebaseAuthManager</code> (CredentialManager)</span></li>',
+          '<li style="display:flex; gap:8px;"><span>💾</span> <span><b>Local cache:</b> Room SQLite — 12 entities, instant offline UI</span></li>',
+          '<li style="display:flex; gap:8px;"><span>🛡️</span> <span><b>Guards:</b> <code>isDocumentSafe()</code> 64KB cap + idempotent compound keys per record</span></li>'
+        ],
+        filename: 'FirestoreSyncManager.kt',
+        langTag: 'SHIPPED ADAPTER',
+        langColor: '#38BDF8',
+        code: `<span class="cm">// data/remote/FirestoreSyncManager.kt — the default CloudSyncAdapter</span>
+<span class="kw">class</span> <span class="ty">FirestoreSyncManager</span>(
+    <span class="kw">private val</span> context: <span class="ty">Context</span>,
+    <span class="kw">private val</span> dao: <span class="ty">ClubDao</span>,
+    <span class="kw">private val</span> scope: <span class="ty">CoroutineScope</span>
+) : <span class="ty">CloudSyncAdapter</span> {
+
+    <span class="kw">override fun</span> <span class="fn">isBackendConfigured</span>(): <span class="ty">Boolean</span> = <span class="cm">/* FirebaseApp ready? */</span>
+
+    <span class="kw">override suspend fun</span> <span class="fn">pushAttendanceToCloud</span>(a: <span class="ty">Attendance</span>) {
+        <span class="kw">val</span> db = firestore ?: <span class="kw">return</span>
+        <span class="kw">if</span> (!isDocumentSafe(a)) <span class="kw">return</span>  <span class="cm">// 64KB payload guard</span>
+        <span class="kw">val</span> docId = <span class="ty">SecurityDefenseHelper</span>.createIdempotentAttendanceKey(
+            userId = a.userId, teamId = a.teamId,
+            sessionDate = a.sessionDate, sessionType = a.sessionType
+        )
+        db.collection(<span class="st">"clubs"</span>).document(activeClubId)
+            .collection(<span class="st">"attendances"</span>).document(docId)
+            .set(a).<span class="fn">await</span>()
+    }
+}`,
+        footnote: '💡 <i>Swapping backends means implementing this one interface file.</i>',
+        toast: '🔥 Firebase — shipped default adapter'
+      },
+      supabase: {
+        icon: '⚡',
+        title: 'Supabase & PostgreSQL (Open-Source)',
+        badgeText: 'Documented spec • not yet implemented',
+        badgeColor: '#166534',
+        badgeBg: '#DCFCE7',
+        desc: 'Supabase replaces Firestore with relational PostgreSQL tables plus Realtime Change Data Capture. The adapter below is a <b>documented spec</b>: it implements the same <code>CloudSyncAdapter</code> contract the shipped Firebase manager does, so adopting it touches no code above the data layer.',
+        traits: [
+          '<li style="display:flex; gap:8px;"><span>⚡</span> <span><b>Sync engine:</b> Postgres Realtime WebSockets (<code>postgresChangeFlow</code>)</span></li>',
+          '<li style="display:flex; gap:8px;"><span>🔑</span> <span><b>Auth:</b> Supabase Auth (OAuth2, magic link, JWT)</span></li>',
+          '<li style="display:flex; gap:8px;"><span>💾</span> <span><b>Local cache:</b> Room SQLite — schema mirrors the Postgres tables</span></li>',
+          '<li style="display:flex; gap:8px;"><span>💰</span> <span><b>Cost:</b> free tier (500MB DB) or $0 self-hosted Docker</span></li>'
+        ],
+        filename: 'SupabaseSyncAdapter.kt',
+        langTag: 'SPEC — NOT IMPLEMENTED',
+        langColor: '#FBBF24',
+        code: `<span class="cm">// Documented spec, not yet implemented — same CloudSyncAdapter contract</span>
+<span class="kw">class</span> <span class="ty">SupabaseSyncAdapter</span>(
+    <span class="kw">private val</span> client: <span class="ty">SupabaseClient</span>,
+    <span class="kw">private val</span> dao: <span class="ty">ClubDao</span>,
+    <span class="kw">private val</span> scope: <span class="ty">CoroutineScope</span>
+) : <span class="ty">CloudSyncAdapter</span> {
+
+    <span class="kw">override val</span> syncState = <span class="ty">MutableStateFlow</span>&lt;<span class="ty">CloudSyncState</span>&gt;(<span class="ty">CloudSyncState</span>.Disabled)
+
+    <span class="kw">override suspend fun</span> <span class="fn">pushAttendanceToCloud</span>(a: <span class="ty">Attendance</span>) {
+        client.postgrest[<span class="st">"attendances"</span>].<span class="fn">upsert</span>(a)  <span class="cm">// idempotent on compound key</span>
+    }
+
+    <span class="kw">override fun</span> <span class="fn">enableCloudSync</span>(clubId: <span class="ty">String</span>) = scope.<span class="fn">launch</span> {
+        client.realtime.channel(<span class="st">"club:$clubId"</span>)
+            .postgresChangeFlow&lt;<span class="ty">PostgresAction</span>&gt;(<span class="st">"public"</span>) { table = <span class="st">"attendances"</span> }
+            .<span class="fn">collect</span> { dao.<span class="fn">insertAttendance</span>(it.toEntity()) }
+    }
+}`,
+        footnote: '⚠️ <i>Reference design only — verify against the Supabase Kotlin SDK before use.</i>',
+        toast: '⚡ Supabase spec — same CloudSyncAdapter contract'
+      },
+      aws: {
+        icon: '☁️',
+        title: 'AWS AppSync + DynamoDB (Enterprise)',
+        badgeText: 'Documented spec • not yet implemented',
+        badgeColor: '#166534',
+        badgeBg: '#DCFCE7',
+        desc: 'For clubs already inside AWS, AppSync delivers managed GraphQL subscriptions over WebSockets, backed by DynamoDB single-table design and Cognito authentication. Shown below as a <b>documented spec</b> implementing the same contract.',
+        traits: [
+          '<li style="display:flex; gap:8px;"><span>⚡</span> <span><b>Sync engine:</b> AppSync GraphQL subscriptions (<code>onAttendanceChanged</code>)</span></li>',
+          '<li style="display:flex; gap:8px;"><span>🔑</span> <span><b>Auth:</b> AWS Cognito user pools / identity pools</span></li>',
+          '<li style="display:flex; gap:8px;"><span>💾</span> <span><b>Local cache:</b> Room SQLite — unchanged</span></li>',
+          '<li style="display:flex; gap:8px;"><span>💰</span> <span><b>Cost:</b> AWS free tier (12 months) then pay-per-request</span></li>'
+        ],
+        filename: 'AppSyncSyncAdapter.kt',
+        langTag: 'SPEC — NOT IMPLEMENTED',
+        langColor: '#FBBF24',
+        code: `<span class="cm">// Documented spec, not yet implemented — same CloudSyncAdapter contract</span>
+<span class="kw">class</span> <span class="ty">AppSyncSyncAdapter</span>(
+    <span class="kw">private val</span> amplify: <span class="ty">RxAmplifyCategory</span>,
+    <span class="kw">private val</span> dao: <span class="ty">ClubDao</span>,
+    <span class="kw">private val</span> scope: <span class="ty">CoroutineScope</span>
+) : <span class="ty">CloudSyncAdapter</span> {
+
+    <span class="kw">override suspend fun</span> <span class="fn">pushPaymentToCloud</span>(p: <span class="ty">Payment</span>) {
+        amplify.API.<span class="fn">mutate</span>(
+            <span class="ty">ModelMutation</span>.create(p.toAppSyncModel())  <span class="cm">// idempotency key inside payload</span>
+        ).<span class="fn">await</span>()
+    }
+
+    <span class="kw">override fun</span> <span class="fn">enableCloudSync</span>(clubId: <span class="ty">String</span>) {
+        subscription = amplify.API.<span class="fn">subscribe</span>(
+            <span class="ty">ModelSubscription</span>.onCreate(<span class="ty">Attendance</span>::<span class="kw">class</span>.java)
+        ).<span class="fn">subscribe</span> { event -&gt; scope.<span class="fn">launch</span> { dao.<span class="fn">insertAttendance</span>(event.toEntity()) } }
+    }
+}`,
+        footnote: '⚠️ <i>Reference design only — verify against the AWS Amplify Kotlin SDK before use.</i>',
+        toast: '☁️ AWS AppSync spec — same CloudSyncAdapter contract'
+      },
+      ktor: {
+        icon: '🛠️',
+        title: 'Self-Hosted Ktor (Data Sovereignty)',
+        badgeText: 'Documented spec • not yet implemented',
+        badgeColor: '#166534',
+        badgeBg: '#DCFCE7',
+        desc: 'Complete on-premise sovereignty for club intranets: a Kotlin Ktor server the club owns, reached over raw WebSockets or REST. Below as a <b>documented spec</b> implementing the same contract — the ViewModel would not change.',
+        traits: [
+          '<li style="display:flex; gap:8px;"><span>⚡</span> <span><b>Sync engine:</b> Ktor WebSockets (<code>wss://club.internal/sync</code>)</span></li>',
+          '<li style="display:flex; gap:8px;"><span>🔑</span> <span><b>Auth:</b> custom JWT bearer tokens / LDAP / SSO</span></li>',
+          '<li style="display:flex; gap:8px;"><span>💾</span> <span><b>Local cache:</b> Room SQLite — optionally SQLCipher-encrypted</span></li>',
+          '<li style="display:flex; gap:8px;"><span>💰</span> <span><b>Cost:</b> $0 on existing infrastructure or a $5/mo VPS</span></li>'
+        ],
+        filename: 'KtorSyncAdapter.kt',
+        langTag: 'SPEC — NOT IMPLEMENTED',
+        langColor: '#FBBF24',
+        code: `<span class="cm">// Documented spec, not yet implemented — same CloudSyncAdapter contract</span>
+<span class="kw">class</span> <span class="ty">KtorSyncAdapter</span>(
+    <span class="kw">private val</span> client: <span class="ty">HttpClient</span>,
+    <span class="kw">private val</span> dao: <span class="ty">ClubDao</span>,
+    <span class="kw">private val</span> scope: <span class="ty">CoroutineScope</span>
+) : <span class="ty">CloudSyncAdapter</span> {
+
+    <span class="kw">override suspend fun</span> <span class="fn">pushLedgerEntryToCloud</span>(e: <span class="ty">BalanceLedger</span>) {
+        client.<span class="fn">post</span>(<span class="st">"\$baseUrl/ledger"</span>) {
+            contentType(<span class="ty">ContentType</span>.Application.Json)
+            setBody(e)  <span class="cm">// server dedupes on (userId, referenceType, referenceId)</span>
+        }
+    }
+
+    <span class="kw">override fun</span> <span class="fn">enableCloudSync</span>(clubId: <span class="ty">String</span>) = scope.<span class="fn">launch</span> {
+        client.webSocket(<span class="st">"wss://club.internal/sync/\$clubId"</span>) {
+            <span class="kw">for</span> (frame <span class="kw">in</span> incoming) <span class="fn">applyDelta</span>(frame.<span class="fn">decode</span>&lt;<span class="ty">SyncDelta</span>&gt;())
+        }
+    }
+}`,
+        footnote: '⚠️ <i>Reference design only — wire the Ktor client plugins (auth, content negotiation) first.</i>',
+        toast: '🛠️ Self-hosted Ktor spec — same CloudSyncAdapter contract'
+      }
+    };
+
+    function switchAdapter(key) {
+      const spec = ADAPTER_SPECS[key];
+      ['firebase', 'supabase', 'aws', 'ktor'].forEach(k => {
+        document.getElementById('tab-' + k).classList.toggle('active', k === key);
+      });
+      document.getElementById('adapterIcon').textContent = spec.icon;
+      document.getElementById('adapterTitle').textContent = spec.title;
+      const badge = document.getElementById('adapterBadge');
+      badge.textContent = spec.badgeText;
+      badge.style.color = spec.badgeColor;
+      badge.style.background = spec.badgeBg;
+      document.getElementById('adapterDesc').innerHTML = spec.desc;
+      document.getElementById('adapterTraits').innerHTML = spec.traits.join('');
+      document.getElementById('adapterFilename').textContent = spec.filename;
+      const tag = document.getElementById('adapterLangTag');
+      tag.textContent = spec.langTag;
+      tag.style.color = spec.langColor;
+      document.getElementById('adapterCode').innerHTML = spec.code;
+      document.getElementById('adapterFootnote').innerHTML = spec.footnote;
+      showToast(spec.toast);
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toastBox');
+      document.getElementById('toastMsg').textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(window.toastTimer);
+      window.toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+    }
+
     function toggleNav() {
       const sidebar = document.getElementById('sidebar');
       sidebar.classList.toggle('open');
