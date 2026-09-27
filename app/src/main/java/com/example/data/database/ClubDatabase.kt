@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.data.dao.ClubDao
 import com.example.data.entity.*
@@ -37,6 +38,59 @@ abstract class ClubDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: ClubDatabase? = null
 
+        /**
+         * v1 → v2: TeamBudget and Invoice gained category + attachment columns.
+         * Rebuilds both tables instead of ALTER TABLE ... ADD COLUMN, because
+         * the NOT NULL category column would need an SQL DEFAULT that Room's
+         * expected schema (Kotlin default args produce no SQL default) rejects
+         * during post-migration validation. Existing rows keep their data;
+         * new columns get the same defaults the Kotlin signatures provide.
+         */
+        /** Visible for the migration test, which wires the path explicitly (no destructive fallback). */
+        val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `team_budgets_new` (" +
+                        "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "`teamId` INTEGER NOT NULL, `periodMonth` INTEGER NOT NULL, " +
+                        "`periodYear` INTEGER NOT NULL, `totalAmount` REAL NOT NULL, " +
+                        "`title` TEXT NOT NULL, `description` TEXT NOT NULL, " +
+                        "`category` TEXT NOT NULL, `attachmentUrl` TEXT, " +
+                        "`attachmentType` TEXT, `attachmentName` TEXT, " +
+                        "`declaredByUserId` INTEGER, `status` TEXT NOT NULL, " +
+                        "`createdAt` INTEGER NOT NULL)"
+                )
+                db.execSQL(
+                    "INSERT INTO `team_budgets_new` " +
+                        "(`id`,`teamId`,`periodMonth`,`periodYear`,`totalAmount`,`title`,`description`,`category`,`status`,`createdAt`) " +
+                        "SELECT `id`,`teamId`,`periodMonth`,`periodYear`,`totalAmount`,`title`,`description`," +
+                        "'COURT_RENTAL',`status`,`createdAt` FROM `team_budgets`"
+                )
+                db.execSQL("DROP TABLE `team_budgets`")
+                db.execSQL("ALTER TABLE `team_budgets_new` RENAME TO `team_budgets`")
+
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `invoices_new` (" +
+                        "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "`budgetId` INTEGER NOT NULL, `teamId` INTEGER NOT NULL, " +
+                        "`invoiceNumber` TEXT NOT NULL, `title` TEXT NOT NULL, " +
+                        "`totalAmount` REAL NOT NULL, `periodMonth` INTEGER NOT NULL, " +
+                        "`periodYear` INTEGER NOT NULL, `category` TEXT NOT NULL, " +
+                        "`attachmentUrl` TEXT, `attachmentType` TEXT, `attachmentName` TEXT, " +
+                        "`status` TEXT NOT NULL, `issuedAt` INTEGER NOT NULL, " +
+                        "`totalApprovedSessions` INTEGER NOT NULL, `costPerSession` REAL NOT NULL)"
+                )
+                db.execSQL(
+                    "INSERT INTO `invoices_new` " +
+                        "(`id`,`budgetId`,`teamId`,`invoiceNumber`,`title`,`totalAmount`,`periodMonth`,`periodYear`,`category`,`status`,`issuedAt`,`totalApprovedSessions`,`costPerSession`) " +
+                        "SELECT `id`,`budgetId`,`teamId`,`invoiceNumber`,`title`,`totalAmount`,`periodMonth`,`periodYear`," +
+                        "'COURT_RENTAL',`status`,`issuedAt`,`totalApprovedSessions`,`costPerSession` FROM `invoices`"
+                )
+                db.execSQL("DROP TABLE `invoices`")
+                db.execSQL("ALTER TABLE `invoices_new` RENAME TO `invoices`")
+            }
+        }
+
         fun getDatabase(context: Context, scope: CoroutineScope): ClubDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -45,6 +99,7 @@ abstract class ClubDatabase : RoomDatabase() {
                     "club_treasury_db"
                 )
                     .addCallback(ClubDatabaseCallback(scope))
+                    .addMigrations(MIGRATION_1_2)
                     .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
