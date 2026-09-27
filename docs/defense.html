@@ -104,12 +104,12 @@
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
 │              LAYER 2: CRYPTOGRAPHIC DEVICE ATTESTATION (ANTI-BOT & EMULATORS)          │
 │  • Google Play Integrity API + Firebase App Check verifies hardware KeyStore signature │
-│  • Instantly blocks headless emulators, automated Python/curl scripts, & repackaged APKs│
+│  • Instantly blocks headless emulators, automated Python/curl scripts & repackaged APKs│
 └───────────────────────────────────────────┬────────────────────────────────────────────┘
                                             │
                                             ▼
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
-│           LAYER 3: SYBIL & SHORT-CODE BRUTE-FORCE DEFENSE (SLIDING WINDOW & IDEMPOTENCY│
+│          LAYER 3: SYBIL & SHORT-CODE BRUTE-FORCE DEFENSE (SLIDING WINDOW & IDEMPOTENCY)│
 │  • SecurityDefenseHelper sliding window: Max 10 team code lookups / min per IP/Device  │
 │  • Compound Idempotency Keys: `pay_${userId}_${amount}_${date}_${method}`              │
 │  • Eliminates double-charging, network replays, and duplicate attendance submissions   │
@@ -119,7 +119,7 @@
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
 │             LAYER 4: ZERO-TRUST SERVER-SIDE ACCESS CONTROL & SCHEMA ACL (RULES)        │
 │  • firestore.rules validates authenticated ownership, explicit field types, & subtrees │
-│  • Append-mostly ledger logs: `allow delete: if false;` prevents historical erasure     │
+│  • Append-mostly ledger logs: `allow delete: if false;` prevents historical erasure    │
 └───────────────────────────────────────────┬────────────────────────────────────────────┘
                                             │
                                             ▼
@@ -127,7 +127,7 @@
 │            LAYER 5: FINANCIAL DEFENSE & "DENIAL OF WALLET" RUNAWAY BILLING SHIELDS     │
 │  • Room SQLite offline-first local cache serves repeat reads without Firestore egress  │
 │  • Kotlin Coroutines Flow `debounce(300ms)` throttles real-time sync / search queries  │
-│  • GCP Budget hard-cap alerts & automated billing circuit breakers safeguard finances   │
+│  • GCP Budget hard-cap alerts & automated billing circuit breakers safeguard finances  │
 └────────────────────────────────────────────────────────────────────────────────────────┘
       </div>
 
@@ -276,10 +276,11 @@
         <table>
           <thead>
             <tr>
-              <th style="width: 22%;">Security Layer</th>
-              <th style="width: 26%;">🔥 Firebase / Firestore</th>
-              <th style="width: 26%;">⚡ Supabase / Postgres</th>
-              <th style="width: 26%;">☁️ AWS AppSync / DynamoDB</th>
+              <th style="width: 20%;">Security Layer</th>
+              <th style="width: 20%;">🔥 Firebase / Firestore</th>
+              <th style="width: 20%;">⚡ Supabase / Postgres</th>
+              <th style="width: 20%;">☁️ AWS AppSync / DynamoDB</th>
+              <th style="width: 20%;">🛠️ Self-Hosted / Ktor</th>
             </tr>
           </thead>
           <tbody>
@@ -288,34 +289,39 @@
               <td>Google Cloud Armor + Global Anycast PoPs</td>
               <td>Cloudflare Enterprise Edge Proxy</td>
               <td>AWS Shield Advanced + AWS WAF</td>
+              <td>Nginx <code>limit_req</code> + Fail2Ban behind Cloudflare proxy</td>
             </tr>
             <tr>
               <td><strong>Hardware Device Attestation</strong></td>
               <td>Firebase App Check (Play Integrity API)</td>
               <td>Supabase Edge Function Play Integrity Token Check</td>
               <td>API Gateway / Lambda Custom Authorizer Attestation</td>
+              <td>Google Play Integrity API middleware verified server-side</td>
             </tr>
             <tr>
               <td><strong>Sybil & Idempotency Keys</strong></td>
-              <td>Compound Key <code>${action}_${userId}_${timestamp}</code></td>
+              <td>Compound keys <code>pay_${userId}_${amount}_${date}_${method}</code> / <code>att_${userId}_${teamId}_${date}_${type}</code></td>
               <td><code>UNIQUE(user_id, team_id, session_date)</code></td>
               <td>DynamoDB Composite Partition + Sort Keys</td>
+              <td>SQL UNIQUE constraint + server-side dedupe on compound keys</td>
             </tr>
             <tr>
               <td><strong>Database-Level Row Security</strong></td>
               <td><code>firestore.rules</code> (Subtree match & ACL)</td>
               <td>PostgreSQL Row Level Security (RLS) Policies</td>
               <td>AppSync GraphQL <code>@auth</code> directives + IAM</td>
+              <td>Service-layer authorization checks in the repository/Ktor layer</td>
             </tr>
             <tr>
               <td><strong>Financial Defense & Hard Caps</strong></td>
               <td>GCP Budget Pub/Sub Cloud Function Killswitch</td>
               <td>Supabase Spend Cap Toggle</td>
               <td>AWS Budget Action SNS CloudWatch Alarms</td>
+              <td><b style="color:#10B981;">$5/mo fixed VPS — immune to billing shocks</b></td>
             </tr>
             <tr>
               <td><strong>Client-Side Cost Shield</strong></td>
-              <td colspan="3" style="text-align: center; background: #ECFDF5; color: #065F46; font-weight: 600;">
+              <td colspan="4" style="text-align: center; background: #ECFDF5; color: #065F46; font-weight: 600;">
                 Room SQLite Database v2 Local In-Memory / Disk Cache + Flow <code>debounce(300ms)</code>
               </td>
             </tr>
@@ -439,7 +445,7 @@ service cloud.firestore {
         <div class="feature-card">
           <div class="feature-icon">🗄️</div>
           <h4>Room Migration Safety</h4>
-          <p>Room schema migrations (v1 ➔ v2) utilize safe column alterations with backward compatibility and zero data loss on app upgrades.</p>
+          <p>Version bumps ship as explicit Room <code>Migration</code>s (e.g. <code>MIGRATION_1_2</code> rebuilt the budget &amp; invoice tables to add category/attachment columns, preserving every existing row) and are covered by a Robolectric upgrade test that migrates a real v1 database. <code>fallbackToDestructiveMigration</code> remains only as a last resort for future un-migrated bumps during development.</p>
         </div>
       </div>
 
