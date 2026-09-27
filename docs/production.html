@@ -9,6 +9,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Page-local dark code panel (same treatment as portability.html) */
+    .code-panel { background: #0F172A; border-radius: var(--radius-sm); padding: 18px 20px; color: #F8FAFC; }
+    .code-panel pre { margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; line-height: 1.55; color: #E2E8F0; overflow-x: auto; }
+  </style>
 </head>
 <body>
 
@@ -168,7 +173,7 @@
       <p style="font-size: 0.9rem; color: var(--text-muted);">
         Every push/PR to <code>main</code> runs tests and assembles a debug APK; merges to main also build an app bundle (signed only when keystore secrets are configured — otherwise unsigned).
       </p>
-      <div class="ascii-diagram">name: ClubLedger CI/CD Pipeline
+      <div class="code-panel"><pre>name: ClubLedger CI/CD Pipeline
 on:
   push:
     branches: [ main, 'release/*' ]
@@ -206,7 +211,7 @@ jobs:
         env: { KEYSTORE_BASE64: "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" }
         run: echo "$KEYSTORE_BASE64" | base64 -d &gt; app/release.keystore   # skipped when secret absent
       - name: Build Production Android App Bundle (AAB)
-        run: ./gradlew :app:bundleRelease</div>
+        run: ./gradlew :app:bundleRelease</pre></div>
 
       <!-- 7. Play checklist -->
       <h4 style="margin: 24px 0 12px; font-weight: 700;">7. Google Play Console Release Checklist</h4>

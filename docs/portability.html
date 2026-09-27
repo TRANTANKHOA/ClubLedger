@@ -258,7 +258,7 @@
           <h4>1. The CloudSyncAdapter Contract</h4>
           <p>The ViewModel and screens talk to <code>ClubViewModel</code>'s <code>CloudSyncAdapter</code>-typed field only.
              No Firebase import leaks above the data layer — the shipped manager is one interchangeable implementation:</p>
-          <div class="ascii-diagram" style="margin:12px 0 0; font-size:0.72rem;">interface CloudSyncAdapter {
+          <div class="code-panel" style="margin:12px 0 0;"><pre>interface CloudSyncAdapter {
     val syncState: StateFlow&lt;CloudSyncState&gt;
     fun isBackendConfigured(): Boolean
     fun enableCloudSync(clubId: String)
@@ -267,7 +267,7 @@
     suspend fun pushAttendanceToCloud(attendance: Attendance)
     suspend fun pushPaymentToCloud(payment: Payment)
     suspend fun pushLedgerEntryToCloud(entry: BalanceLedger)
-}</div>
+}</pre></div>
         </div>
         <div class="feature-card">
           <div class="feature-icon">💾</div>
@@ -306,18 +306,18 @@
           Proportional shares, whole-cent rounding, and the first-member penny-residual rule run unchanged
           on JVM, iOS (Kotlin/Native), and Web (Kotlin/Wasm) targets.
         </p>
-        <div class="ascii-diagram" style="margin:0 0 14px; border-color:#334155;"><span class="cm" style="color:#64748B;">// domain/CostAllocationEngine.kt — pure common code, no Android imports</span>
-<span class="kw" style="color:#F472B6;">object</span> <span class="ty" style="color:#38BDF8;">CostAllocationEngine</span> {
-    <span class="kw" style="color:#F472B6;">fun</span> <span class="fn" style="color:#60A5FA;">allocate</span>(
-        totalAmount: <span class="ty" style="color:#38BDF8;">Double</span>,
-        sessionsByUser: <span class="ty" style="color:#38BDF8;">Map</span>&lt;<span class="ty" style="color:#38BDF8;">Long</span>, <span class="ty" style="color:#38BDF8;">Int</span>&gt;
-    ): <span class="ty" style="color:#38BDF8;">List</span>&lt;<span class="ty" style="color:#38BDF8;">MemberAllocation</span>&gt; {
-        <span class="cm" style="color:#64748B;">// share = sessions / totalSessions</span>
-        <span class="cm" style="color:#64748B;">// percentage &amp; amount rounded to whole cents</span>
-        <span class="cm" style="color:#64748B;">// residual penny assigned to the first member</span>
-        <span class="cm" style="color:#64748B;">// → allocations always sum to exactly totalAmount</span>
+        <div class="code-panel" style="margin:0 0 14px; border:1px solid #334155;"><pre><span class="cm">// domain/CostAllocationEngine.kt — pure common code, no Android imports</span>
+<span class="kw">object</span> <span class="ty">CostAllocationEngine</span> {
+    <span class="kw">fun</span> <span class="fn">allocate</span>(
+        totalAmount: <span class="ty">Double</span>,
+        sessionsByUser: <span class="ty">Map</span>&lt;<span class="ty">Long</span>, <span class="ty">Int</span>&gt;
+    ): <span class="ty">List</span>&lt;<span class="ty">MemberAllocation</span>&gt; {
+        <span class="cm">// share = sessions / totalSessions</span>
+        <span class="cm">// percentage &amp; amount rounded to whole cents</span>
+        <span class="cm">// residual penny assigned to the first member</span>
+        <span class="cm">// → allocations always sum to exactly totalAmount</span>
     }
-}</div>
+}</pre></div>
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
           <span class="adapter-badge" style="background:rgba(255,255,255,0.1); color:#E2E8F0;">🤖 Android (Active)</span>
           <span class="adapter-badge" style="background:rgba(255,255,255,0.1); color:#E2E8F0;">💻 JVM Desktop (Ready via KMP)</span>

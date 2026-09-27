@@ -469,20 +469,6 @@ tbody tr:hover {
   border-radius: 4px;
 }
 
-/* Diagram Code / Architecture Visualizer */
-.ascii-diagram {
-  background: #090D16;
-  color: #38BDF8;
-  padding: 20px;
-  border-radius: var(--radius-sm);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.8rem;
-  line-height: 1.45;
-  overflow-x: auto;
-  margin: 18px 0;
-  border: 1px solid #1E293B;
-}
-
 /* Callouts */
 .callout {
   padding: 16px 20px;
