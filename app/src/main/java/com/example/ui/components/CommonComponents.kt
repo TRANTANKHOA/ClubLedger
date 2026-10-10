@@ -125,6 +125,7 @@ fun UserRoleSwitcherHeader(
                     .clickable { expanded = true }
                     .background(Color.White.copy(alpha = 0.12f))
                     .padding(horizontal = 10.dp, vertical = 6.dp)
+                    .weight(1f)
                     .testTag("user_switcher_button")
             ) {
                 if (currentUser != null) {

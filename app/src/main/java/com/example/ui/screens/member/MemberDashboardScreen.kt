@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -264,6 +265,54 @@ fun MemberDashboardScreen(
                             Spacer(modifier = Modifier.width(6.dp))
                             Text("Log Attendance")
                         }
+                    }
+                }
+            }
+        }
+
+        // First-run: user has not joined any team yet
+        if (userMemberships.isEmpty()) {
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+                Card(
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = InfoContainer),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .clickable { onJoinTeam() }
+                        .testTag("first_run_join_team_card")
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(42.dp)
+                                .clip(CircleShape)
+                                .background(InfoBlue),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(Icons.Default.GroupAdd, contentDescription = null, tint = Color.White)
+                        }
+                        Spacer(modifier = Modifier.width(14.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Join your first team",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = InfoBlue
+                            )
+                            Text(
+                                text = "Enter an invite link or code from your coach to see your sessions and dues.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = TextSecondary
+                            )
+                        }
+                        Icon(Icons.Default.ChevronRight, contentDescription = null, tint = InfoBlue)
                     }
                 }
             }
@@ -637,16 +686,20 @@ fun MemberDashboardScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Column {
+                            Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = invoice?.title ?: "Team Budget Invoice",
                                     style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.Bold,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
                                 )
                                 Text(
                                     text = "${team?.name ?: "Team"} • ${sdf.format(Date(alloc.calculatedAt))}",
                                     style = MaterialTheme.typography.bodyMedium,
-                                    color = TextSecondary
+                                    color = TextSecondary,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
                                 )
                             }
                             Text(

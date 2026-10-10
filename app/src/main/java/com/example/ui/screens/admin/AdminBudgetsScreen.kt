@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -411,11 +412,13 @@ fun AdminBudgetsScreen(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
                                         Icon(Icons.Default.ReceiptLong, contentDescription = null, tint = PrimaryGreen, modifier = Modifier.size(18.dp))
                                         Spacer(modifier = Modifier.width(6.dp))
                                         Text(
                                             text = budget.attachmentName ?: "Invoice_Proof_Receipt.pdf",
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
                                             style = MaterialTheme.typography.bodySmall,
                                             fontWeight = FontWeight.SemiBold,
                                             color = PrimaryDark

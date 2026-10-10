@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -246,9 +247,9 @@ fun MemberInvoicesScreen(
                                     .padding(12.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Column {
+                                Column(modifier = Modifier.weight(1f)) {
                                     Text("Team", style = MaterialTheme.typography.labelMedium, color = TextSecondary)
-                                    Text(team?.name ?: "Team", fontWeight = FontWeight.SemiBold)
+                                    Text(team?.name ?: "Team", fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
                                 }
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Text("My Sessions", style = MaterialTheme.typography.labelMedium, color = TextSecondary)
@@ -279,11 +280,13 @@ fun MemberInvoicesScreen(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
                                         Icon(Icons.Default.ReceiptLong, contentDescription = null, tint = PrimaryGreen, modifier = Modifier.size(18.dp))
                                         Spacer(modifier = Modifier.width(6.dp))
                                         Text(
                                             text = invoice.attachmentName ?: "Invoice_Proof_Receipt.pdf",
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
                                             style = MaterialTheme.typography.bodySmall,
                                             fontWeight = FontWeight.SemiBold,
                                             color = PrimaryDark

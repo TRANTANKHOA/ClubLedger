@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -203,7 +204,7 @@ fun AdminReportsScreen(
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Column {
+                                    Column(modifier = Modifier.weight(1f)) {
                                         Text(
                                             text = "Authenticated via ${auth.provider}",
                                             fontWeight = FontWeight.Bold,
@@ -212,6 +213,8 @@ fun AdminReportsScreen(
                                         )
                                         Text(
                                             text = auth.user.email ?: auth.user.displayName ?: auth.user.uid,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
                                             style = MaterialTheme.typography.bodySmall,
                                             color = TextSecondary
                                         )
@@ -464,7 +467,10 @@ fun AuditLogItemCard(log: AuditLog) {
                         text = log.action.replace("_", " "),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = TextPrimary
+                        color = TextPrimary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
                     )
                     Text(
                         text = sdf.format(Date(log.timestamp)),

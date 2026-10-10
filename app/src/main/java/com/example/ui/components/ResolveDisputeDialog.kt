@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
@@ -70,7 +71,10 @@ fun ResolveDisputeDialog(
                             Text(
                                 text = member?.name ?: "Member",
                                 fontWeight = FontWeight.Bold,
-                                color = TextPrimary
+                                color = TextPrimary,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f)
                             )
                             Text(
                                 text = sdf.format(Date(dispute.createdAt)),

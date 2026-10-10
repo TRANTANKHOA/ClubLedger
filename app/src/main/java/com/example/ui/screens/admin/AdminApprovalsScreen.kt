@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -240,7 +241,7 @@ fun AdminApprovalsScreen(
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
                                         if (member != null) {
                                             UserAvatar(user = member, size = 36)
                                         }
@@ -249,7 +250,9 @@ fun AdminApprovalsScreen(
                                             Text(
                                                 text = member?.name ?: "Unknown Member",
                                                 style = MaterialTheme.typography.titleMedium,
-                                                fontWeight = FontWeight.Bold
+                                                fontWeight = FontWeight.Bold,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
                                             )
                                             Text(
                                                 text = "${team?.name ?: "Team"} • ${att.sessionType}",
@@ -368,7 +371,7 @@ fun AdminApprovalsScreen(
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
                                         if (member != null) {
                                             UserAvatar(user = member, size = 38)
                                         }
@@ -377,7 +380,9 @@ fun AdminApprovalsScreen(
                                             Text(
                                                 text = member?.name ?: "Unknown Member",
                                                 style = MaterialTheme.typography.titleLarge,
-                                                fontWeight = FontWeight.Bold
+                                                fontWeight = FontWeight.Bold,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
                                             )
                                             Text(
                                                 text = "${payment.paymentMethod.replace("_", " ")} • ${sdf.format(Date(payment.paymentDate))}",
@@ -502,7 +507,7 @@ fun AdminApprovalsScreen(
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
                                         Box(
                                             modifier = Modifier
                                                 .size(42.dp)
@@ -517,7 +522,9 @@ fun AdminApprovalsScreen(
                                             Text(
                                                 text = req.applicantName,
                                                 style = MaterialTheme.typography.titleMedium,
-                                                fontWeight = FontWeight.Bold
+                                                fontWeight = FontWeight.Bold,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
                                             )
                                             Text(
                                                 text = req.applicantEmail + (if (req.applicantPhone.isNotBlank()) " • ${req.applicantPhone}" else ""),
@@ -653,7 +660,7 @@ fun AdminApprovalsScreen(
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
                                         if (member != null) {
                                             UserAvatar(user = member, size = 38)
                                         }
@@ -662,7 +669,9 @@ fun AdminApprovalsScreen(
                                             Text(
                                                 text = member?.name ?: "Member #${dispute.userId}",
                                                 style = MaterialTheme.typography.titleMedium,
-                                                fontWeight = FontWeight.Bold
+                                                fontWeight = FontWeight.Bold,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
                                             )
                                             Text(
                                                 text = "Category: ${dispute.category.replace("_", " ")}",
