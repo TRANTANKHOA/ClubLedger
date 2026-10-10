@@ -76,7 +76,7 @@ fun MemberInvoicesScreen(
                 Column(modifier = Modifier.padding(18.dp)) {
                     Text(
                         text = "TOTAL ALLOCATED CHARGES TO DATE",
-                        color = Color(0xFF94A3B8),
+                        color = TextMuted,
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -90,7 +90,7 @@ fun MemberInvoicesScreen(
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
                         text = "Calculated from ${allocations.sumOf { it.approvedSessionsCount }} total approved sessions across ${allocations.size} invoice cycles.",
-                        color = Color(0xFFCBD5E1),
+                        color = TextOnDark,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
@@ -192,15 +192,15 @@ fun MemberInvoicesScreen(
                                             "TOURNAMENT" -> WarningContainer
                                             "EQUIPMENT" -> InfoContainer
                                             "COACHING_REFS" -> SecondaryContainer
-                                            else -> Color(0xFFF1F5F9)
+                                            else -> SurfaceAlt
                                         },
                                         shape = RoundedCornerShape(6.dp)
                                     ) {
                                         Text(
                                             text = when (invoice.category) {
-                                                "COURT_RENTAL" -> "🏟️ COURT RENTAL"
-                                                "TOURNAMENT" -> "🏆 TOURNAMENT"
-                                                "EQUIPMENT" -> "⚽ EQUIPMENT"
+                                                "COURT_RENTAL" -> "COURT RENTAL"
+                                                "TOURNAMENT" -> "TOURNAMENT"
+                                                "EQUIPMENT" -> "EQUIPMENT"
                                                 "COACHING_REFS" -> "👨‍🏫 COACH/REF"
                                                 "TRANSPORT" -> "🚌 TRANSPORT"
                                                 else -> "📦 OPERATING"
@@ -267,7 +267,7 @@ fun MemberInvoicesScreen(
                             Surface(
                                 color = Color.White,
                                 shape = RoundedCornerShape(8.dp),
-                                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, SurfaceBorder),
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {

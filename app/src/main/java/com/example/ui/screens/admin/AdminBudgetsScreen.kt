@@ -108,7 +108,7 @@ fun AdminBudgetsScreen(
                         ) {
                             Text(
                                 text = "TEAM TREASURY POSITION",
-                                color = Color(0xFF94A3B8),
+                                color = TextMuted,
                                 style = MaterialTheme.typography.labelMedium,
                                 fontWeight = FontWeight.Bold
                             )
@@ -118,7 +118,7 @@ fun AdminBudgetsScreen(
                             ) {
                                 Text(
                                     text = if (netTreasuryBalance >= 0) "SURPLUS 🟢" else "DEFICIT 🟠",
-                                    color = if (netTreasuryBalance >= 0) Color(0xFF86EFAC) else WarningAmber,
+                                    color = if (netTreasuryBalance >= 0) SuccessOnDark else WarningAmber,
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
@@ -136,7 +136,7 @@ fun AdminBudgetsScreen(
                                 Text(
                                     text = "Total Incurred Costs",
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = Color(0xFFCBD5E1)
+                                    color = TextOnDark
                                 )
                                 Text(
                                     text = "$${String.format(Locale.US, "%.2f", totalIncurredCosts)}",
@@ -147,7 +147,7 @@ fun AdminBudgetsScreen(
                                 Text(
                                     text = "Monthly Budget Sum",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = Color(0xFF94A3B8)
+                                    color = TextMuted
                                 )
                             }
 
@@ -162,18 +162,18 @@ fun AdminBudgetsScreen(
                                 Text(
                                     text = "Total Member Collections",
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = Color(0xFFCBD5E1)
+                                    color = TextOnDark
                                 )
                                 Text(
                                     text = "$${String.format(Locale.US, "%.2f", totalMemberCollections)}",
                                     style = MaterialTheme.typography.titleLarge,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF86EFAC)
+                                    color = SuccessOnDark
                                 )
                                 Text(
                                     text = "Approved Deposits",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = Color(0xFF94A3B8)
+                                    color = TextMuted
                                 )
                             }
                         }
@@ -190,13 +190,13 @@ fun AdminBudgetsScreen(
                             Text(
                                 text = "Net Pool Position:",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = Color(0xFFCBD5E1)
+                                color = TextOnDark
                             )
                             Text(
                                 text = "${if (netTreasuryBalance >= 0) "+" else ""}$${String.format(Locale.US, "%.2f", netTreasuryBalance)}",
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = if (netTreasuryBalance >= 0) Color(0xFF86EFAC) else WarningAmber
+                                color = if (netTreasuryBalance >= 0) SuccessOnDark else WarningAmber
                             )
                         }
                     }
@@ -292,15 +292,15 @@ fun AdminBudgetsScreen(
                                                 "TOURNAMENT" -> WarningContainer
                                                 "EQUIPMENT" -> InfoContainer
                                                 "COACHING_REFS" -> SecondaryContainer
-                                                else -> Color(0xFFF1F5F9)
+                                                else -> SurfaceAlt
                                             },
                                             shape = RoundedCornerShape(6.dp)
                                         ) {
                                             Text(
                                                 text = when (budget.category) {
-                                                    "COURT_RENTAL" -> "🏟️ COURT RENTAL"
-                                                    "TOURNAMENT" -> "🏆 TOURNAMENT"
-                                                    "EQUIPMENT" -> "⚽ EQUIPMENT"
+                                                    "COURT_RENTAL" -> "COURT RENTAL"
+                                                    "TOURNAMENT" -> "TOURNAMENT"
+                                                    "EQUIPMENT" -> "EQUIPMENT"
                                                     "COACHING_REFS" -> "👨‍🏫 COACH/REF"
                                                     "TRANSPORT" -> "🚌 TRANSPORT"
                                                     else -> "📦 OPERATING"
@@ -399,7 +399,7 @@ fun AdminBudgetsScreen(
                             Surface(
                                 color = Color.White,
                                 shape = RoundedCornerShape(8.dp),
-                                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, SurfaceBorder),
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
@@ -700,9 +700,9 @@ fun CreateBudgetDialog(
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     val categories = listOf(
-                        "COURT_RENTAL" to "🏟️ Pitch/Court",
-                        "TOURNAMENT" to "🏆 League",
-                        "EQUIPMENT" to "⚽ Gear",
+                        "COURT_RENTAL" to "Pitch/Court",
+                        "TOURNAMENT" to "League",
+                        "EQUIPMENT" to "Gear",
                         "COACHING_REFS" to "👨‍🏫 Referee"
                     )
                     categories.forEach { (catKey, catLabel) ->
@@ -791,7 +791,7 @@ fun CreateBudgetDialog(
                 // Attached Invoice / Screenshot Proof Info
                 Text("Attached Invoice / Receipt Proof:", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
                 Surface(
-                    color = Color(0xFFF1F5F9),
+                    color = SurfaceAlt,
                     shape = RoundedCornerShape(10.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {

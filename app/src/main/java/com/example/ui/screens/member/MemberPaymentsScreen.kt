@@ -98,7 +98,7 @@ fun MemberPaymentsScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("CURRENT BALANCE", color = Color(0xFF94A3B8), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                            Text("CURRENT BALANCE", color = TextMuted, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
                             Surface(
                                 color = when {
                                     currentBalance > 0.01 -> SuccessContainer
@@ -140,7 +140,7 @@ fun MemberPaymentsScreen(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text("Total Approved Paid: $${String.format(Locale.US, "%.2f", totalApprovedPaid)}", color = Color(0xFFCBD5E1), style = MaterialTheme.typography.bodyMedium)
+                            Text("Total Approved Paid: $${String.format(Locale.US, "%.2f", totalApprovedPaid)}", color = TextOnDark, style = MaterialTheme.typography.bodyMedium)
                             if (totalPendingPaid > 0) {
                                 Text("Pending: $${String.format(Locale.US, "%.2f", totalPendingPaid)}", color = WarningAmber, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
                             }
@@ -629,7 +629,7 @@ fun SubmitPaymentDialog(
     onDismiss: () -> Unit,
     onSubmit: (amount: Double, dateMillis: Long, method: String, refNote: String, receiptNote: String?) -> Unit
 ) {
-    var amountText by remember { mutableStateOf(if (suggestedAmount > 0) String.format(Locale.US, "%.2f", suggestedAmount) else "50.00") }
+    var amountText by remember { mutableStateOf(if (suggestedAmount > 0) String.format(Locale.US, "%.2f", suggestedAmount) else "") }
     var selectedMethod by remember { mutableStateOf("BANK_TRANSFER") }
     var referenceNote by remember { mutableStateOf("") }
     var receiptNote by remember { mutableStateOf("") }
@@ -660,6 +660,7 @@ fun SubmitPaymentDialog(
                     value = amountText,
                     onValueChange = { amountText = it },
                     label = { Text("Payment Amount ($)") },
+                    placeholder = { Text("0.00") },
                     leadingIcon = { Icon(Icons.Default.AttachMoney, contentDescription = null) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier

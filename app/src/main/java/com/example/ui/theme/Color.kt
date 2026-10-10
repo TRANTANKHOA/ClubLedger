@@ -38,6 +38,11 @@ val TextPrimary = Color(0xFF0F172A)
 val TextSecondary = Color(0xFF64748B)
 val TextMuted = Color(0xFF94A3B8)
 
+// Accents on navy/dark surfaces (used in both light and dark themes)
+val TextOnDark = Color(0xFFCBD5E1)
+val SuccessOnDark = Color(0xFF86EFAC)
+val SurfaceAlt = Color(0xFFF1F5F9)
+
 // Dark Palette
 val PrimaryDarkTheme = Color(0xFF4DB6AC)
 val SurfaceDark = Color(0xFF0F172A)

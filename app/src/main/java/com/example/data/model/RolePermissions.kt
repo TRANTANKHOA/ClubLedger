@@ -103,9 +103,9 @@ object PermissionEngine {
                 .filter { it.userId == user.id && (it.roleInTeam.equals(RoleConstants.TEAM_CAPTAIN, ignoreCase = true) || it.roleInTeam.equals(RoleConstants.TEAM_ADMIN, ignoreCase = true)) }
                 .mapNotNull { teamsMap[it.teamId]?.name }
             return if (captainTeams.isNotEmpty()) {
-                "Club Admin 👑 (Captain: ${captainTeams.joinToString()})"
+                "Club Admin (Captain: ${captainTeams.joinToString()})"
             } else {
-                "Global Club Admin 👑"
+                "Global Club Admin"
             }
         }
 
@@ -132,6 +132,6 @@ object PermissionEngine {
             return parts.joinToString(" • ")
         }
 
-        return "Team Player ⚽"
+        return "Team Player"
     }
 }

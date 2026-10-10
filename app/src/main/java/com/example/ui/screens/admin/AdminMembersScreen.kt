@@ -258,7 +258,7 @@ fun AdminMembersScreen(
                                     Text(
                                         text = "ADMIN ⊃ TEAM ADMIN ⊃ TEAM CAPTAIN ⊃ MEMBER",
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = Color(0xFF94A3B8)
+                                        color = TextMuted
                                     )
                                 }
                             }
@@ -1353,7 +1353,7 @@ fun ManageUserRolesDialog(
                                         globalRole = "ADMIN"
                                         onUpdateGlobalRole("ADMIN")
                                     },
-                                    label = { Text("Global Admin 👑", fontWeight = FontWeight.Bold) },
+                                    label = { Text("Global Admin", fontWeight = FontWeight.Bold) },
                                     modifier = Modifier.weight(1f)
                                 )
 
@@ -1363,7 +1363,7 @@ fun ManageUserRolesDialog(
                                         globalRole = "MEMBER"
                                         onUpdateGlobalRole("MEMBER")
                                     },
-                                    label = { Text("Standard Member ⚽") },
+                                    label = { Text("Standard Member") },
                                     modifier = Modifier.weight(1f)
                                 )
                             }
@@ -1403,7 +1403,7 @@ fun ManageUserRolesDialog(
                                 Surface(
                                     color = Color.White,
                                     shape = RoundedCornerShape(10.dp),
-                                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, SurfaceBorder),
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(vertical = 4.dp)
@@ -1435,16 +1435,16 @@ fun ManageUserRolesDialog(
                                                     "CAPTAIN" -> InfoContainer
                                                     "COACH" -> PrimaryContainer
                                                     "MEMBER" -> SurfaceLight
-                                                    else -> Color(0xFFF1F5F9)
+                                                    else -> SurfaceAlt
                                                 },
                                                 shape = RoundedCornerShape(6.dp)
                                             ) {
                                                 Text(
                                                     text = when (currentTeamRole) {
-                                                        "ADMIN" -> "TEAM ADMIN 🛡️"
-                                                        "CAPTAIN" -> "CAPTAIN ⭐"
-                                                        "COACH" -> "COACH 📋"
-                                                        "MEMBER" -> "PLAYER ⚽"
+                                                        "ADMIN" -> "TEAM ADMIN"
+                                                        "CAPTAIN" -> "CAPTAIN"
+                                                        "COACH" -> "COACH"
+                                                        "MEMBER" -> "PLAYER"
                                                         else -> "NOT ENROLLED"
                                                     },
                                                     style = MaterialTheme.typography.labelSmall,
@@ -1471,9 +1471,9 @@ fun ManageUserRolesDialog(
                                             listOf("ADMIN" to "Admin", "CAPTAIN" to "Captain", "COACH" to "Coach", "MEMBER" to "Member").forEach { (rKey, rLabel) ->
                                                 val isSelected = currentTeamRole == rKey
                                                 Surface(
-                                                    color = if (isSelected) PrimaryGreen else Color(0xFFF8FAFC),
+                                                    color = if (isSelected) PrimaryGreen else SurfaceLight,
                                                     shape = RoundedCornerShape(6.dp),
-                                                    border = androidx.compose.foundation.BorderStroke(1.dp, if (isSelected) PrimaryGreen else Color(0xFFE2E8F0)),
+                                                    border = androidx.compose.foundation.BorderStroke(1.dp, if (isSelected) PrimaryGreen else SurfaceBorder),
                                                     modifier = Modifier
                                                         .weight(1f)
                                                         .clickable {

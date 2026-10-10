@@ -248,7 +248,7 @@ fun IssuePaymentRequestDialog(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
-                                        text = "💬 Group Chat Share Text",
+                                        text = "Group Chat Share Text",
                                         fontWeight = FontWeight.Bold,
                                         style = MaterialTheme.typography.labelMedium,
                                         color = InfoBlue

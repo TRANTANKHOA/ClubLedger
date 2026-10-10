@@ -105,7 +105,7 @@ class PermissionEngineTest {
     @Test
     fun `badge for global admin without captaincies`() {
         assertEquals(
-            "Global Club Admin 👑",
+            "Global Club Admin",
             PermissionEngine.formatMultiRoleBadge(globalAdmin, emptyList(), emptyMap())
         )
     }
@@ -115,7 +115,7 @@ class PermissionEngineTest {
         val teams = mapOf(team1 to Team(id = team1, name = "Metro Lions", sportType = "Basketball"))
         val memberships = listOf(membership(globalAdmin.id, team1, "CAPTAIN"))
         assertEquals(
-            "Club Admin 👑 (Captain: Metro Lions)",
+            "Club Admin (Captain: Metro Lions)",
             PermissionEngine.formatMultiRoleBadge(globalAdmin, memberships, teams)
         )
     }
@@ -139,7 +139,7 @@ class PermissionEngineTest {
     @Test
     fun `badge for ordinary player and member with no teams`() {
         assertEquals(
-            "Team Player ⚽",
+            "Team Player",
             PermissionEngine.formatMultiRoleBadge(plainMember, listOf(membership(plainMember.id, team1, "MEMBER")), emptyMap())
         )
         assertEquals(

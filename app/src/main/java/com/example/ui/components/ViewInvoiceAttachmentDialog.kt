@@ -129,7 +129,7 @@ fun ViewInvoiceAttachmentDialog(
                                         "TOURNAMENT" -> WarningContainer
                                         "EQUIPMENT" -> InfoContainer
                                         "COACHING_REFS" -> SecondaryContainer
-                                        else -> Color(0xFFF1F5F9)
+                                        else -> SurfaceAlt
                                     },
                                     shape = RoundedCornerShape(8.dp)
                                 ) {
@@ -139,9 +139,9 @@ fun ViewInvoiceAttachmentDialog(
                                     ) {
                                         Text(
                                             text = when (category) {
-                                                "COURT_RENTAL" -> "🏟️ Court / Pitch Rental"
-                                                "TOURNAMENT" -> "🏆 Tournament Entry"
-                                                "EQUIPMENT" -> "⚽ Equipment & Gear"
+                                                "COURT_RENTAL" -> "Court / Pitch Rental"
+                                                "TOURNAMENT" -> "Tournament Entry"
+                                                "EQUIPMENT" -> "Equipment & Gear"
                                                 "COACHING_REFS" -> "👨‍🏫 Coaching & Referees"
                                                 "TRANSPORT" -> "🚌 Transport & Travel"
                                                 else -> "📦 Operating Cost"
@@ -185,7 +185,7 @@ fun ViewInvoiceAttachmentDialog(
                     Card(
                         shape = RoundedCornerShape(14.dp),
                         colors = CardDefaults.cardColors(containerColor = Color.White),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, SurfaceBorder),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(modifier = Modifier.padding(14.dp)) {
@@ -232,8 +232,8 @@ fun ViewInvoiceAttachmentDialog(
                                         .fillMaxWidth()
                                         .height(190.dp)
                                         .clip(RoundedCornerShape(10.dp))
-                                        .background(Color(0xFFF8FAFC))
-                                        .border(1.dp, Color(0xFFCBD5E1), RoundedCornerShape(10.dp)),
+                                        .background(SurfaceLight)
+                                        .border(1.dp, TextOnDark, RoundedCornerShape(10.dp)),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     AsyncImage(
@@ -249,8 +249,8 @@ fun ViewInvoiceAttachmentDialog(
                                         .fillMaxWidth()
                                         .height(120.dp)
                                         .clip(RoundedCornerShape(10.dp))
-                                        .background(Color(0xFFF8FAFC))
-                                        .border(1.dp, Color(0xFFCBD5E1), RoundedCornerShape(10.dp)),
+                                        .background(SurfaceLight)
+                                        .border(1.dp, TextOnDark, RoundedCornerShape(10.dp)),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {

@@ -154,7 +154,7 @@ fun AdminDashboardScreen(
         // Team Owner Quick Tools
         item {
             Text(
-                text = "⚡ Team Owner Fast Actions",
+                text = "Quick Actions",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = SecondaryNavy
@@ -200,7 +200,7 @@ fun AdminDashboardScreen(
                             Text("Issue Dues Request", color = WarningAmber, fontWeight = FontWeight.Bold)
                         }
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text("Request uniforms, entry fees & copy text", color = TextSecondary, style = MaterialTheme.typography.bodySmall)
+                        Text("Request dues for uniforms, entry fees & gear", color = TextSecondary, style = MaterialTheme.typography.bodySmall)
                     }
                 }
             }
@@ -246,7 +246,7 @@ fun AdminDashboardScreen(
                         Icon(Icons.Default.FactCheck, contentDescription = null, tint = Color.White)
                         Spacer(modifier = Modifier.height(8.dp))
                         Text("Approvals Queue", color = Color.White, fontWeight = FontWeight.Bold)
-                        Text("${pendingAttendances.size + pendingPayments.size} pending", color = Color(0xFF94A3B8), style = MaterialTheme.typography.bodyMedium)
+                        Text("${pendingAttendances.size + pendingPayments.size} pending", color = TextMuted, style = MaterialTheme.typography.bodyMedium)
                     }
                 }
 

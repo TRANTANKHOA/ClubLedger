@@ -50,6 +50,7 @@ fun MemberDashboardScreen(
     onNavigateToInvoices: () -> Unit,
     onOpenSubmitAttendance: () -> Unit,
     onOpenSubmitPayment: () -> Unit,
+    onJoinTeam: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val currentBalance by viewModel.currentUserBalance.collectAsState()
@@ -114,8 +115,8 @@ fun MemberDashboardScreen(
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "Member Contribution & Attendance Portal",
-                        color = Color(0xFFCBD5E1),
+                        text = "Your sessions, dues, and payments at a glance",
+                        color = TextOnDark,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
@@ -147,8 +148,8 @@ fun MemberDashboardScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "MY CONTRIBUTION BALANCE",
-                            color = Color(0xFF94A3B8),
+                            text = "MY BALANCE",
+                            color = TextMuted,
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Bold
                         )
@@ -197,7 +198,7 @@ fun MemberDashboardScreen(
                             currentBalance < -0.01 -> "Please submit your payment record to clear this outstanding allocation."
                             else -> "All allocated session charges are completely paid up."
                         },
-                        color = Color(0xFFCBD5E1),
+                        color = TextOnDark,
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(top = 4.dp)
                     )
@@ -379,9 +380,9 @@ fun MemberDashboardScreen(
                                         color = Color.White
                                     )
                                     Text(
-                                        text = "Superset privileges for team roster & sessions",
+                                        text = "Verify sessions and manage your roster",
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = Color(0xFF94A3B8)
+                                        color = TextMuted
                                     )
                                 }
                             }
@@ -773,8 +774,8 @@ fun MemberDashboardScreen(
         val invoice = invoices.firstOrNull { it.id == alloc.invoiceId }
         CostCalculationDialog(
             allocation = alloc,
-            totalBudget = invoice?.totalAmount ?: 1500.0,
-            totalSessions = invoice?.totalApprovedSessions ?: 30,
+            totalBudget = invoice?.totalAmount ?: 0.0,
+            totalSessions = invoice?.totalApprovedSessions ?: 0,
             onDismiss = { selectedAllocationForExplanation = null }
         )
     }

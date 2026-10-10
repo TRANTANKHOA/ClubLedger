@@ -179,7 +179,7 @@ fun ClubLedgerApp(viewModel: ClubViewModel, deepLinkJoinCode: String? = null) {
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = PrimaryGreen,
                             selectedTextColor = PrimaryGreen,
-                            indicatorColor = Color(0xFFE0F2F1)
+                            indicatorColor = MaterialTheme.colorScheme.primaryContainer
                         ),
                         modifier = Modifier.testTag("nav_item_${screen.route}")
                     )
@@ -205,7 +205,8 @@ fun ClubLedgerApp(viewModel: ClubViewModel, deepLinkJoinCode: String? = null) {
                             onNavigateToPayments = { currentScreen = Screen.MemberPayments },
                             onNavigateToInvoices = { currentScreen = Screen.MemberInvoices },
                             onOpenSubmitAttendance = { showQuickAttendanceDialog = true },
-                            onOpenSubmitPayment = { showQuickPaymentDialog = true }
+                            onOpenSubmitPayment = { showQuickPaymentDialog = true },
+                            onJoinTeam = { showJoinTeamDialog = true }
                         )
                     }
                     Screen.MemberAttendance -> {
@@ -282,7 +283,7 @@ fun ClubLedgerApp(viewModel: ClubViewModel, deepLinkJoinCode: String? = null) {
     if (showQuickPaymentDialog) {
         val currentBal = viewModel.currentUserBalance.collectAsState().value
         SubmitPaymentDialog(
-            suggestedAmount = if (currentBal < 0) -currentBal else 50.0,
+            suggestedAmount = if (currentBal < 0) -currentBal else 0.0,
             onDismiss = { showQuickPaymentDialog = false },
             onSubmit = { amount, dateMillis, method, refNote, receiptNote ->
                 viewModel.submitPayment(amount, dateMillis, method, refNote, receiptNote)

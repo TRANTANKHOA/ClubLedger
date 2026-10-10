@@ -138,10 +138,10 @@ fun UserRoleSwitcherHeader(
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
-                        val roleText = getUserRoleBadge?.invoke(currentUser) ?: if (currentUser.role == "ADMIN") "Club Admin 👑" else "Team Member ⚽"
+                        val roleText = getUserRoleBadge?.invoke(currentUser) ?: if (currentUser.role == "ADMIN") "Club Admin" else "Team Member"
                         Text(
                             text = roleText,
-                            color = Color(0xFF94A3B8),
+                            color = TextMuted,
                             style = MaterialTheme.typography.labelMedium,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
@@ -212,7 +212,7 @@ fun UserRoleSwitcherHeader(
                 )
                 if (onJoinTeamClick != null) {
                     DropdownMenuItem(
-                        text = { Text("🔗 Join Team with Invite Link / Code", color = InfoBlue, fontWeight = FontWeight.SemiBold) },
+                        text = { Text("Join Team with Invite Link / Code", color = InfoBlue, fontWeight = FontWeight.SemiBold) },
                         onClick = {
                             expanded = false
                             onJoinTeamClick()
@@ -377,25 +377,39 @@ fun CostCalculationDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Total Team Budget:", color = TextSecondary)
-                    Text("$${String.format(Locale.US, "%.2f", totalBudget)}", fontWeight = FontWeight.Bold)
-                }
-                Spacer(modifier = Modifier.height(6.dp))
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Total Verified Team Sessions:", color = TextSecondary)
-                    Text("$totalSessions sessions", fontWeight = FontWeight.Bold)
-                }
-                Spacer(modifier = Modifier.height(6.dp))
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Your Approved Attendance:", color = TextSecondary)
-                    Text("${allocation.approvedSessionsCount} sessions (${allocation.percentage}%)", fontWeight = FontWeight.Bold, color = PrimaryGreen)
-                }
-                Spacer(modifier = Modifier.height(6.dp))
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Effective Rate per Session:", color = TextSecondary)
-                    val rate = if (totalSessions > 0) totalBudget / totalSessions else 0.0
-                    Text("$${String.format(Locale.US, "%.2f", rate)} / session", fontWeight = FontWeight.Medium)
+                val hasTeamTotals = totalBudget > 0.0 && totalSessions > 0
+                if (hasTeamTotals) {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("Total Team Budget:", color = TextSecondary)
+                        Text("$${String.format(Locale.US, "%.2f", totalBudget)}", fontWeight = FontWeight.Bold)
+                    }
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("Total Verified Team Sessions:", color = TextSecondary)
+                        Text("$totalSessions sessions", fontWeight = FontWeight.Bold)
+                    }
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("Your Approved Attendance:", color = TextSecondary)
+                        Text("${allocation.approvedSessionsCount} sessions (${allocation.percentage}%)", fontWeight = FontWeight.Bold, color = PrimaryGreen)
+                    }
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("Effective Rate per Session:", color = TextSecondary)
+                        val rate = totalBudget / totalSessions
+                        Text("$${String.format(Locale.US, "%.2f", rate)} / session", fontWeight = FontWeight.Medium)
+                    }
+                } else {
+                    Text(
+                        text = "Team-wide totals for this invoice aren't available on this device, so this breakdown shows your recorded share only.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = WarningAmber
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("Your Approved Attendance:", color = TextSecondary)
+                        Text("${allocation.approvedSessionsCount} sessions (${allocation.percentage}%)", fontWeight = FontWeight.Bold, color = PrimaryGreen)
+                    }
                 }
 
                 Divider(modifier = Modifier.padding(vertical = 12.dp))
@@ -444,7 +458,7 @@ fun CsvViewerDialog(
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 Surface(
-                    color = Color(0xFF1E293B),
+                    color = SurfaceCardDark,
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -452,7 +466,7 @@ fun CsvViewerDialog(
                 ) {
                     Text(
                         text = csvContent,
-                        color = Color(0xFFF1F5F9),
+                        color = SurfaceAlt,
                         fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
                         fontSize = 11.sp,
                         modifier = Modifier.padding(10.dp)
