@@ -245,7 +245,7 @@ fun MemberInvoicesScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(12.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text("Team", style = MaterialTheme.typography.labelMedium, color = TextSecondary)
@@ -289,7 +289,8 @@ fun MemberInvoicesScreen(
                                             overflow = TextOverflow.Ellipsis,
                                             style = MaterialTheme.typography.bodySmall,
                                             fontWeight = FontWeight.SemiBold,
-                                            color = PrimaryDark
+                                            color = PrimaryDark,
+                                            modifier = Modifier.padding(end = 8.dp)
                                         )
                                     }
                                     Text(

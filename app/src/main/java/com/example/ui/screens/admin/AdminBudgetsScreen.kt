@@ -421,7 +421,8 @@ fun AdminBudgetsScreen(
                                             overflow = TextOverflow.Ellipsis,
                                             style = MaterialTheme.typography.bodySmall,
                                             fontWeight = FontWeight.SemiBold,
-                                            color = PrimaryDark
+                                            color = PrimaryDark,
+                                            modifier = Modifier.padding(end = 8.dp)
                                         )
                                     }
                                     Text(

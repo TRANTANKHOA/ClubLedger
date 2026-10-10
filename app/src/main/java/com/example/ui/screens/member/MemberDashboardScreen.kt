@@ -410,7 +410,7 @@ fun MemberDashboardScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
+                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
                                 Box(
                                     modifier = Modifier
                                         .size(36.dp)
@@ -426,12 +426,16 @@ fun MemberDashboardScreen(
                                         text = "Team Captain & Leadership Hub",
                                         style = MaterialTheme.typography.titleMedium,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color.White
+                                        color = Color.White,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
                                     )
                                     Text(
                                         text = "Verify sessions and manage your roster",
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = TextMuted
+                                        color = TextMuted,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
                                     )
                                 }
                             }
